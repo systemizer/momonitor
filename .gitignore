@@ -1,0 +1,7 @@
+*pyc
+*~
+*#
+myenv
+local_settings.py
+main/migrations
+dump.rdb

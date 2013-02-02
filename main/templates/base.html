@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="{{STATIC_URL}}js/jquery.min.js"></script>
+    <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+    <script src="{{STATIC_URL}}js/momonitoring.js"></script>
+    <link href="{{STATIC_URL}}css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+    <link href="{{STATIC_URL}}css/momonitor.css" type="text/css" rel="stylesheet" />
+  </head>
+  
+  <body>
+    <div id="momonitor-container">
+      <div class="container">
+	{% if request.breadcrumbs %}
+	<ul class="breadcrumb">
+	  {% for breadcrumb in request.breadcrumbs %}
+	  <li><a href="{{breadcrumb.url}}">{{breadcrumb.name}}</a>{% if not forloop.last %} <span class="divider">/</span></li> {% endif %} 
+	  {% endfor %}
+	</ul>
+	{% endif %}
+	{% if messages %}
+	{% for message in messages %}
+	<div class="alert {{message.tags}}">
+	  <button type="button" class="close" data-dismiss="alert">&times;</button>
+	  {{message}}
+	</div>
+	{% endfor %}
+	{% endif %}
+
+	
+	{% block body %}
+	{% endblock %}
+      </div>
+    </div>
+    <div class="modal hide fade" id="myModalContainer">
+    </div>
+  </body>
+
+</html>

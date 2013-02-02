@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load momonitor_tags %}
+
+{% block body %}
+<div class="container">
+  <div class="page-header">
+    <h1>Service Checks <small>{{service.name}}</small></h1>
+  <p class="clearfix"></p>
+  </div>
+  <div class="btn-group pull-right">
+    <a href="{% url main_modal_check_form %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+    <a href="{% url main_refresh_service service.id %}" class="btn"><i class="icon-refresh"></i></a>
+  </div>
+  <p class="clearfix"></p>
+  <table class="table table-hover table-bordered">
+    <thead>
+      <th>Name</th>
+      <th>Endpoint</th>
+      <th>Last Updated</th>
+    </thead>
+    <tbody>
+      {% for service_check in service.service_checks.all %}
+      <tr class="{{service_check.status|to_bootstrap_rowclass}}">
+	<td>
+	  {{service_check.name}}
+	  <a class="modalize" href="{% url main_modal_check_form %}?service_check_id={{service_check.id}}">
+	    <i class="icon-edit"></i>
+	  </a>
+	  <a href="{% url main_delete_service_check service_check.id %}">
+	    <i class="icon-remove"></i>
+	  </a>
+
+	</td>
+	<td>{{service_check.endpoint}}</td>
+	<td>{{service_check.last_updated|since}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
