@@ -5,7 +5,7 @@
 <div class="page-header">
   <h1>All Services</h1>
 </div>
-<a href="{% url main_modal_service_form %}" role="button" class="btn modalize pull-right"><i class="icon-plus"></i></a>
+<a href="{% url main_modal_form 'service' %}" role="button" class="btn modalize pull-right"><i class="icon-plus"></i></a>
 <p class="clearfix"></p>
 <table class="table table-hover table-bordered">
   <thead>
@@ -14,17 +14,28 @@
     <th>Last Updated</th>
   </thead>
   <tbody>
+    {% if services %}
     {% for service in services %}
     <tr>
       <td><a href="{% url main_service service.id %}">{{service.name}}</a>
-	<a class="modalize" href="{% url main_modal_service_form %}?service_id={{service.id}}">
+	<a class="modalize" href="{% url main_modal_form 'service' service.id %}">
 	  <i class="icon-edit"></i>
+	</a>
+	<a class="delete" href="{{service|resource_url}}">
+	  <i class="icon-remove"></i>
 	</a>
       </td>
       <td>{{service.status}}</td>
       <td>{{service.last_updated|since}}</td>
     </tr>
     {% endfor %}
+    {% else %}
+    <tr>
+      <td colspan="3">
+	<center class="muted">You don't have any services. Click <a href="{% url main_modal_form 'service' %}" class="modalize">here</a> to create one</center>
+      </td>
+    </tr>
+    {% endif %}
   </tbody>
 </table>
 {% endblock %}

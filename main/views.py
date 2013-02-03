@@ -2,25 +2,16 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.contrib import messages
+from django.http import HttpResponse
 
 
-from momonitor.main.models import Service, ServiceCheck
-from momonitor.main.forms import ServiceCheckForm,ServiceForm
+from momonitor.main.models import Service, SimpleServiceCheck,UmpireServiceCheck
+from momonitor.main.forms import (UmpireServiceCheckForm,
+                                  SimpleServiceCheckForm,
+                                  ServiceForm)
+from momonitor.main.decorators import ajax_required
 
 def index(request):
-    if request.method=="POST":
-        if request.GET.get("service_id"):
-            instance = get_object_or_404(Service,pk=request.GET.get("service_id"))
-        else:
-            instance = None
-
-        form = ServiceForm(request.POST,instance=instance)
-        if form.is_valid():
-            service = form.save()
-            messages.success(request,"New Service Created!",extra_tags="alert-success")
-        else:
-            messages.error(request,"Failed to create new Service",extra_tags="alert-error")
-
     services = Service.objects.all()
     return render_to_response("index.html",{'services':services},RequestContext(request))
 
@@ -30,52 +21,50 @@ def service(request,service_id):
     request.breadcrumbs("Services",reverse("main_index"))
     request.breadcrumbs(service.name,reverse("main_service",kwargs={'service_id':service.id}))
 
-
-
-    # then look for add check post request
-    if request.method=="POST":
-        if request.GET.get("service_check_id"):
-            instance = get_object_or_404(ServiceCheck,pk=request.GET.get("service_check_id"))
-        else:
-            instance = None
-
-        form = ServiceCheckForm(request.POST,instance=instance)
-
-        if form.is_valid():
-            check = form.save()
-            messages.success(request,"New Check Created!",extra_tags='alert-success')
-        else:
-            messages.error(request,"Failed to create new check",extra_tags="alert-error")
-
     return render_to_response("service.html",{'service':service},RequestContext(request))
 
-def modal_check_form(request):
-    if request.GET.get("service_check_id"):
-        instance = get_object_or_404(ServiceCheck,pk=request.GET.get("service_check_id"))
+def modal_form(request,resource_name,resource_id=None):
+    resource_form_cls = {'service':ServiceForm,
+                         'simpleservicecheck':SimpleServiceCheckForm,
+                         'umpireservicecheck':UmpireServiceCheckForm}[resource_name]
+    resource_cls = resource_form_cls._meta.model
+
+    if resource_id:
+        instance = get_object_or_404(resource_cls,pk=resource_id)
+        method="PUT"
     else:
         instance = None
+        method="POST"
 
-    form = ServiceCheckForm(instance=instance)
-    return render_to_response("modals/check-form.html",{'form':form,
-                                                        'instance':instance},RequestContext(request))
-
-def modal_service_form(request):
-    if request.GET.get("service_id"):
-        instance = get_object_or_404(Service,pk=request.GET.get("service_id"))
-    else:
-        instance = None
-
-    form = ServiceForm(instance=instance)
-    return render_to_response("modals/service-form.html",{'form':form,
-                                                        'instance':instance},RequestContext(request))
+    form = resource_form_cls(instance=instance)
+    
+    action = "/api/v1/%s/" % resource_cls.resource_name
+    if instance:
+        action+="%s/" % instance.id
+    action+="?format=json"
         
+    return render_to_response("modal_form.html",{"form":form,"action":action,'method':method},RequestContext(request))
 
-def refresh_service(request,service_id):
+
+
+'''These checks will refresh the check. should be ajax'''
+
+@ajax_required
+def refresh_service(request,service_id):    
     service = get_object_or_404(Service,pk=service_id)
-    service.run_checks()
-    return redirect(reverse("main_service",kwargs={'service_id':service_id}))
+    for check in service.all_checks():
+        check.update_status()
+    return HttpResponse("OK")
 
-def delete_service_check(request,service_check_id):
-    service_check = get_object_or_404(ServiceCheck,pk=service_check_id)
-    service_check.delete()
-    return redirect(reverse("main_service",kwargs={'service_id':service_check.service.id}))
+@ajax_required
+def refresh_simple_check(request,check_id):    
+    check = get_object_or_404(SimpleServiceCheck,pk=check_id)
+    check.update_status()
+    return HttpResponse("OK")
+
+@ajax_required
+def refresh_umpire_check(request,check_id):    
+    check = get_object_or_404(UmpireServiceCheck,pk=check_id)
+    check.update_status()
+    return HttpResponse("OK")
+

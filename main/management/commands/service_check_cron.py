@@ -8,8 +8,7 @@ from momonitor.main.constants import STATUS_GOOD,STATUS_BAD
 
 class Command(BaseCommand):
 
-    def handle(self, *args, **options):
-        
+    def handle(self, *args, **options):        
         for service in Service.objects.all():
             for service_check in ServiceCheck.objects.filter(service=service):
                 service_check.update_status()

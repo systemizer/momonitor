@@ -2,7 +2,7 @@
   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
   <h3>{% block modal_title %}Create/Edit Resources{% endblock %}</h3>
 </div>
-<form action="{{action}}" method="POST">
+<form action="{{action}}" method="{{method}}">
   <div class="modal-body">
     {% csrf_token %}
     {{form}}

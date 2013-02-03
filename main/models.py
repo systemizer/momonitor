@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.cache import cache
+import urllib
 from django.conf import settings
 from main.constants import STATUS_UNKNOWN,STATUS_GOOD,STATUS_BAD
 import requests
@@ -10,15 +11,13 @@ class InvalidStatusException(Exception):
     pass
 
 class Service(models.Model):
+    resource_name="service"
+
     name = models.CharField(max_length=256)
     pagerduty_key = models.CharField(max_length=128,blank=True,null=True)
 
     def __unicode__(self):
         return self.name
-
-    def run_checks(self):        
-        for service_check in self.service_checks.all():
-            service_check.update_status()
 
     @property
     def status(self):
@@ -29,23 +28,28 @@ class Service(models.Model):
 
     @property
     def last_updated(self):
-        '''TO IMPLEMENT'''
-        return time.time()
-        
-    
+        all_checks = self.all_checks();
+        if all_checks:
+            return min(self.all_checks(),key=lambda x:x.last_updated).last_updated
+        else:
+            time.time()
+
+    def all_checks(self):
+        return list(self.simpleservicecheck.all()) + \
+            list(self.umpireservicecheck.all())
+
 class ServiceCheck(models.Model):
+    resource_name="servicecheck"
+    class Meta:
+        abstract=True
+
     name = models.CharField(max_length=256)
-    description = models.TextField()
-    service = models.ForeignKey(Service,related_name="service_checks")
-    endpoint = models.URLField()
+    description = models.TextField()    
+    service = models.ForeignKey(Service,related_name="%(class)s")
 
     def __unicode__(self):
         return "%s: %s" % (self.service.name,self.name)
 
-    @property
-    def redis_key(self):
-        return "servicecheck:::%s" % (self.id)
-    
     @property
     def status(self):        
         if not cache.has_key(self.redis_key):
@@ -74,6 +78,19 @@ class ServiceCheck(models.Model):
         if not res.status_code==200:
             logging.error("Failed to alert pagerduty of event %s" % self.description)
 
+    @property
+    def redis_key(self):
+        return "%s:::%s" % (self.resource_name,self.id)
+
+    def update_status(self):
+        raise NotImplemented("need to implement update_stats")
+
+
+
+class SimpleServiceCheck(ServiceCheck):
+    resource_name="simpleservicecheck"
+
+    endpoint = models.URLField(max_length=256,null=True,blank=True)
 
     def update_status(self):
         try:
@@ -89,4 +106,37 @@ class ServiceCheck(models.Model):
 
         cache.set(self.redis_key,
                   "%s-%s" % (time.time(),value),
-                  timeout=-1)        
+                  timeout=-1)
+
+class UmpireServiceCheck(ServiceCheck):
+    resource_name="umpireservicecheck"    
+
+    umpire_metric = models.CharField(max_length=256,null=True,blank=True)
+    umpire_min = models.FloatField(null=True,blank=True)
+    umpire_max = models.FloatField(null=True,blank=True)
+    umpire_range = models.IntegerField(null=True,blank=True)
+
+    def update_status(self):
+        get_parameters = {
+            'metric':self.umpire_metric,
+            'min':self.umpire_min,
+            'max':self.umpire_max,
+            'range':self.umpire_range
+            }
+        endpoint = "%s?%s" % (settings.UMPIRE_ENDPOINT,
+                              urllib.urlencode(get_parameters))
+            
+        try:
+            res = requests.get(endpoint)
+            if res.status_code==200:
+                value = STATUS_GOOD
+            else:
+                self.send_alert()
+                value = STATUS_BAD
+        except requests.exceptions.ConnectionError:
+            self.send_alert()
+            value = STATUS_UNKNOWN
+
+        cache.set(self.redis_key,
+                  "%s-%s" % (time.time(),value),
+                  timeout=-1)

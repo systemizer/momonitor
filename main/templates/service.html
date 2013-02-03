@@ -3,13 +3,15 @@
 
 {% block body %}
 <div class="page-header">
+  <a class="pull-right btn ajaxify" href="{% url main_refresh_service service.id %}" class="btn"><i class="icon-refresh"></i></a>
   <h1>Service Checks <small>{{service.name}}</small></h1>
 </div>
 <div class="btn-group pull-right">
-  <a href="{% url main_modal_check_form %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
-  <a href="{% url main_refresh_service service.id %}" class="btn"><i class="icon-refresh"></i></a>
+  <a href="{% url main_modal_form 'simpleservicecheck' %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+  
 </div>
-<p class="clearfix"></p>
+<h3>Simple Checks</h3>
+<div class="clearfix"></div>
 <table class="table table-hover table-bordered">
   <thead>
     <th>Name</th>
@@ -17,22 +19,81 @@
     <th>Last Updated</th>
   </thead>
   <tbody>
-    {% for service_check in service.service_checks.all %}
-    <tr class="{{service_check.status|to_bootstrap_rowclass}}">
+    {% if service.simpleservicecheck.count %}
+    {% for check in service.simpleservicecheck.all %}
+    <tr class="{{check.status|to_bootstrap_rowclass}}">
       <td>
-	{{service_check.name}}
-	<a class="modalize" href="{% url main_modal_check_form %}?service_check_id={{service_check.id}}">
+	{{check.name}}
+	<a class="modalize" href="{% url main_modal_form 'simpleservicecheck' check.id %}">
 	  <i class="icon-edit"></i>
 	</a>
-	<a href="{% url main_delete_service_check service_check.id %}">
+	<a class="delete" href="{{check|resource_url}}">
 	  <i class="icon-remove"></i>
+	</a>
+	<a class="ajaxify" href="{% url main_refresh_simple_check check.id %}">
+	  <i class="icon-refresh"></i>
 	</a>
 
       </td>
-      <td>{{service_check.endpoint}}</td>
-      <td>{{service_check.last_updated|since}}</td>
+      <td>{{check.endpoint}}</td>
+      <td>{{check.last_updated|since}}</td>
     </tr>
     {% endfor %}
+    {% else %}
+    <tr>
+      <td colspan="6">
+	<center>You currently have no simple checks. Click <a href="{% url main_modal_form 'simpleservicecheck' %}">here</a> to add one</center>
+      </td>
+    </tr>
+    {% endif %}
+  </tbody>
+</table>
+<hr />
+<div class="btn-group pull-right">
+  <a href="{% url main_modal_form 'umpireservicecheck' %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+</div>
+<h3>Umpire Checks</h3>
+<div class="clearfix"></div>
+<table class="table table-hover table-bordered">
+  <thead>
+    <th>Name</th>
+    <th>Umpire Metric</th>
+    <th>Umpire Min</th>
+    <th>Umpire Max</th>
+    <th>Umpire Range</th>
+    <th>Last Updated</th>
+  </thead>
+  <tbody>
+    {% if service.umpireservicecheck.count %}
+    {% for check in service.umpireservicecheck.all %}
+    <tr class="{{check.status|to_bootstrap_rowclass}}">
+      <td>
+	{{check.name}}
+	<a class="modalize" href="{% url main_modal_form 'umpireservicecheck' check.id %}">
+	  <i class="icon-edit"></i>
+	</a>
+	<a class="delete" href="{{check|resource_url}}">
+	  <i class="icon-remove"></i>
+	</a>
+	<a class="ajaxify" href="{% url main_refresh_umpire_check check.id %}">
+	  <i class="icon-refresh"></i>
+	</a>
+
+      </td>
+      <td>{{check.umpire_metric}}</td>
+      <td>{{check.umpire_min}}</td>
+      <td>{{check.umpire_max}}</td>
+      <td>{{check.umpire_range}}</td>
+      <td>{{check.last_updated|since}}</td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr>
+      <td colspan="6">
+	<center>You currently have no umpire checks. Click <a href="{% url main_modal_form 'umpireservicecheck' %}">here</a> to add one</center>
+      </td>
+    </tr>
+    {% endif %}
   </tbody>
 </table>
 

@@ -1,4 +1,5 @@
 from django import template
+from django.core.urlresolvers import reverse
 import time
 import logging
 register = template.Library()
@@ -7,6 +8,10 @@ from momonitor.main.constants import (STATUS_GOOD,
                                       STATUS_BAD,
                                       STATUS_UNKNOWN)
 
+def resource_url(instance):
+    resource_name = instance.__class__.resource_name
+    return "/api/v1/%s/%s/" % (resource_name,instance.id)
+    
 def since(value):
     if not type(value)==float:
         try:
@@ -36,3 +41,4 @@ def to_bootstrap_rowclass(value):
 
 register.filter('since', since)
 register.filter('to_bootstrap_rowclass', to_bootstrap_rowclass)
+register.filter('resource_url', resource_url)
