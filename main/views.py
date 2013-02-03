@@ -5,9 +5,22 @@ from django.contrib import messages
 
 
 from momonitor.main.models import Service, ServiceCheck
-from momonitor.main.forms import ServiceCheckForm
+from momonitor.main.forms import ServiceCheckForm,ServiceForm
 
 def index(request):
+    if request.method=="POST":
+        if request.GET.get("service_id"):
+            instance = get_object_or_404(Service,pk=request.GET.get("service_id"))
+        else:
+            instance = None
+
+        form = ServiceForm(request.POST,instance=instance)
+        if form.is_valid():
+            service = form.save()
+            messages.success(request,"New Service Created!",extra_tags="alert-success")
+        else:
+            messages.error(request,"Failed to create new Service",extra_tags="alert-error")
+
     services = Service.objects.all()
     return render_to_response("index.html",{'services':services},RequestContext(request))
 
@@ -34,10 +47,7 @@ def service(request,service_id):
         else:
             messages.error(request,"Failed to create new check",extra_tags="alert-error")
 
-    form = ServiceCheckForm()
-    return render_to_response("service.html",{'service':service,
-                                              'form':form},
-                              RequestContext(request))
+    return render_to_response("service.html",{'service':service},RequestContext(request))
 
 def modal_check_form(request):
     if request.GET.get("service_check_id"):
@@ -47,6 +57,16 @@ def modal_check_form(request):
 
     form = ServiceCheckForm(instance=instance)
     return render_to_response("modals/check-form.html",{'form':form,
+                                                        'instance':instance},RequestContext(request))
+
+def modal_service_form(request):
+    if request.GET.get("service_id"):
+        instance = get_object_or_404(Service,pk=request.GET.get("service_id"))
+    else:
+        instance = None
+
+    form = ServiceForm(instance=instance)
+    return render_to_response("modals/service-form.html",{'form':form,
                                                         'instance':instance},RequestContext(request))
         
 

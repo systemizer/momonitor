@@ -1,0 +1,6 @@
+{% extends "modals/base.html" %}
+
+{% block modal_title %}Create a Service{% endblock %}
+
+{% block modal_action %}{% if instance %}?service_id={{instance.id}}{% endif %}{% endblock %}
+

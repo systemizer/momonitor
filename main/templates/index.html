@@ -1,10 +1,30 @@
 {% extends "base.html" %}
+{% load momonitor_tags %}
 
 {% block body %}
-<h1>Services</h1>
-<ul class="nostyle">
-  {% for service in services %}
-  <li><a href="{% url main_service service.id %}">{{service.name}}</a></li>
-  {% endfor %}
-</ul>
+<div class="page-header">
+  <h1>All Services</h1>
+</div>
+<a href="{% url main_modal_service_form %}" role="button" class="btn modalize pull-right"><i class="icon-plus"></i></a>
+<p class="clearfix"></p>
+<table class="table table-hover table-bordered">
+  <thead>
+    <th>Service Name</th>
+    <th>P/F/U</th>
+    <th>Last Updated</th>
+  </thead>
+  <tbody>
+    {% for service in services %}
+    <tr>
+      <td><a href="{% url main_service service.id %}">{{service.name}}</a>
+	<a class="modalize" href="{% url main_modal_service_form %}?service_id={{service.id}}">
+	  <i class="icon-edit"></i>
+	</a>
+      </td>
+      <td>{{service.status}}</td>
+      <td>{{service.last_updated|since}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

@@ -16,3 +16,5 @@ DATABASES = {
         'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+PAGERDUTY_ENDPOINT = "https://events.pagerduty.com/generic/2010-04-15/create_event.json"
