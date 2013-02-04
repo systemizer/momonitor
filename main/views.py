@@ -12,6 +12,8 @@ from momonitor.main.forms import (UmpireServiceCheckForm,
 from momonitor.main.decorators import ajax_required
 
 def index(request):
+    request.breadcrumbs("Services",reverse("main_index"))
+
     services = Service.objects.all().order_by("id")
     return render_to_response("index.html",{'services':services},RequestContext(request))
 
