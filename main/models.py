@@ -136,7 +136,7 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_range = models.IntegerField(null=True,blank=True)
 
     def graphite_url(self):
-        return "%s/render/?width=570&height=350&from=-1h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
+        return "%s/render/?min=0&width=570&height=350&from=-1h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
 
     def update_status(self):
         get_parameters = {
