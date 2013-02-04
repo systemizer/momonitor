@@ -78,6 +78,10 @@ class ServiceCheck(models.Model):
         return last_value
 
     def send_alert(self):
+        if not self.service.pagerduty_key:
+            logging.info("No pagerduty key for service %s. Not sending alert." % self.service.pagerduty_key)
+            return
+
         payload = {
             'service_key':self.service.pagerduty_key,
             'event_type':'trigger',
