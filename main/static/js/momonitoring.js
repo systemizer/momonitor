@@ -17,6 +17,7 @@ $.fn.serializeObject = function()
 };
 
 function fetchModal(urlEndpoint,modalContainerSelector) {
+    $("#loading-container").show();
     $.ajax({'url':urlEndpoint,
 	    'type':'GET',
 	    'dataType':'html',
@@ -25,6 +26,9 @@ function fetchModal(urlEndpoint,modalContainerSelector) {
 		modalContainer$.html(data);
 		init(modalContainer$);
 		$(modalContainerSelector).modal();
+	    },
+	    'complete': function() {
+		$("#loading-container").hide();
 	    }
 	   })
 }
@@ -34,6 +38,7 @@ function deleteResource(urlEndpoint) {
     if (!confirm("Are you sure you want to delete this resource?")) {
 	return;
     }
+    $("#loading-container").show();
     $.ajax({'url':urlEndpoint,
 	    'type':'DELETE',
 	    'success':function(data) {
@@ -64,6 +69,7 @@ function init(container$) {
     
     $('.ajaxify').click(function(event) {
 	event.preventDefault();
+	$('#loading-container').show()
 	$.ajax({'url':$(this).attr("href"),
 		'type':'GET',
 		'complete': function() {
@@ -79,6 +85,7 @@ function init(container$) {
 	if ("service" in data) {
 	    data['service'] = toTastypieResourceUrl('service',data['service'])
 	}
+	$("#loading-container").show();
     	$.ajax({
     	    'url':form$.attr('action'),
     	    'type':form$.attr('method'),
@@ -90,6 +97,9 @@ function init(container$) {
     	    },
 	    'error':function(d) {
 		a = d;
+	    },
+	    'complete':function() {
+		$("#loading-container").hide();
 	    }
     	});
     });

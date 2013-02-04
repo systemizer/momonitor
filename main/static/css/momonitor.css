@@ -2,3 +2,4 @@
 .breadcrumb {background:#FFF;margin-bottom:0px;}
 .modal form {margin-bottom:0px;}
 a:hover {text-decoration:none;}
+#loading-container {left:45%;top:50%;position:fixed;}
