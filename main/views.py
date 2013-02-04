@@ -12,7 +12,7 @@ from momonitor.main.forms import (UmpireServiceCheckForm,
 from momonitor.main.decorators import ajax_required
 
 def index(request):
-    services = Service.objects.all()
+    services = Service.objects.all().order_by("id")
     return render_to_response("index.html",{'services':services},RequestContext(request))
 
 def service(request,service_id):
@@ -21,7 +21,12 @@ def service(request,service_id):
     request.breadcrumbs("Services",reverse("main_index"))
     request.breadcrumbs(service.name,reverse("main_service",kwargs={'service_id':service.id}))
 
-    return render_to_response("service.html",{'service':service},RequestContext(request))
+    umpire_checks = service.umpireservicecheck.all().order_by("id")
+    simple_checks = service.simpleservicecheck.all().order_by("id")
+
+    return render_to_response("service.html",{'service':service,
+                                              'umpire_checks':umpire_checks,
+                                              'simple_checks':simple_checks},RequestContext(request))
 
 def modal_form(request,resource_name,resource_id=None):
     resource_form_cls = {'service':ServiceForm,

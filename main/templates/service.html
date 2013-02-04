@@ -19,8 +19,8 @@
     <th>Last Updated</th>
   </thead>
   <tbody>
-    {% if service.simpleservicecheck.count %}
-    {% for check in service.simpleservicecheck.all %}
+    {% if simple_checks.count %}
+    {% for check in simple_checks.all %}
     <tr class="{{check.status|to_bootstrap_rowclass}}">
       <td>
 	{{check.name}}
@@ -67,8 +67,8 @@
     <th>Last Updated</th>
   </thead>
   <tbody>
-    {% if service.umpireservicecheck.count %}
-    {% for check in service.umpireservicecheck.all %}
+    {% if umpire_checks.count %}
+    {% for check in umpire_checks %}
     <tr class="{{check.status|to_bootstrap_rowclass}}">
       <td>
 	{{check.name}}
