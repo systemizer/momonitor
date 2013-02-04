@@ -147,15 +147,22 @@ class UmpireServiceCheck(ServiceCheck):
             }
         endpoint = "%s?%s" % (settings.UMPIRE_ENDPOINT,
                               urllib.urlencode(get_parameters))
-            
         try:
             res = requests.get(endpoint)
-            value = res.json()['value']
-            if res.status_code==200:
+            res_data = res.json()
+            if res.status_code == 200:                
+                value = res.json()['value']
                 status = STATUS_GOOD
             else:
-                self.send_alert()
+                if res_data.has_key("value"):
+                    value = res_data['value']
+                elif res_data.has_key("error"):
+                    value = res_data['error']
+                else:
+                    value = "something went wrong"
+
                 status = STATUS_BAD
+                self.send_alert()
         except requests.exceptions.ConnectionError:
             self.send_alert()
             value = "Error connecting"
