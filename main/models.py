@@ -146,7 +146,7 @@ class UmpireServiceCheck(ServiceCheck):
             
         try:
             res = requests.get(endpoint)
-            value = res.json['value']
+            value = res.json()['value']
             if res.status_code==200:
                 status = STATUS_GOOD
             else:
