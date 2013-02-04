@@ -50,6 +50,8 @@ function deleteResource(urlEndpoint) {
 function init(container$) {
     if(typeof(container$)==='undefined') container$ = $('body');
 
+    $('.tooltipped').tooltip()
+
     $('.modalize').click(function(event) {
 	event.preventDefault();
 	var urlEndpoint = $(this).attr("href");

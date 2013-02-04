@@ -39,6 +39,15 @@ def to_bootstrap_rowclass(value):
     else:
         return "warning"
 
+def to_bootstrap_progressbarclass(value):    
+    if value==STATUS_GOOD:
+        return "bar-success"
+    elif value==STATUS_BAD:
+        return "bar-danger"
+    else:
+        return "bar-warning"
+
 register.filter('since', since)
 register.filter('to_bootstrap_rowclass', to_bootstrap_rowclass)
+register.filter('to_bootstrap_progressbarclass', to_bootstrap_progressbarclass)
 register.filter('resource_url', resource_url)

@@ -135,8 +135,29 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_max = models.FloatField(null=True,blank=True)
     umpire_range = models.IntegerField(null=True,blank=True)
 
+    @property
+    def last_value(self):
+        last_value = super(UmpireServiceCheck,self).last_value
+        try:
+            return round(float(last_value),2)
+        except:
+            return None
+        
+
     def graphite_url(self):
         return "%s/render/?min=0&width=570&height=350&from=-1h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
+
+    def status_progress(self):
+        #incase value is not a float
+        try:
+            if self.last_value<self.umpire_min:
+                return 0
+            elif self.last_value>self.umpire_max:
+                return 100
+            else:
+                return (self.last_value-self.umpire_min)/(self.umpire_max-self.umpire_min)*100
+        except:
+            return 0
 
     def update_status(self):
         get_parameters = {

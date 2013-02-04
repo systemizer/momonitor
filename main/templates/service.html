@@ -60,17 +60,14 @@
 <table class="table table-hover table-bordered">
   <thead>
     <th>Name</th>
-    <th>Umpire Min</th>
-    <th>Umpire Max</th>
-    <th>Last Value</th>
-    <th>Umpire Range</th>
+    <th>Status</th>
     <th>Last Updated</th>
   </thead>
   <tbody>
     {% if umpire_checks.count %}
     {% for check in umpire_checks %}
     <tr class="{{check.status|to_bootstrap_rowclass}}">
-      <td>
+      <td width="30%">
 	{{check.name}}
 	<a class="modalize" href="{% url main_modal_form 'umpireservicecheck' check.id %}">
 	  <i class="icon-edit"></i>
@@ -84,11 +81,16 @@
 	</a>
 
       </td>
-      <td>{{check.umpire_min}}</td>
-      <td>{{check.umpire_max}}</td>
-      <td>{{check.last_value}}</td>
-      <td>{{check.umpire_range}}</td>
-      <td>{{check.last_updated|since}}
+      <td width="50%">
+
+	<div class="progress tooltipped" rel="tooltip" data-title="{{check.last_value}}" data-placement="top" >
+	  <div class="bar {{check.status|to_bootstrap_progressbarclass}}" style="width: {{check.status_progress}}%;"></div>
+	</div>
+	<small class="pull-left muted">{{check.umpire_min}}</small>
+	<small class="pull-right muted">{{check.umpire_max}}</small>
+	<div class="clearfix"></div>
+      </td>
+      <td width="20%">{{check.last_updated|since}}
 	<a class="ajaxify" href="{% url main_refresh_umpire_check check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>
