@@ -122,8 +122,6 @@ function toTastypieResourceUrl(resourceName,resourceId) {
 
 $(document).ready(function() {
     init();
-    var context = cubism.context();
-    graphite = context.graphite("http://statsd.graphite.mopub.com:8080/")
 });
 
 
