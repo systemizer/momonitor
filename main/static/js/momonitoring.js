@@ -79,7 +79,7 @@ function init(container$) {
     });
 
     $('form').submit(function(event) {
-    	event.preventDefault()
+    	event.preventDefault()	
     	var form$ = $(this);
 	var data = form$.serializeObject()
 	if ("service" in data) {
@@ -103,6 +103,17 @@ function init(container$) {
 	    }
     	});
     });
+
+    $('form').each(function() {
+	var form$ = $(this);
+	$('input',form$).keypress(function(event) {
+	    if (event.which == 13) {
+		event.preventDefault();
+		form$.submit();
+	    }
+	});
+    });
+
 }
 
 function toTastypieResourceUrl(resourceName,resourceId) {
