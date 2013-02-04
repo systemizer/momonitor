@@ -10,5 +10,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):        
         for service in Service.objects.all():
-            for service_check in ServiceCheck.objects.filter(service=service):
-                service_check.update_status()
+            for check in service.all_checks():
+                check.update_status()
