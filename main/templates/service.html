@@ -30,19 +30,22 @@
 	<a class="delete" href="{{check|resource_url}}">
 	  <i class="icon-remove"></i>
 	</a>
+	<a target="_blank" href="{{check.endpoint}}">
+	  <i class="icon-eye-open"></i>
+	</a>
+      </td>
+      <td>{{check.endpoint}}</td>
+      <td>{{check.last_updated|since}}
 	<a class="ajaxify" href="{% url main_refresh_simple_check check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>
-
       </td>
-      <td>{{check.endpoint}}</td>
-      <td>{{check.last_updated|since}}</td>
     </tr>
     {% endfor %}
     {% else %}
     <tr>
       <td colspan="6">
-	<center>You currently have no simple checks. Click <a href="{% url main_modal_form 'simpleservicecheck' %}">here</a> to add one</center>
+	<center>You currently have no simple checks. Click <a class="modalize" href="{% url main_modal_form 'simpleservicecheck' %}">here</a> to add one</center>
       </td>
     </tr>
     {% endif %}
@@ -57,9 +60,9 @@
 <table class="table table-hover table-bordered">
   <thead>
     <th>Name</th>
-    <th>Umpire Metric</th>
     <th>Umpire Min</th>
     <th>Umpire Max</th>
+    <th>Last Value</th>
     <th>Umpire Range</th>
     <th>Last Updated</th>
   </thead>
@@ -75,22 +78,27 @@
 	<a class="delete" href="{{check|resource_url}}">
 	  <i class="icon-remove"></i>
 	</a>
-	<a class="ajaxify" href="{% url main_refresh_umpire_check check.id %}">
-	  <i class="icon-refresh"></i>
+
+	<a class="modalize" data-type="image" href="{{check.graphite_url}}">
+	  <i class="icon-eye-open"></i>
 	</a>
 
       </td>
-      <td>{{check.umpire_metric}}</td>
       <td>{{check.umpire_min}}</td>
       <td>{{check.umpire_max}}</td>
+      <td>{{check.last_value}}</td>
       <td>{{check.umpire_range}}</td>
-      <td>{{check.last_updated|since}}</td>
+      <td>{{check.last_updated|since}}
+	<a class="ajaxify" href="{% url main_refresh_umpire_check check.id %}">
+	  <i class="icon-refresh"></i>
+	</a>
+      </td>
     </tr>
     {% endfor %}
     {% else %}
     <tr>
       <td colspan="6">
-	<center>You currently have no umpire checks. Click <a href="{% url main_modal_form 'umpireservicecheck' %}">here</a> to add one</center>
+	<center>You currently have no umpire checks. Click <a class="modalize" href="{% url main_modal_form 'umpireservicecheck' %}">here</a> to add one</center>
       </td>
     </tr>
     {% endif %}

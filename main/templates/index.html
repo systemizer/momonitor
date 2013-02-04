@@ -16,7 +16,7 @@
   <tbody>
     {% if services %}
     {% for service in services %}
-    <tr>
+    <tr class="{{service.status|to_bootstrap_rowclass}}">
       <td><a href="{% url main_service service.id %}">{{service.name}}</a>
 	<a class="modalize" href="{% url main_modal_form 'service' service.id %}">
 	  <i class="icon-edit"></i>
@@ -25,7 +25,7 @@
 	  <i class="icon-remove"></i>
 	</a>
       </td>
-      <td>{{service.status}}</td>
+      <td>{{service.status_counts}}</td>
       <td>{{service.last_updated|since}}</td>
     </tr>
     {% endfor %}

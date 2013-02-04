@@ -62,7 +62,6 @@ def refresh_simple_check(request,check_id):
     check.update_status()
     return HttpResponse("OK")
 
-@ajax_required
 def refresh_umpire_check(request,check_id):    
     check = get_object_or_404(UmpireServiceCheck,pk=check_id)
     check.update_status()

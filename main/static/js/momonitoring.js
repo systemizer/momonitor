@@ -48,7 +48,13 @@ function init(container$) {
     $('.modalize').click(function(event) {
 	event.preventDefault();
 	var urlEndpoint = $(this).attr("href");
-	fetchModal(urlEndpoint,"#myModalContainer")
+	var dataType = $(this).data("type") || "html"
+	if (dataType==="image") {
+	    $("#myModalContainer").html("<img src='"+urlEndpoint+"' />");
+	    $("#myModalContainer").modal();
+	} else {
+	    fetchModal(urlEndpoint,"#myModalContainer",dataType)
+	}
     });
 
     $('.delete').click(function(event) {
@@ -93,4 +99,10 @@ function toTastypieResourceUrl(resourceName,resourceId) {
     return "/api/v1/"+resourceName+"/"+resourceId+"/";
 }
 
-$(document).ready(function() {init()});
+$(document).ready(function() {
+    init();
+    var context = cubism.context();
+    graphite = context.graphite("http://statsd.graphite.mopub.com:8080/")
+});
+
+

@@ -1,4 +1,5 @@
 from django.db import models
+import logging
 from django.core.cache import cache
 import urllib
 from django.conf import settings
@@ -21,10 +22,15 @@ class Service(models.Model):
 
     @property
     def status(self):
-        statuses = [check.status for check in self.service_checks.all()]
-        return "%s/%s/%s" % (len(filter(lambda x: x==STATUS_GOOD,statuses)),
-                             len(filter(lambda x: x==STATUS_BAD,statuses)),
-                             len(filter(lambda x: x==STATUS_UNKNOWN,statuses)))
+        return STATUS_BAD if [check for check in self.all_checks() if check.status!=STATUS_GOOD] else STATUS_GOOD
+
+    def status_counts(self):
+        all_checks = self.all_checks()
+        return "%s/%s/%s" % (len(filter(lambda x: x.status==STATUS_GOOD,all_checks)),
+                             len(filter(lambda x: x.status==STATUS_BAD,all_checks)),
+                             len(filter(lambda x: x.status==STATUS_UNKNOWN,all_checks))
+                             )
+                             
 
     @property
     def last_updated(self):
@@ -54,15 +60,22 @@ class ServiceCheck(models.Model):
     def status(self):        
         if not cache.has_key(self.redis_key):
             return STATUS_UNKNOWN
-        last_updated,status = cache.get(self.redis_key).split("-")
+        last_updated,status,last_value = cache.get(self.redis_key).split("///")
         return int(status)
 
     @property
     def last_updated(self):
         if not cache.has_key(self.redis_key):
             return None
-        last_updated,status = cache.get(self.redis_key).split("-")        
+        last_updated,status,last_value = cache.get(self.redis_key).split("///")        
         return float(last_updated)
+
+    @property
+    def last_value(self):
+        if not cache.has_key(self.redis_key):
+            return None
+        last_updated,status,last_value = cache.get(self.redis_key).split("///")        
+        return last_value
 
     def send_alert(self):
         payload = {
@@ -95,17 +108,19 @@ class SimpleServiceCheck(ServiceCheck):
     def update_status(self):
         try:
             res = requests.get(self.endpoint)
+            value = res.text
             if res.status_code==200:
-                value = STATUS_GOOD
+                status = STATUS_GOOD
             else:
                 self.send_alert()
-                value = STATUS_BAD
+                status = STATUS_BAD
         except requests.exceptions.ConnectionError:
             self.send_alert()
-            value = STATUS_UNKNOWN
+            value = "Error connecting"
+            status = STATUS_UNKNOWN
 
         cache.set(self.redis_key,
-                  "%s-%s" % (time.time(),value),
+                  "%s///%s///%s" % (time.time(),status,value),
                   timeout=-1)
 
 class UmpireServiceCheck(ServiceCheck):
@@ -115,6 +130,9 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_min = models.FloatField(null=True,blank=True)
     umpire_max = models.FloatField(null=True,blank=True)
     umpire_range = models.IntegerField(null=True,blank=True)
+
+    def graphite_url(self):
+        return "%s/render/?width=570&height=350&from=-1h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
 
     def update_status(self):
         get_parameters = {
@@ -128,15 +146,17 @@ class UmpireServiceCheck(ServiceCheck):
             
         try:
             res = requests.get(endpoint)
+            value = res.json['value']
             if res.status_code==200:
-                value = STATUS_GOOD
+                status = STATUS_GOOD
             else:
                 self.send_alert()
-                value = STATUS_BAD
+                status = STATUS_BAD
         except requests.exceptions.ConnectionError:
             self.send_alert()
-            value = STATUS_UNKNOWN
+            value = "Error connecting"
+            status = STATUS_UNKNOWN
 
         cache.set(self.redis_key,
-                  "%s-%s" % (time.time(),value),
+                  "%s///%s///%s" % (time.time(),status,value),
                   timeout=-1)
