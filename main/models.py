@@ -107,11 +107,12 @@ class ServiceCheck(models.Model):
 class SimpleServiceCheck(ServiceCheck):
     resource_name="simpleservicecheck"
 
-    endpoint = models.URLField(max_length=256,null=True,blank=True)
+    endpoint = models.URLField(max_length=256)
+    timeout = models.IntegerField(null=True,blank=True) # in ms
 
     def update_status(self):
         try:
-            res = requests.get(self.endpoint)
+            res = requests.get(self.endpoint,timeout=self.timeout/1000.0)
             value = res.text
             if res.status_code==200:
                 status = STATUS_GOOD
@@ -121,7 +122,11 @@ class SimpleServiceCheck(ServiceCheck):
         except requests.exceptions.ConnectionError:
             self.send_alert()
             value = "Error connecting"
-            status = STATUS_UNKNOWN
+            status = STATUS_BAD
+        except requests.exceptions.Timeout:
+            self.send_alert()
+            value = "Timeout"
+            status = STATUS_BAD
 
         cache.set(self.redis_key,
                   "%s///%s///%s" % (time.time(),status,value),
@@ -185,7 +190,8 @@ class UmpireServiceCheck(ServiceCheck):
                 status = STATUS_BAD
                 self.send_alert()
         except requests.exceptions.ConnectionError:
-            self.send_alert()
+            #Dont send an alert if umpire is down. Email admin to bring umpire back up
+            logging.error("Umpire is down?!?")
             value = "Error connecting"
             status = STATUS_UNKNOWN
 

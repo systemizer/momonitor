@@ -16,6 +16,7 @@
   <thead>
     <th>Name</th>
     <th>Endpoint</th>
+    <th>Timeout</th>
     <th>Last Updated</th>
   </thead>
   <tbody>
@@ -35,6 +36,7 @@
 	</a>
       </td>
       <td>{{check.endpoint}}</td>
+      <td>{% if check.timeout %}{{check.timeout}}{% else %}n/a{% endif %}</td>
       <td>{{check.last_updated|since}}
 	<a class="ajaxify" href="{% url main_refresh_simple_check check.id %}">
 	  <i class="icon-refresh"></i>
