@@ -113,7 +113,7 @@ class SimpleServiceCheck(ServiceCheck):
     def update_status(self):
         try:
             if self.timeout:
-                res = requests.get(self.endpoint,timeout=self.timeout/1000)
+                res = requests.get(self.endpoint,timeout=self.timeout)
             else:
                 res = requests.get(self.endpoint)
 
