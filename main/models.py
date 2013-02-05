@@ -25,19 +25,19 @@ class Service(models.Model):
             if filter(lambda x: x.status==STATUS_BAD or x.status==STATUS_UNKNOWN,self.all_checks()) \
             else STATUS_GOOD
 
-    def status_counts(self):
-        all_checks = self.all_checks()
-        return "%s/%s/%s" % (len(filter(lambda x: x.status==STATUS_GOOD,all_checks)),
-                             len(filter(lambda x: x.status==STATUS_BAD,all_checks)),
-                             len(filter(lambda x: x.status==STATUS_UNKNOWN,all_checks))
-                             )
-
     @property
     def last_updated(self):
         if self.all_checks():
             return min(self.all_checks(),key=lambda x:x.last_updated).last_updated
         else:
             time.time()
+
+    def status_counts(self):
+        all_checks = self.all_checks()
+        return "%s/%s/%s" % (len(filter(lambda x: x.status==STATUS_GOOD,all_checks)),
+                             len(filter(lambda x: x.status==STATUS_BAD,all_checks)),
+                             len(filter(lambda x: x.status==STATUS_UNKNOWN,all_checks))
+                             )
 
     def all_checks(self):
         return list(self.simpleservicecheck.all()) + \
@@ -76,6 +76,10 @@ class ServiceCheck(models.Model):
         last_updated,status,last_value = cache.get(self.redis_key).split("///")        
         return last_value
 
+    @property
+    def redis_key(self):
+        return "%s:::%s" % (self.resource_name,self.id)
+
     def send_alert(self):
         if not self.service.pagerduty_key:
             logging.info("No pagerduty key for service %s. Not sending alert." % self.service.pagerduty_key)
@@ -93,10 +97,6 @@ class ServiceCheck(models.Model):
 
         if not res.status_code==200:
             logging.error("Failed to alert pagerduty of event %s" % self.description)
-
-    @property
-    def redis_key(self):
-        return "%s:::%s" % (self.resource_name,self.id)
 
     def update_status(self):
         raise NotImplemented("need to implement update_stats")
