@@ -3,13 +3,12 @@ import logging
 from django.core.cache import cache
 import urllib
 from django.conf import settings
-from main.constants import STATUS_UNKNOWN,STATUS_GOOD,STATUS_BAD
+from main.constants import (STATUS_UNKNOWN,
+                            STATUS_GOOD,
+                            STATUS_BAD)
 import requests
 import json
 import time
-
-class InvalidStatusException(Exception):
-    pass
 
 class Service(models.Model):
     resource_name="service"
@@ -22,7 +21,9 @@ class Service(models.Model):
 
     @property
     def status(self):
-        return STATUS_BAD if [check for check in self.all_checks() if check.status!=STATUS_GOOD] else STATUS_GOOD
+        return STATUS_BAD \
+            if filter(lambda x: x.status==STATUS_BAD or x.status==STATUS_UNKNOWN,self.all_checks()) \
+            else STATUS_GOOD
 
     def status_counts(self):
         all_checks = self.all_checks()
@@ -30,12 +31,10 @@ class Service(models.Model):
                              len(filter(lambda x: x.status==STATUS_BAD,all_checks)),
                              len(filter(lambda x: x.status==STATUS_UNKNOWN,all_checks))
                              )
-                             
 
     @property
     def last_updated(self):
-        all_checks = self.all_checks();
-        if all_checks:
+        if self.all_checks():
             return min(self.all_checks(),key=lambda x:x.last_updated).last_updated
         else:
             time.time()
@@ -102,8 +101,6 @@ class ServiceCheck(models.Model):
     def update_status(self):
         raise NotImplemented("need to implement update_stats")
 
-
-
 class SimpleServiceCheck(ServiceCheck):
     resource_name="simpleservicecheck"
 
@@ -123,6 +120,7 @@ class SimpleServiceCheck(ServiceCheck):
             else:
                 self.send_alert()
                 status = STATUS_BAD
+
         except requests.exceptions.ConnectionError:
             self.send_alert()
             value = "Error connecting"
@@ -139,10 +137,10 @@ class SimpleServiceCheck(ServiceCheck):
 class UmpireServiceCheck(ServiceCheck):
     resource_name="umpireservicecheck"    
 
-    umpire_metric = models.CharField(max_length=256,null=True,blank=True)
-    umpire_min = models.FloatField(null=True,blank=True)
-    umpire_max = models.FloatField(null=True,blank=True)
-    umpire_range = models.IntegerField(null=True,blank=True)
+    umpire_metric = models.CharField(max_length=256)
+    umpire_min = models.FloatField()
+    umpire_max = models.FloatField()
+    umpire_range = models.IntegerField(default=300)
 
     @property
     def last_value(self):
@@ -151,22 +149,20 @@ class UmpireServiceCheck(ServiceCheck):
             return round(float(last_value),2)
         except:
             return None
-        
 
     def graphite_url(self):
         return "%s/render/?min=0&width=570&height=350&from=-1h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
 
     def status_progress(self):
-        #incase value is not a float
-        try:
-            if self.last_value<self.umpire_min:
-                return 0
-            elif self.last_value>self.umpire_max:
-                return 100
-            else:
-                return (self.last_value-self.umpire_min)/(self.umpire_max-self.umpire_min)*100
-        except:
+        if not self.last_value:
             return 0
+
+        if self.last_value<self.umpire_min:
+            return 0
+        elif self.last_value>self.umpire_max:
+            return 100
+        else:
+            return (self.last_value-self.umpire_min)/(self.umpire_max-self.umpire_min)*100
 
     def update_status(self):
         get_parameters = {
@@ -177,6 +173,9 @@ class UmpireServiceCheck(ServiceCheck):
             }
         endpoint = "%s?%s" % (settings.UMPIRE_ENDPOINT,
                               urllib.urlencode(get_parameters))
+
+        value = None
+        status = None
         try:
             res = requests.get(endpoint)
             res_data = res.json()
@@ -186,17 +185,14 @@ class UmpireServiceCheck(ServiceCheck):
             else:
                 if res_data.has_key("value"):
                     value = res_data['value']
-                elif res_data.has_key("error"):
-                    value = res_data['error']
                 else:
-                    value = "something went wrong"
+                    logging.error("Error fetching value from umpire: %s" % endpoint)
 
                 status = STATUS_BAD
                 self.send_alert()
-        except requests.exceptions.ConnectionError:
-            #Dont send an alert if umpire is down. Email admin to bring umpire back up
+
+        except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
             logging.error("Umpire is down?!?")
-            value = "Error connecting"
             status = STATUS_UNKNOWN
 
         cache.set(self.redis_key,
