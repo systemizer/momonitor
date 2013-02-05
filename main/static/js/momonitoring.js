@@ -84,9 +84,16 @@ function init(container$) {
     	event.preventDefault()	
     	var form$ = $(this);
 	var data = form$.serializeObject()
+
+	//hack to fix foreign key attribute w/ tastypie. need to do this better
 	if ("service" in data) {
 	    data['service'] = toTastypieResourceUrl('service',data['service'])
 	}
+	//hack to fix timeout. need to do this better
+	if ("timeout" in data && data['timeout']==="") {
+	    data['timeout'] = null;
+	}
+
 	$("#loading-container").show();
     	$.ajax({
     	    'url':form$.attr('action'),
