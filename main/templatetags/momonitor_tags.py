@@ -21,13 +21,13 @@ def since(value):
             return ""
     seconds_since = int(time.time()-value)
     if seconds_since > 60*60*24:
-        return "%s days ago" % (seconds_since/(60*60*24))
+        return "%s day(s) ago" % (seconds_since/(60*60*24))
     elif seconds_since > 60*60:
-        return "%s hours ago" % (seconds_since/(60*60))
+        return "%s hour(s) ago" % (seconds_since/(60*60))
     elif seconds_since > 60:
-        return "%s minutes ago" % (seconds_since/60)
+        return "%s minute(s) ago" % (seconds_since/60)
     elif seconds_since > 1:
-        return "%s seconds ago" % seconds_since
+        return "%s second(s) ago" % seconds_since
     else:
         return "just now"
 
