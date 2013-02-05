@@ -112,7 +112,11 @@ class SimpleServiceCheck(ServiceCheck):
 
     def update_status(self):
         try:
-            res = requests.get(self.endpoint,timeout=self.timeout/1000.0)
+            if self.timeout:
+                res = requests.get(self.endpoint,timeout=self.timeout/1000)
+            else:
+                res = requests.get(self.endpoint)
+
             value = res.text
             if res.status_code==200:
                 status = STATUS_GOOD

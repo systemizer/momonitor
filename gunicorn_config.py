@@ -12,7 +12,7 @@ __pwd = os.path.abspath(__file__)
 # from the browser                                                                                                                                                                
 workers = 5 #multiprocessing.cpu_count() * 2 + 1                                                                                                                                 
 timeout = 120
-bind = "127.0.0.1:8000"
+bind = "127.0.0.1:5008"
 
 # Logging                                                                                                                                                                         
 

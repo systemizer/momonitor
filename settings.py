@@ -57,7 +57,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'breadcrumbs.middleware.BreadcrumbsMiddleware'
+    'breadcrumbs.middleware.BreadcrumbsMiddleware',
 )
 
 ROOT_URLCONF = 'momonitor.urls'
@@ -71,7 +71,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'south',
     'main',
-    'breadcrumbs'
+    'breadcrumbs',
+    'gunicorn'
 )
 
 CACHES = {
