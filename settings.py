@@ -1,5 +1,3 @@
-import os
-
 
 
 # Local time zone for this installation. Choices can be found here:
@@ -25,6 +23,7 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
+import os
 dir_path = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
@@ -41,9 +40,6 @@ STATIC_URL = '/static/'
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/admin-media/'
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '8^-r409%c0@dxf8m^=3ikpxzfeu7xy5ajnksi2he1aia#u&&km'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -95,5 +91,10 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
                                'django.core.context_processors.request',
                                "momonitor.main.context_processors.statuses")
 
-from local_settings import *
+try:
+    from local_settings import *
+except:
+    import sys
+    print "Could not find local_settings.py. Exiting"
+    sys.exit()
 

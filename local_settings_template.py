@@ -5,6 +5,7 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+SECRET_KEY = '' #set to something unique
 
 DATABASES = {
     'default': {
