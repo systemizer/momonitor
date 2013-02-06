@@ -2,6 +2,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 from momonitor.main.models import (Service, 
                                    SimpleServiceCheck,
@@ -11,12 +12,14 @@ from momonitor.main.forms import (UmpireServiceCheckForm,
                                   ServiceForm)
 from momonitor.main.decorators import ajax_required
 
+@login_required
 def index(request):
     request.breadcrumbs("Services",reverse("main_index"))
 
     services = Service.objects.all().order_by("id")
     return render_to_response("index.html",{'services':services},RequestContext(request))
 
+@login_required
 def service(request,service_id):
     service = get_object_or_404(Service,pk=service_id)
 
@@ -31,6 +34,7 @@ def service(request,service_id):
                                               'simple_checks':simple_checks},
                               RequestContext(request))
 
+@login_required
 def modal_form(request,resource_name,resource_id=None):
     resource_form_cls = {'service':ServiceForm,
                          'simpleservicecheck':SimpleServiceCheckForm,
@@ -50,6 +54,7 @@ def modal_form(request,resource_name,resource_id=None):
     return render_to_response("modal_form.html",{"form":form,"action":action,'method':method},RequestContext(request))
 
 '''These checks will refresh the check. should be ajax'''
+@login_required
 @ajax_required
 def refresh_service(request,service_id):    
     service = get_object_or_404(Service,pk=service_id)
@@ -57,12 +62,14 @@ def refresh_service(request,service_id):
         check.update_status()
     return HttpResponse("OK")
 
+@login_required
 @ajax_required
 def refresh_simple_check(request,check_id):    
     check = get_object_or_404(SimpleServiceCheck,pk=check_id)
     check.update_status()
     return HttpResponse("OK")
 
+@login_required
 @ajax_required
 def refresh_umpire_check(request,check_id):    
     check = get_object_or_404(UmpireServiceCheck,pk=check_id)

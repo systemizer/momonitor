@@ -21,3 +21,11 @@ DATABASES = {
 PAGERDUTY_ENDPOINT = "https://events.pagerduty.com/generic/2010-04-15/create_event.json"
 UMPIRE_ENDPOINT = ""
 GRAPHITE_ENDPOINT = ""
+
+AUTHENTICATION_BACKENDS = (
+    'social_auth.backends.google.GoogleBackend',
+)
+
+LOGIN_URL = '/social_auth/login/google/'
+
+GOOGLE_WHITE_LISTED_DOMAINS = ['example.org']

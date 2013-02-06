@@ -68,7 +68,8 @@ INSTALLED_APPS = (
     'south',
     'main',
     'breadcrumbs',
-    'gunicorn'
+    'gunicorn',
+    'social_auth'
 )
 
 CACHES = {
