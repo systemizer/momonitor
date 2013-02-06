@@ -56,7 +56,7 @@ class Service(models.Model):
                             headers=headers)
 
         if not res.status_code==200:
-            logging.error("Failed to alert pagerduty of event %s" % self.description)
+            logging.error("Failed to alert pagerduty of event %s" % description)
 
     def all_checks(self):
         return list(self.simpleservicecheck.all()) + \

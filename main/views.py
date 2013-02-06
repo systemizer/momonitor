@@ -80,6 +80,6 @@ def refresh_umpire_check(request,check_id):
 @ajax_required
 def test_pagerduty(self,service_id):
     service = get_object_or_404(Service,pk=service_id)
-    service.send_alert("Test alert")
+    service.send_alert(description="Test alert")
     return HttpResponse("OK")
     
