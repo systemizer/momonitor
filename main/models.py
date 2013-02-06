@@ -73,6 +73,7 @@ class ServiceCheck(models.Model):
     name = models.CharField(max_length=256)
     description = models.TextField()    
     service = models.ForeignKey(Service,related_name="%(class)s")
+    silenced = models.BooleanField(default=False)
 
     def __unicode__(self):
         return "%s: %s" % (self.service.name,self.name)
@@ -103,7 +104,11 @@ class ServiceCheck(models.Model):
         return "%s:::%s" % (self.resource_name,self.id)
 
     def send_alert(self):
-        self.service.send_alert(self.description)
+        if not self.silenced:
+            self.service.send_alert(self.description)
+        else:
+            logging.info("Triggered alert on %s, but it is silenced" % self.name)
+            
 
     def update_status(self):
         raise NotImplemented("need to implement update_stats")

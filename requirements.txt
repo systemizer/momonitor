@@ -1,5 +1,6 @@
 Django==1.4.3
 South==0.7.6
+django-bootstrap-form==2.0.5
 django-breadcrumbs==1.1.3-p1
 django-redis==3.1.6
 django-social-auth==0.7.18

@@ -13,6 +13,11 @@ $.fn.serializeObject = function()
            o[this.name] = this.value || '';
        }
    });
+    //unchecked checkbox dont show up in serialize array. fuck me right?
+    $('input[type=checkbox]:not(:checked)').each(function() {
+	o[this.name] = ""; //FUCK YOU TASTYPIE
+    });
+    
    return o;
 };
 
@@ -83,7 +88,7 @@ function init(container$) {
     $('form').submit(function(event) {
     	event.preventDefault()	
     	var form$ = $(this);
-	var data = form$.serializeObject()
+	data = form$.serializeObject()
 
 	//hack to fix foreign key attribute w/ tastypie. need to do this better
 	if ("service" in data) {

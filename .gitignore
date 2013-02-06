@@ -5,3 +5,4 @@ myenv
 local_settings.py
 main/migrations
 dump.rdb
+test_data.json

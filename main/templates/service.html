@@ -27,9 +27,9 @@
   <tbody>
     {% if simple_checks.count %}
     {% for check in simple_checks.all %}
-    <tr class="{{check.status|to_bootstrap_rowclass}}">
+    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced %}muted{% endif %}">
       <td>
-	{{check.name}}
+	{{check.name}} {% if check.silenced %}<small class="muted">silenced</small>{% endif %}
 	<a class="modalize" href="{% url main_modal_form 'simpleservicecheck' check.id %}">
 	  <i class="icon-edit"></i>
 	</a>
@@ -73,20 +73,19 @@
   <tbody>
     {% if umpire_checks.count %}
     {% for check in umpire_checks %}
-    <tr class="{{check.status|to_bootstrap_rowclass}}">
+    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced %}muted{% endif %}">
       <td width="30%">
 	{{check.name}}
+	{% if check.silenced %}<small class="muted">silenced</small>{% endif %}
 	<a class="modalize" href="{% url main_modal_form 'umpireservicecheck' check.id %}">
 	  <i class="icon-edit"></i>
 	</a>
 	<a class="delete" href="{{check|resource_url}}">
 	  <i class="icon-remove"></i>
 	</a>
-
 	<a class="modalize" data-type="image" href="{{check.graphite_url}}">
 	  <i class="icon-eye-open"></i>
 	</a>
-
       </td>
       <td width="50%">
 

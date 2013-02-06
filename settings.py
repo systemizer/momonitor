@@ -69,7 +69,8 @@ INSTALLED_APPS = (
     'main',
     'breadcrumbs',
     'gunicorn',
-    'social_auth'
+    'social_auth',
+    'bootstrapform'
 )
 
 CACHES = {
