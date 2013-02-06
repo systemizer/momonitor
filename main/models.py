@@ -39,6 +39,25 @@ class Service(models.Model):
                              len(filter(lambda x: x.status==STATUS_UNKNOWN,all_checks))
                              )
 
+    def send_alert(self,description="",event_type="trigger"):
+        if not self.pagerduty_key:
+            logging.info("No pagerduty key for service %s. Not sending alert." % self.pagerduty_key)
+            return
+
+        payload = {
+            'service_key':self.pagerduty_key,
+            'event_type':event_type,
+            'description':description
+            }
+
+        headers = {'content-type': 'application/json'}
+        res = requests.post(settings.PAGERDUTY_ENDPOINT,
+                            data=json.dumps(payload),
+                            headers=headers)
+
+        if not res.status_code==200:
+            logging.error("Failed to alert pagerduty of event %s" % self.description)
+
     def all_checks(self):
         return list(self.simpleservicecheck.all()) + \
             list(self.umpireservicecheck.all())
@@ -81,22 +100,7 @@ class ServiceCheck(models.Model):
         return "%s:::%s" % (self.resource_name,self.id)
 
     def send_alert(self):
-        if not self.service.pagerduty_key:
-            logging.info("No pagerduty key for service %s. Not sending alert." % self.service.pagerduty_key)
-            return
-
-        payload = {
-            'service_key':self.service.pagerduty_key,
-            'event_type':'trigger',
-            'description':self.description
-            }
-        headers = {'content-type': 'application/json'}
-        res = requests.post(settings.PAGERDUTY_ENDPOINT,
-                            data=json.dumps(payload),
-                            headers=headers)
-
-        if not res.status_code==200:
-            logging.error("Failed to alert pagerduty of event %s" % self.description)
+        self.service.send_alert(self.description)
 
     def update_status(self):
         raise NotImplemented("need to implement update_stats")
@@ -110,7 +114,7 @@ class SimpleServiceCheck(ServiceCheck):
     def update_status(self):
         try:
             if self.timeout:
-                res = requests.get(self.endpoint,timeout=self.timeout)
+                res = requests.get(self.endpoint,timeout=float(self.timeout)/1000.0)
             else:
                 res = requests.get(self.endpoint)
 

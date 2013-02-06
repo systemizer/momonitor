@@ -3,7 +3,12 @@
 
 {% block body %}
 <div class="page-header">
-  <a class="pull-right btn ajaxify" href="{% url main_refresh_service service.id %}" class="btn"><i class="icon-refresh"></i></a>
+  <div class="btn-group pull-right">
+    <a class="btn ajaxify tooltipped" data-title="Run Checks" href="{% url main_refresh_service service.id %}" class="btn"><i class="icon-refresh"></i></a>
+    {% if service.pagerduty_key %}
+    <a class="btn ajaxify tooltipped" data-title="Alert Pagerduty" href="{% url main_test_pagerduty service.id %}" class="btn"><i class="icon-flag"></i></a>
+    {% endif %}
+  </div>
   <h1>Service Checks <small>{{service.name}}</small></h1>
 </div>
 <div class="btn-group pull-right">

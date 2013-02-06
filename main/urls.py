@@ -22,6 +22,10 @@ urlpatterns = patterns('momonitor.main.views',
                        url('^modal/form/(?P<resource_name>.*)/(?P<resource_id>.*)/$','modal_form',name="main_modal_form"),
                        url('^modal/form/(?P<resource_name>.*)/$','modal_form',name="main_modal_form"),
 
+                       #Test pagerduty functionality
+                       url('^test/pagerduty/(?P<service_id>.*)/$','test_pagerduty',name="main_test_pagerduty"),
+
+
                        (r'^api/', include(v1_api.urls)),
 )
 
