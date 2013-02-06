@@ -39,11 +39,14 @@ class Service(models.Model):
                              len(filter(lambda x: x.status==STATUS_UNKNOWN,all_checks))
                              )
 
-    def send_alert(self,description="",event_type="trigger"):
+    def send_alert(self,description,event_type="trigger"):
         if not self.pagerduty_key:
             logging.info("No pagerduty key for service %s. Not sending alert." % self.pagerduty_key)
             return
 
+        if not description:
+            description = "no description for this check is provided"
+        
         payload = {
             'service_key':self.pagerduty_key,
             'event_type':event_type,
@@ -155,7 +158,7 @@ class UmpireServiceCheck(ServiceCheck):
             return None
 
     def graphite_url(self):
-        return "%s/render/?min=0&width=570&height=350&from=-1h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
+        return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
 
     def status_progress(self):
         if not self.last_value:

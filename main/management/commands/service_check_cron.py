@@ -1,13 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
-from django.core.cache import cache
-import requests
-from requests.exceptions import ConnectionError
-
-from momonitor.main.models import Service,ServiceCheck
-from momonitor.main.constants import STATUS_GOOD,STATUS_BAD
+from momonitor.main.models import Service
 
 class Command(BaseCommand):
-
+    '''Call update_status on all checks for all services'''
     def handle(self, *args, **options):        
         for service in Service.objects.all():
             for check in service.all_checks():
