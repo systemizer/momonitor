@@ -39,8 +39,7 @@ def service(request,service_id):
 
 @login_required
 def modal_form(request,resource_name,resource_id=None):
-    resource_form_cls = {'service':ServiceForm,
-                         'simpleservicecheck':SimpleServiceCheckForm,
+    resource_form_cls = {'simpleservicecheck':SimpleServiceCheckForm,
                          'umpireservicecheck':UmpireServiceCheckForm,
                          'compareservicecheck':CompareServiceCheckForm}[resource_name]
     resource_cls = resource_form_cls._meta.model
@@ -50,7 +49,14 @@ def modal_form(request,resource_name,resource_id=None):
     else:
         instance = None
         method="POST"
-    form = resource_form_cls(instance=instance)    
+
+    service = None
+    if request.GET.get("sid"):
+        service = get_object_or_404(Service,pk=request.GET.get("sid"))
+        form = resource_form_cls(instance=instance,service_id=service.id)
+    else:
+        form = resource_form_cls(instance=instance)
+
     action = "/api/v1/%s/" % resource_cls.resource_name
     if instance:
         action+="%s/" % instance.id

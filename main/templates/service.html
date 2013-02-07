@@ -12,12 +12,12 @@
   <h1>Service Checks <small>{{service.name}}</small></h1>
 </div>
 <div class="btn-group pull-right">
-  <a href="{% url main_modal_form 'simpleservicecheck' %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+  <a href="{% url main_modal_form 'simpleservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
   
 </div>
 <h3><a href="#simpletable" class="toggle-hide">Simple Checks</a> {{service.simple_counts}}</h3>
 <div class="clearfix"></div>
-<table id="simpletable" class="hide table table-hover table-bordered">
+<table id="simpletable" class="table table-hover table-bordered">
   <thead>
     <th>Name</th>
     <th>Endpoint</th>
@@ -30,7 +30,7 @@
     <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced %}muted{% endif %}">
       <td width="30%">
 	{{check.name}} {% if check.silenced %}<small class="muted">silenced</small>{% endif %}
-	<a class="modalize" href="{% url main_modal_form 'simpleservicecheck' check.id %}">
+	<a class="modalize" href="{% url main_modal_form 'simpleservicecheck' check.id %}?sid={{service.id}}">
 	  <i class="icon-edit"></i>
 	</a>
 	<a class="delete" href="{{check|resource_url}}">
@@ -52,7 +52,7 @@
     {% else %}
     <tr>
       <td colspan="4">
-	<center>You currently have no simple checks. Click <a class="modalize" href="{% url main_modal_form 'simpleservicecheck' %}">here</a> to add one</center>
+	<center>You currently have no simple checks. Click <a class="modalize" href="{% url main_modal_form 'simpleservicecheck' %}?sid={{service.id}}">here</a> to add one</center>
       </td>
     </tr>
     {% endif %}
@@ -60,11 +60,11 @@
 </table>
 <hr />
 <div class="btn-group pull-right">
-  <a href="{% url main_modal_form 'umpireservicecheck' %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+  <a href="{% url main_modal_form 'umpireservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
 </div>
 <h3><a href="#umpiretable" class="toggle-hide">Umpire Checks</a> {{service.umpire_counts}}</h3>
 <div class="clearfix"></div>
-<table id="umpiretable" class="table table-hover table-bordered hide">
+<table id="umpiretable" class="table table-hover table-bordered">
   <thead>
     <th>Name</th>
     <th>Status</th>
@@ -77,7 +77,7 @@
       <td width="30%">
 	{{check.name}}
 	{% if check.silenced %}<small class="muted">silenced</small>{% endif %}
-	<a class="modalize" href="{% url main_modal_form 'umpireservicecheck' check.id %}">
+	<a class="modalize" href="{% url main_modal_form 'umpireservicecheck' check.id %}?sid={{service.id}}">
 	  <i class="icon-edit"></i>
 	</a>
 	<a class="delete" href="{{check|resource_url}}">
@@ -106,7 +106,7 @@
     {% else %}
     <tr>
       <td colspan="3">
-	<center>You currently have no umpire checks. Click <a class="modalize" href="{% url main_modal_form 'umpireservicecheck' %}">here</a> to add one</center>
+	<center>You currently have no umpire checks. Click <a class="modalize" href="{% url main_modal_form 'umpireservicecheck' %}?sid={{service.id}}">here</a> to add one</center>
       </td>
     </tr>
     {% endif %}
@@ -114,11 +114,11 @@
 </table>
 <hr />
 <div class="btn-group pull-right">
-  <a href="{% url main_modal_form 'compareservicecheck' %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+  <a href="{% url main_modal_form 'compareservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
 </div>
 <h3><a href="#comparetable" class="toggle-hide">Compare Checks</a> {{service.compare_counts}}</h3>
 <div class="clearfix"></div>
-<table id="comparetable" class="table table-hover table-bordered hide">
+<table id="comparetable" class="table table-hover table-bordered">
   <thead>
     <th>Name</th>
     <th>Endpoint</th>
@@ -135,7 +135,7 @@
       <td width="30%">
 	{{check.name}}
 	{% if check.silenced %}<small class="muted">silenced</small>{% endif %}
-	<a class="modalize" href="{% url main_modal_form 'compareservicecheck' check.id %}">
+	<a class="modalize" href="{% url main_modal_form 'compareservicecheck' check.id %}?sid={{service.id}}">
 	  <i class="icon-edit"></i>
 	</a>
 	<a class="delete" href="{{check|resource_url}}">
@@ -164,7 +164,7 @@
     {% else %}
     <tr>
       <td colspan="7">
-	<center>You currently have no compare checks. Click <a class="modalize" href="{% url main_modal_form 'compareservicecheck' %}">here</a> to add one</center>
+	<center>You currently have no compare checks. Click <a class="modalize" href="{% url main_modal_form 'compareservicecheck' %}?sid={{service.id}}">here</a> to add one</center>
       </td>
     </tr>
     {% endif %}

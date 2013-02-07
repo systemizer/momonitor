@@ -1,30 +1,33 @@
 from django import forms
+import pdb
 from momonitor.main.models import (SimpleServiceCheck, 
                                    UmpireServiceCheck, 
                                    CompareServiceCheck,
                                    Service)
 
-class UmpireServiceCheckForm(forms.ModelForm):
+class ServiceCheckForm(forms.ModelForm):
+    title = "Create/Edit Resources"
+    service = forms.CharField(widget=forms.HiddenInput(attrs={'readonly':True}))
     def __init__(self,*args,**kwargs):
-        super(UmpireServiceCheckForm,self).__init__(*args,**kwargs)
+        service_id = kwargs.pop("service_id","")
+        super(ServiceCheckForm,self).__init__(*args,**kwargs)
+        if service_id:
+            self.fields['service'].widget.attrs['value'] = service_id
         self.fields['description'].widget.attrs['rows'] = 5
+        
 
+class UmpireServiceCheckForm(ServiceCheckForm):
+    title="Create/Edit Umpire Checks"
     class Meta:
         model = UmpireServiceCheck
 
-class CompareServiceCheckForm(forms.ModelForm):
-    def __init__(self,*args,**kwargs):
-        super(CompareServiceCheckForm,self).__init__(*args,**kwargs)
-        self.fields['description'].widget.attrs['rows'] = 5
-
+class CompareServiceCheckForm(ServiceCheckForm):
+    title="Create/Edit Compare Checks"
     class Meta:
         model = CompareServiceCheck
 
-class SimpleServiceCheckForm(forms.ModelForm):
-    def __init__(self,*args,**kwargs):
-        super(SimpleServiceCheckForm,self).__init__(*args,**kwargs)
-        self.fields['description'].widget.attrs['rows'] = 5
-
+class SimpleServiceCheckForm(ServiceCheckForm):
+    title="Create/Edit Simple Checks"
     class Meta:
         model = SimpleServiceCheck
 
