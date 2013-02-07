@@ -39,9 +39,11 @@ def service(request,service_id):
 
 @login_required
 def modal_form(request,resource_name,resource_id=None):
-    resource_form_cls = {'simpleservicecheck':SimpleServiceCheckForm,
+    resource_form_cls = {'service':ServiceForm,
+                         'simpleservicecheck':SimpleServiceCheckForm,
                          'umpireservicecheck':UmpireServiceCheckForm,
                          'compareservicecheck':CompareServiceCheckForm}[resource_name]
+
     resource_cls = resource_form_cls._meta.model
     if resource_id:
         instance = get_object_or_404(resource_cls,pk=resource_id)
