@@ -112,5 +112,56 @@
     {% endif %}
   </tbody>
 </table>
+<hr />
+<h3>Compare Checks</h3>
+<div class="clearfix"></div>
+<table class="table table-hover table-bordered">
+  <thead>
+    <th>Name</th>
+    <th>Endpoint</th>
+    <th>Field</th>
+    <th>Comparator</th>
+    <th>Last Value</th>
+    <th>Last Updated</th>
+  </thead>
+  <tbody>
+    {% if compare_checks.count %}
+    {% for check in compare_checks %}
+    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced %}muted{% endif %}">
+      <td width="30%">
+	{{check.name}}
+	{% if check.silenced %}<small class="muted">silenced</small>{% endif %}
+	<a class="modalize" href="{% url main_modal_form 'compareservicecheck' check.id %}">
+	  <i class="icon-edit"></i>
+	</a>
+	<a class="delete" href="{{check|resource_url}}">
+	  <i class="icon-remove"></i>
+	</a>
+	<a class="modalize" data-type="image" href="{{check.graphite_url}}">
+	  <i class="icon-eye-open"></i>
+	</a>
+      </td>
+      <td width="10%">{{check.endpoint}}</td>
+      <td width="10%">{{check.field}}</td>
+      <td width="10%">{{check.comparator}}</td>
+      <td width="10%">{{check.compared_value}}</td>
+      <td width="10%">{{check.last_value}}</td>
+      </td>
+      <td width="20%">{{check.last_updated|since}}
+	<a class="ajaxify" href="{% url main_refresh_compare_check check.id %}">
+	  <i class="icon-refresh"></i>
+	</a>
+      </td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr>
+      <td colspan="6">
+	<center>You currently have no compare checks. Click <a class="modalize" href="{% url main_modal_form 'compareservicecheck' %}">here</a> to add one</center>
+      </td>
+    </tr>
+    {% endif %}
+  </tbody>
+</table>
 
 {% endblock %}

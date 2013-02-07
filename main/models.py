@@ -5,7 +5,9 @@ import urllib
 from django.conf import settings
 from main.constants import (STATUS_UNKNOWN,
                             STATUS_GOOD,
-                            STATUS_BAD)
+                            STATUS_BAD,
+                            SERIALIZATION_CHOICES,
+                            COMPARATOR_CHOICES)
 import requests
 import json
 import time
@@ -208,6 +210,82 @@ class UmpireServiceCheck(ServiceCheck):
         except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
             logging.error("Umpire is down?!?")
             status = STATUS_UNKNOWN
+
+        cache.set(self.redis_key,
+                  "%s///%s///%s" % (time.time(),status,value),
+                  timeout=-1)
+
+'''
+This check looks at a specific field in a 
+serialized response and applies an arithmatic 
+check to that value
+'''
+class CompareServiceCheck(ServiceCheck):
+    resource_name="compareservicecheck"    
+
+    endpoint = models.URLField(max_length=256)
+    serialization = models.CharField(max_length=128,choices=SERIALIZATION_CHOICES,default="json")
+    field = models.CharField(max_length=256)
+    comparator = models.CharField(max_length=128,choices=COMPARATOR_CHOICES,default="==")
+    compared_value = models.FloatField()
+
+    @property
+    def last_value(self):
+        last_value = super(CompareServiceCheck,self).last_value
+        try:
+            return round(float(last_value),2)
+        except:
+            return None
+
+    def update_status(self):
+        
+        value = None
+        status = None
+        try:
+            res = requests.get(self.endpoint)
+            if res.status_code!=200:
+                status = STATUS_BAD
+            else:                
+                res_data = res.json()
+                logging.error(res_data)
+                for subfield in self.field.split("."):
+                    if not res_data.has_key(subfield):
+                        logging.error("Bad field path for check %s and field path %s" % (self.name,self.field))
+                        status = STATUS_BAD
+                        res_data = None
+                        break
+                    res_data = res_data[subfield]
+                    
+                if res_data!=None:
+                    try:
+                        value = float(res_data)
+
+                        if self.comparator == "==":
+                            status = STATUS_GOOD if value == self.compared_value else STATUS_BAD
+                        elif self.comparator == "!=":
+                            status = STATUS_GOOD if value != self.compared_value else STATUS_BAD
+                        elif self.comparator == ">":
+                            status = STATUS_GOOD if value > self.comparted_value else STATUS_BAD
+                        elif self.comparator == ">=":
+                            status = STATUS_GOOD if value >= self.comparted_value else STATUS_BAD
+                        elif self.comparator == "<":
+                            status = STATUS_GOOD if value < self.comparted_value else STATUS_BAD
+                        elif self.comparator == "<=":
+                            status = STATUS_GOOD if value <= self.comparted_value else STATUS_BAD
+                        else:
+                            status= STATUS_BAD
+
+
+                    except TypeError:
+                        logging.error("Cannot convert %s to a float :(" % res_data)
+                        status = STATUS_BAD
+
+        except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
+            logging.error("Unable to connect to the server")            
+            status = STATUS_UNKNOWN
+
+        if status==STATUS_UNKNOWN or status==STATUS_BAD:
+            self.send_alert()
 
         cache.set(self.redis_key,
                   "%s///%s///%s" % (time.time(),status,value),

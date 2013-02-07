@@ -1,6 +1,10 @@
 from tastypie.resources import ModelResource
 from tastypie import fields
-from momonitor.main.models import Service,SimpleServiceCheck,UmpireServiceCheck
+from momonitor.main.models import (Service,
+                                   SimpleServiceCheck,
+                                   UmpireServiceCheck,
+                                   CompareServiceCheck)
+
 from tastypie.authorization import Authorization
 
 class ServiceResource(ModelResource):
@@ -16,6 +20,14 @@ class SimpleServiceCheckResource(ModelResource):
     class Meta:
         queryset = SimpleServiceCheck.objects.all()
         resource_name=SimpleServiceCheck.resource_name
+        authorization=Authorization()
+
+class CompareServiceCheckResource(ModelResource):
+    service = fields.ToOneField(ServiceResource,'service')
+
+    class Meta:
+        queryset = CompareServiceCheck.objects.all()
+        resource_name=CompareServiceCheck.resource_name
         authorization=Authorization()
 
 class UmpireServiceCheckResource(ModelResource):

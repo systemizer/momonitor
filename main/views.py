@@ -6,9 +6,11 @@ from django.contrib.auth.decorators import login_required
 
 from momonitor.main.models import (Service, 
                                    SimpleServiceCheck,
-                                   UmpireServiceCheck)
+                                   UmpireServiceCheck,
+                                   CompareServiceCheck)
 from momonitor.main.forms import (UmpireServiceCheckForm,
                                   SimpleServiceCheckForm,
+                                  CompareServiceCheckForm,
                                   ServiceForm)
 from momonitor.main.decorators import ajax_required
 
@@ -28,17 +30,19 @@ def service(request,service_id):
 
     umpire_checks = service.umpireservicecheck.all().order_by("id")
     simple_checks = service.simpleservicecheck.all().order_by("id")
-
+    compare_checks = service.compareservicecheck.all().order_by("id")
     return render_to_response("service.html",{'service':service,
                                               'umpire_checks':umpire_checks,
-                                              'simple_checks':simple_checks},
+                                              'simple_checks':simple_checks,
+                                              'compare_checks':compare_checks},
                               RequestContext(request))
 
 @login_required
 def modal_form(request,resource_name,resource_id=None):
     resource_form_cls = {'service':ServiceForm,
                          'simpleservicecheck':SimpleServiceCheckForm,
-                         'umpireservicecheck':UmpireServiceCheckForm}[resource_name]
+                         'umpireservicecheck':UmpireServiceCheckForm,
+                         'compareservicecheck':CompareServiceCheckForm}[resource_name]
     resource_cls = resource_form_cls._meta.model
     if resource_id:
         instance = get_object_or_404(resource_cls,pk=resource_id)
@@ -66,6 +70,13 @@ def refresh_service(request,service_id):
 @ajax_required
 def refresh_simple_check(request,check_id):    
     check = get_object_or_404(SimpleServiceCheck,pk=check_id)
+    check.update_status()
+    return HttpResponse("OK")
+
+@login_required
+@ajax_required
+def refresh_compare_check(request,check_id):    
+    check = get_object_or_404(CompareServiceCheck,pk=check_id)
     check.update_status()
     return HttpResponse("OK")
 
