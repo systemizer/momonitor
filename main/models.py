@@ -169,7 +169,6 @@ class SimpleServiceCheck(ServiceCheck):
             if res.status_code==200:
                 status = STATUS_GOOD
             else:
-                self.send_alert()
                 status = STATUS_BAD
 
         except requests.exceptions.ConnectionError:
