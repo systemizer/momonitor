@@ -198,11 +198,11 @@ class UmpireServiceCheck(ServiceCheck):
             else:
                 if res_data.has_key("value"):
                     value = res_data['value']
+                    status = STATUS_BAD
+                    self.send_alert()
                 else:
                     logging.error("Error fetching value from umpire: %s" % endpoint)
-
-                status = STATUS_BAD
-                self.send_alert()
+                    status = STATUS_UNKNOWN
 
         except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
             logging.error("Umpire is down?!?")
