@@ -38,12 +38,28 @@ class Service(models.Model):
         else:
             return None
 
-    def status_counts(self):
-        all_checks = self.all_checks()
+    def _status_counts(self,check_type=""):
+        all_checks = self.all_checks(check_type)
         return "%s/%s/%s" % (len(filter(lambda x: x.status==STATUS_GOOD,all_checks)),
                              len(filter(lambda x: x.status==STATUS_BAD,all_checks)),
                              len(filter(lambda x: x.status==STATUS_UNKNOWN,all_checks))
                              )
+
+    @property
+    def all_counts(self):
+        return self._status_counts()
+
+    @property
+    def simple_counts(self):
+        return self._status_counts(check_type="simpleservicecheck")
+
+    @property
+    def umpire_counts(self):
+        return self._status_counts(check_type="umpireservicecheck")
+
+    @property
+    def compare_counts(self):
+        return self._status_counts(check_type="compareservicecheck")
 
     def send_alert(self,description,event_type="trigger"):
         if not self.pagerduty_key:
@@ -64,10 +80,17 @@ class Service(models.Model):
         if not res.status_code==200:
             logging.error("Failed to alert pagerduty of event %s" % description)
 
-    def all_checks(self):
-        return list(self.simpleservicecheck.all()) + \
-            list(self.umpireservicecheck.all()) + \
-            list(self.compareservicecheck.all())
+    def all_checks(self,check_type=""):
+        if check_type == "simpleservicecheck":
+            return list(self.simpleservicecheck.all())
+        elif check_type == "umpireservicecheck":
+            return list(self.umpireservicecheck.all())
+        elif check_type == "compareservicecheck":
+            return list(self.compareservicecheck.all())
+        else:
+            return list(self.simpleservicecheck.all()) + \
+                list(self.umpireservicecheck.all()) + \
+                list(self.compareservicecheck.all())
 
 class ServiceCheck(models.Model):
     resource_name="servicecheck"

@@ -26,7 +26,7 @@
 	  <i class="icon-remove"></i>
 	</a>
       </td>
-      <td width="10%">{{service.status_counts}}</td>
+      <td width="10%">{{service.all_counts}}</td>
       <td width="20%">{% if service.pagerduty_key %}True {% else %} False {% endif %}</td>
       <td width="30%">{{service.last_updated|since}}</td>
     </tr>

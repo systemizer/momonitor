@@ -15,9 +15,9 @@
   <a href="{% url main_modal_form 'simpleservicecheck' %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
   
 </div>
-<h3>Simple Checks</h3>
+<h3><a href="#simpletable" class="toggle-hide">Simple Checks</a> {{service.simple_counts}}</h3>
 <div class="clearfix"></div>
-<table class="table table-hover table-bordered">
+<table id="simpletable" class="hide table table-hover table-bordered">
   <thead>
     <th>Name</th>
     <th>Endpoint</th>
@@ -62,9 +62,9 @@
 <div class="btn-group pull-right">
   <a href="{% url main_modal_form 'umpireservicecheck' %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
 </div>
-<h3>Umpire Checks</h3>
+<h3><a href="#umpiretable" class="toggle-hide">Umpire Checks</a> {{service.umpire_counts}}</h3>
 <div class="clearfix"></div>
-<table class="table table-hover table-bordered">
+<table id="umpiretable" class="table table-hover table-bordered hide">
   <thead>
     <th>Name</th>
     <th>Status</th>
@@ -116,9 +116,9 @@
 <div class="btn-group pull-right">
   <a href="{% url main_modal_form 'compareservicecheck' %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
 </div>
-<h3>Compare Checks</h3>
+<h3><a href="#comparetable" class="toggle-hide">Compare Checks</a> {{service.compare_counts}}</h3>
 <div class="clearfix"></div>
-<table class="table table-hover table-bordered">
+<table id="comparetable" class="table table-hover table-bordered hide">
   <thead>
     <th>Name</th>
     <th>Endpoint</th>

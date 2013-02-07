@@ -128,6 +128,11 @@ function init(container$) {
 	});
     });
 
+    $('.toggle-hide').click(function(e) {
+	e.preventDefault()	
+	$($(this).attr("href")).toggle();
+    });
+
 }
 
 function toTastypieResourceUrl(resourceName,resourceId) {
