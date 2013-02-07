@@ -156,11 +156,12 @@ class SimpleServiceCheck(ServiceCheck):
             status = STATUS_BAD
 
         num_failures = self.num_failures+1 if status==STATUS_BAD else 0
+        last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
         if num_failures>=self.failures_before_alert:
             self.send_alert()
 
         self.set_state(status=status,
-                       last_updated=time.time(),
+                       last_updated=last_updated,
                        last_value=value,
                        num_failures = num_failures
                        )
@@ -226,11 +227,12 @@ class UmpireServiceCheck(ServiceCheck):
             value = None
 
         num_failures = self.num_failures+1 if status==STATUS_BAD else 0
+        last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
         if num_failures>=self.failures_before_alert:
             self.send_alert()
 
         self.set_state(status=status,
-                       last_updated=time.time(),
+                       last_updated=last_updated,
                        last_value=value,
                        num_failures = num_failures
                        )
@@ -305,11 +307,12 @@ class CompareServiceCheck(ServiceCheck):
             status = STATUS_BAD
 
         num_failures = self.num_failures+1 if status==STATUS_BAD else 0
+        last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
         if num_failures>=self.failures_before_alert:
             self.send_alert()
             
         self.set_state(status=status,
-                       last_updated=time.time(),
+                       last_updated=last_updated,
                        last_value=value,
                        num_failures = num_failures
                        )
