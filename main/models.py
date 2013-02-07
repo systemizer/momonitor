@@ -74,42 +74,49 @@ class ServiceCheck(models.Model):
     service = models.ForeignKey(Service,related_name="%(class)s")
     silenced = models.BooleanField(default=False)
     frequency = models.CharField(max_length=128,default="*/5 * * * *") #cron format
-
+    failures_before_alert = models.IntegerField(default=1)
 
     def __unicode__(self):
         return "%s: %s" % (self.service.name,self.name)
 
     @property
+    def _redis_key(self):
+        return "%s:::%s" % (self.resource_name,self.id)
+
+    def _get_state(self):
+        try:
+            return json.loads(cache.get(self._redis_key))
+        except Exception:
+            return {}
+
+    def set_state(self,status,last_updated,last_value,num_failures):
+        state = {'status':status,
+                 'last_updated':last_updated,
+                 'last_value':last_value,
+                 'num_failures':num_failures}
+        cache.set(self._redis_key,json.dumps(state))
+
+    @property
     def status(self):        
-        if not cache.has_key(self.redis_key):
-            return STATUS_UNKNOWN
-        last_updated,status,last_value = cache.get(self.redis_key).split("///")
-        return int(status)
+        return self._get_state().get("status",STATUS_UNKNOWN)
 
     @property
     def last_updated(self):
-        if not cache.has_key(self.redis_key):
-            return None
-        last_updated,status,last_value = cache.get(self.redis_key).split("///")        
-        return float(last_updated)
+        return self._get_state().get("last_updated",None)
 
     @property
     def last_value(self):
-        if not cache.has_key(self.redis_key):
-            return None
-        last_updated,status,last_value = cache.get(self.redis_key).split("///")        
-        return last_value
+        return self._get_state().get("last_value",None)
 
     @property
-    def redis_key(self):
-        return "%s:::%s" % (self.resource_name,self.id)
+    def num_failures(self):
+        return self._get_state().get("num_failures",0)
 
     def send_alert(self):
         if not self.silenced:
             self.service.send_alert(self.description or self.name)
         else:
             logging.info("Triggered alert on %s, but it is silenced" % self.name)
-            
 
     def update_status(self):
         raise NotImplemented("need to implement update_stats")
@@ -121,6 +128,9 @@ class SimpleServiceCheck(ServiceCheck):
     timeout = models.IntegerField(null=True,blank=True) # in ms
 
     def update_status(self):
+        value = None
+        status = STATUS_UNKNOWN
+
         try:
             if self.timeout:
                 res = requests.get(self.endpoint,timeout=float(self.timeout)/1000.0)
@@ -135,17 +145,21 @@ class SimpleServiceCheck(ServiceCheck):
                 status = STATUS_BAD
 
         except requests.exceptions.ConnectionError:
-            self.send_alert()
             value = "Error connecting"
             status = STATUS_BAD
         except requests.exceptions.Timeout:
-            self.send_alert()
             value = "Timeout"
             status = STATUS_BAD
 
-        cache.set(self.redis_key,
-                  "%s///%s///%s" % (time.time(),status,value),
-                  timeout=-1)
+        num_failures = self.num_failures+1 if status==STATUS_BAD else 0
+        if num_failures>=self.failures_before_alert:
+            self.send_alert()
+
+        self.set_state(status=status,
+                       last_updated=time.time(),
+                       last_value=value,
+                       num_failures = num_failures
+                       )
 
 class UmpireServiceCheck(ServiceCheck):
     resource_name="umpireservicecheck"    
@@ -155,21 +169,12 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_max = models.FloatField()
     umpire_range = models.IntegerField(default=300)
 
-    @property
-    def last_value(self):
-        last_value = super(UmpireServiceCheck,self).last_value
-        try:
-            return round(float(last_value),2)
-        except:
-            return None
-
     def graphite_url(self):
         return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
 
     def status_progress(self):
         if not self.last_value:
             return 0
-
         if self.last_value<self.umpire_min:
             return 0
         elif self.last_value>self.umpire_max:
@@ -178,6 +183,9 @@ class UmpireServiceCheck(ServiceCheck):
             return (self.last_value-self.umpire_min)/(self.umpire_max-self.umpire_min)*100
 
     def update_status(self):
+        value = None
+        status = STATUS_UNKNOWN
+
         get_parameters = {
             'metric':self.umpire_metric,
             'min':self.umpire_min,
@@ -187,8 +195,6 @@ class UmpireServiceCheck(ServiceCheck):
         endpoint = "%s?%s" % (settings.UMPIRE_ENDPOINT,
                               urllib.urlencode(get_parameters))
 
-        value = None
-        status = None
         try:
             res = requests.get(endpoint)
             res_data = res.json()
@@ -199,7 +205,6 @@ class UmpireServiceCheck(ServiceCheck):
                 if res_data.has_key("value"):
                     value = res_data['value']
                     status = STATUS_BAD
-                    self.send_alert()
                 else:
                     logging.error("Error fetching value from umpire: %s" % endpoint)
                     status = STATUS_UNKNOWN
@@ -208,9 +213,22 @@ class UmpireServiceCheck(ServiceCheck):
             logging.error("Umpire is down?!?")
             status = STATUS_UNKNOWN
 
-        cache.set(self.redis_key,
-                  "%s///%s///%s" % (time.time(),status,value),
-                  timeout=-1)
+        try:
+            if value!=None:
+                value = round(float(value),2) #round to 2 decimal places for now
+        except ValueError:
+            logging.error("Failed at converting value %s to rounded float" % value)
+            value = None
+
+        num_failures = self.num_failures+1 if status==STATUS_BAD else 0
+        if num_failures>=self.failures_before_alert:
+            self.send_alert()
+
+        self.set_state(status=status,
+                       last_updated=time.time(),
+                       last_value=value,
+                       num_failures = num_failures
+                       )
 
 '''
 This check looks at a specific field in a 
@@ -234,17 +252,15 @@ class CompareServiceCheck(ServiceCheck):
         except:
             return None
 
-    def update_status(self):
-        
+    def update_status(self):        
         value = None
-        status = None
+        status = STATUS_UNKNOWN
         try:
             res = requests.get(self.endpoint)
             if res.status_code!=200:
                 status = STATUS_BAD
             else:                
                 res_data = res.json()
-                logging.error(res_data)
                 for subfield in self.field.split("."):
                     if not res_data.has_key(subfield):
                         logging.error("Bad field path for check %s and field path %s" % (self.name,self.field))
@@ -279,11 +295,14 @@ class CompareServiceCheck(ServiceCheck):
 
         except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
             logging.error("Unable to connect to the server")            
-            status = STATUS_UNKNOWN
+            status = STATUS_BAD
 
-        if status==STATUS_UNKNOWN or status==STATUS_BAD:
+        num_failures = self.num_failures+1 if status==STATUS_BAD else 0
+        if num_failures>=self.failures_before_alert:
             self.send_alert()
-
-        cache.set(self.redis_key,
-                  "%s///%s///%s" % (time.time(),status,value),
-                  timeout=-1)
+            
+        self.set_state(status=status,
+                       last_updated=time.time(),
+                       last_value=value,
+                       num_failures = num_failures
+                       )
