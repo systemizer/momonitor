@@ -11,13 +11,14 @@
   <thead>
     <th>Service Name</th>
     <th>P/F/U</th>
+    <th>Pagerduty Enabled</th>
     <th>Last Updated</th>
   </thead>
   <tbody>
     {% if services %}
     {% for service in services %}
     <tr class="{{service.status|to_bootstrap_rowclass}}">
-      <td><a href="{% url main_service service.id %}">{{service.name}}</a>
+      <td width="40%"><a href="{% url main_service service.id %}">{{service.name}}</a>
 	<a class="modalize" href="{% url main_modal_form 'service' service.id %}">
 	  <i class="icon-edit"></i>
 	</a>
@@ -25,8 +26,9 @@
 	  <i class="icon-remove"></i>
 	</a>
       </td>
-      <td>{{service.status_counts}}</td>
-      <td>{{service.last_updated|since}}</td>
+      <td width="10%">{{service.status_counts}}</td>
+      <td width="20%">{% if service.pagerduty_key %}True {% else %} False {% endif %}</td>
+      <td width="30%">{{service.last_updated|since}}</td>
     </tr>
     {% endfor %}
     {% else %}
