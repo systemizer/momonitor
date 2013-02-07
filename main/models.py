@@ -267,7 +267,7 @@ class CompareServiceCheck(ServiceCheck):
         try:
             res = requests.get(self.endpoint)
             if res.status_code!=200:
-                status = STATUS_BAD
+                status = STATUS_UNKNOWN
             else:
                 if self.serialization=="json":
                     res_data = res.json()
@@ -284,22 +284,24 @@ class CompareServiceCheck(ServiceCheck):
                     
                 try:
                     #attempt to cast as float 
-                    value = float(res_data)
+                    value = round(float(res_data),2)
+                    compared_value = round(float(self.compared_value),2)
                 except ValueError:
                     value = res_data
+                    compared_value = self.compared_value
 
                 if self.comparator == "==":
-                    status = STATUS_GOOD if value == self.compared_value else STATUS_BAD
+                    status = STATUS_GOOD if value == compared_value else STATUS_BAD
                 elif self.comparator == "!=":
-                    status = STATUS_GOOD if value != self.compared_value else STATUS_BAD
+                    status = STATUS_GOOD if value != compared_value else STATUS_BAD
                 elif self.comparator == ">":
-                    status = STATUS_GOOD if value > self.compared_value else STATUS_BAD
+                    status = STATUS_GOOD if value > compared_value else STATUS_BAD
                 elif self.comparator == ">=":
-                    status = STATUS_GOOD if value >= self.compared_value else STATUS_BAD
+                    status = STATUS_GOOD if value >= compared_value else STATUS_BAD
                 elif self.comparator == "<":
-                    status = STATUS_GOOD if value < self.compared_value else STATUS_BAD
+                    status = STATUS_GOOD if value < compared_value else STATUS_BAD
                 elif self.comparator == "<=":                    
-                    status = STATUS_GOOD if value <= self.compared_value else STATUS_BAD
+                    status = STATUS_GOOD if value <= compared_value else STATUS_BAD
                 else:
                     status= STATUS_BAD
 
