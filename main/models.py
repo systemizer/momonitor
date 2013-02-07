@@ -36,7 +36,7 @@ class Service(models.Model):
         if self.all_checks():
             return min(self.all_checks(),key=lambda x:x.last_updated).last_updated
         else:
-            time.time()
+            return None
 
     def status_counts(self):
         all_checks = self.all_checks()
