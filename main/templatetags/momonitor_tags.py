@@ -17,8 +17,8 @@ def since(value):
         try:
             value = float(value)
         except:
-            logging.error("Cannot parse value %s with templatetag since" % value)
-            return ""
+            logging.debug("Cannot parse value %s with templatetag since" % value)
+            return "unknown"
     seconds_since = int(time.time()-value)
     if seconds_since > 60*60*24:
         return "%s day(s) ago" % (seconds_since/(60*60*24))

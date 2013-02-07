@@ -21,14 +21,14 @@
   <thead>
     <th>Name</th>
     <th>Endpoint</th>
-    <th>Timeout</th>
+    <th>Timeout (ms)</th>
     <th>Last Updated</th>
   </thead>
   <tbody>
     {% if simple_checks.count %}
     {% for check in simple_checks.all %}
     <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced %}muted{% endif %}">
-      <td>
+      <td width="30%">
 	{{check.name}} {% if check.silenced %}<small class="muted">silenced</small>{% endif %}
 	<a class="modalize" href="{% url main_modal_form 'simpleservicecheck' check.id %}">
 	  <i class="icon-edit"></i>
@@ -40,9 +40,9 @@
 	  <i class="icon-eye-open"></i>
 	</a>
       </td>
-      <td>{{check.endpoint}}</td>
-      <td>{% if check.timeout %}{{check.timeout}}{% else %}n/a{% endif %}</td>
-      <td>{{check.last_updated|since}}
+      <td width="30%"><span class="tooltipped" data-title="{{check.endpoint}}">{{check.endpoint|truncatechars:30}}</span></td>
+      <td width="15%">{% if check.timeout %}{{check.timeout}}{% else %}n/a{% endif %}</td>
+      <td width="25%">{{check.last_updated|since}}
 	<a class="ajaxify" href="{% url main_refresh_simple_check check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>
@@ -87,7 +87,7 @@
 	  <i class="icon-eye-open"></i>
 	</a>
       </td>
-      <td width="50%">
+      <td width="45%">
 
 	<div class="progress tooltipped" rel="tooltip" data-title="{{check.last_value}}" data-placement="top" >
 	  <div class="bar {{check.status|to_bootstrap_progressbarclass}}" style="width: {{check.status_progress}}%;"></div>
@@ -96,7 +96,7 @@
 	<small class="pull-right muted">{{check.umpire_max}}</small>
 	<div class="clearfix"></div>
       </td>
-      <td width="20%">{{check.last_updated|since}}
+      <td width="25%">{{check.last_updated|since}}
 	<a class="ajaxify" href="{% url main_refresh_umpire_check check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>
@@ -145,13 +145,16 @@
 	  <i class="icon-eye-open"></i>
 	</a>
       </td>
-      <td width="10%">{{check.endpoint}}</td>
-      <td width="10%">{{check.field}}</td>
+      <td width="10%"><span class="tooltipped" data-title="{{check.endpoint}}">{{check.endpoint|truncatechars:10}}<span></td>
+      <td width="10%">{% if check.field %}{{check.field}}{% else %}n/a{% endif %}</td>
       <td width="10%">{{check.comparator}}</td>
-      <td width="10%">{{check.compared_value}}</td>
-      <td width="10%">{{check.last_value}}</td>
+      <td width="10%">
+	<span class="tooltipped" data-title="{{check.compared_value}}">{{check.compared_value|truncatechars:10}}</span>
       </td>
-      <td width="20%">{{check.last_updated|since}}
+      <td width="10%">
+	<span class="tooltipped" data-title="{{check.last_value}}">{{check.last_value|truncatechars:10}}</span>
+      </td>
+      <td width="25%">{{check.last_updated|since}}
 	<a class="ajaxify" href="{% url main_refresh_compare_check check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>

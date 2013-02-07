@@ -5,6 +5,7 @@ STATUS_UNKNOWN=2
 
 SERIALIZATION_CHOICES = (
     ("json","json"),
+    ("plaintext","plaintext"),
 )
 
 COMPARATOR_CHOICES = (

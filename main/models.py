@@ -23,9 +23,13 @@ class Service(models.Model):
 
     @property
     def status(self):
-        return STATUS_BAD \
-            if filter(lambda x: x.status==STATUS_BAD or x.status==STATUS_UNKNOWN,self.all_checks()) \
-            else STATUS_GOOD
+        all_checks = self.all_checks()
+        if filter(lambda x: x.status==STATUS_BAD,all_checks):
+            return STATUS_BAD
+        elif filter(lambda x: x.status==STATUS_UNKNOWN,all_checks):
+            return STATUS_UNKNOWN
+        else:
+            return STATUS_GOOD
 
     @property
     def last_updated(self):
@@ -243,7 +247,7 @@ class CompareServiceCheck(ServiceCheck):
     serialization = models.CharField(max_length=128,choices=SERIALIZATION_CHOICES,default="json")
     field = models.CharField(max_length=256)
     comparator = models.CharField(max_length=128,choices=COMPARATOR_CHOICES,default="==")
-    compared_value = models.FloatField()
+    compared_value = models.CharField(max_length=512)
 
     @property
     def last_value(self):
@@ -251,48 +255,50 @@ class CompareServiceCheck(ServiceCheck):
         try:
             return round(float(last_value),2)
         except:
-            return None
+            return last_value
 
     def update_status(self):        
         value = None
         status = STATUS_UNKNOWN
+
         try:
             res = requests.get(self.endpoint)
             if res.status_code!=200:
                 status = STATUS_BAD
-            else:                
-                res_data = res.json()
-                for subfield in self.field.split("."):
-                    if not res_data.has_key(subfield):
-                        logging.error("Bad field path for check %s and field path %s" % (self.name,self.field))
-                        status = STATUS_BAD
-                        res_data = None
-                        break
-                    res_data = res_data[subfield]
+            else:
+                if self.serialization=="json":
+                    res_data = res.json()
+                    for subfield in self.field.split("."):
+                        if not res_data.has_key(subfield):
+                            logging.error("Bad field path for check %s and field path %s" % (self.name,self.field))
+                            status = STATUS_BAD
+                            res_data = None
+                            break
+                        res_data = res_data[subfield]
+
+                elif self.serialization=="plaintext":
+                    res_data = res.text
                     
-                if res_data!=None:
-                    try:
-                        value = float(res_data)
+                try:
+                    #attempt to cast as float 
+                    value = float(res_data)
+                except ValueError:
+                    value = res_data
 
-                        if self.comparator == "==":
-                            status = STATUS_GOOD if value == self.compared_value else STATUS_BAD
-                        elif self.comparator == "!=":
-                            status = STATUS_GOOD if value != self.compared_value else STATUS_BAD
-                        elif self.comparator == ">":
-                            status = STATUS_GOOD if value > self.comparted_value else STATUS_BAD
-                        elif self.comparator == ">=":
-                            status = STATUS_GOOD if value >= self.comparted_value else STATUS_BAD
-                        elif self.comparator == "<":
-                            status = STATUS_GOOD if value < self.comparted_value else STATUS_BAD
-                        elif self.comparator == "<=":
-                            status = STATUS_GOOD if value <= self.comparted_value else STATUS_BAD
-                        else:
-                            status= STATUS_BAD
-
-
-                    except TypeError:
-                        logging.error("Cannot convert %s to a float :(" % res_data)
-                        status = STATUS_BAD
+                if self.comparator == "==":
+                    status = STATUS_GOOD if value == self.compared_value else STATUS_BAD
+                elif self.comparator == "!=":
+                    status = STATUS_GOOD if value != self.compared_value else STATUS_BAD
+                elif self.comparator == ">":
+                    status = STATUS_GOOD if value > self.compared_value else STATUS_BAD
+                elif self.comparator == ">=":
+                    status = STATUS_GOOD if value >= self.compared_value else STATUS_BAD
+                elif self.comparator == "<":
+                    status = STATUS_GOOD if value < self.compared_value else STATUS_BAD
+                elif self.comparator == "<=":                    
+                    status = STATUS_GOOD if value <= self.compared_value else STATUS_BAD
+                else:
+                    status= STATUS_BAD
 
         except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
             logging.error("Unable to connect to the server")            
