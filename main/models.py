@@ -46,9 +46,6 @@ class Service(models.Model):
             logging.info("No pagerduty key for service %s. Not sending alert." % self.pagerduty_key)
             return
 
-        if not description:
-            description = "no description for this check is provided"
-        
         payload = {
             'service_key':self.pagerduty_key,
             'event_type':event_type,
@@ -109,7 +106,7 @@ class ServiceCheck(models.Model):
 
     def send_alert(self):
         if not self.silenced:
-            self.service.send_alert(self.description)
+            self.service.send_alert(self.description or self.name)
         else:
             logging.info("Triggered alert on %s, but it is silenced" % self.name)
             
