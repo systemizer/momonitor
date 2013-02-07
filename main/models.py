@@ -66,7 +66,8 @@ class Service(models.Model):
 
     def all_checks(self):
         return list(self.simpleservicecheck.all()) + \
-            list(self.umpireservicecheck.all())
+            list(self.umpireservicecheck.all()) + \
+            list(self.compareservicecheck.all())
 
 class ServiceCheck(models.Model):
     resource_name="servicecheck"
