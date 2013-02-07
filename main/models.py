@@ -74,6 +74,8 @@ class ServiceCheck(models.Model):
     description = models.TextField()    
     service = models.ForeignKey(Service,related_name="%(class)s")
     silenced = models.BooleanField(default=False)
+    frequency = models.CharField(max_length=128,default="*/5 * * * *") #cron format
+
 
     def __unicode__(self):
         return "%s: %s" % (self.service.name,self.name)
