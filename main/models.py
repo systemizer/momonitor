@@ -202,6 +202,7 @@ class UmpireServiceCheck(ServiceCheck):
                     self.send_alert()
                 else:
                     logging.error("Error fetching value from umpire: %s" % endpoint)
+                    value = self.last_value
                     status = STATUS_UNKNOWN
 
         except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
