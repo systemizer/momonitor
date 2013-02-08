@@ -324,6 +324,8 @@ class CompareServiceCheck(ServiceCheck):
                     status = STATUS_GOOD if value < compared_value else STATUS_BAD
                 elif self.comparator == "<=":                    
                     status = STATUS_GOOD if value <= compared_value else STATUS_BAD
+                elif self.comparator == "contains":
+                    status = STATUS_GOOD if compared_value in value else STATUS_BAD
                 else:
                     status= STATUS_BAD
 

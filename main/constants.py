@@ -15,4 +15,5 @@ COMPARATOR_CHOICES = (
     (">=",">="),
     ("<","<"),
     ("<=","<="),
+    ("contains","contains"),
 )
