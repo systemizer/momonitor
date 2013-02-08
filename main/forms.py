@@ -31,6 +31,12 @@ class SimpleServiceCheckForm(ServiceCheckForm):
     class Meta:
         model = SimpleServiceCheck
 
+class ComplexServiceCheckForm(forms.ModelForm):
+    title="Create/Edit Complex Check"
+    class Meta:
+        model = ComplexServiceCheck
+
 class ServiceForm(forms.ModelForm):
+    title="Create/Edit Service"
     class Meta:
         model = Service

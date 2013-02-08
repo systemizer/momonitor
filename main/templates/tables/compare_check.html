@@ -1,0 +1,57 @@
+<div class="btn-group pull-right">
+  <a href="{% url main_modal_form 'compareservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+</div>
+<h3><a href="#comparetable" class="toggle-hide">Compare Checks</a> {{service.compare_counts}}</h3>
+<div class="clearfix"></div>
+<table id="comparetable" class="table table-hover table-bordered">
+  <thead>
+    <th>Name</th>
+    <th>Endpoint</th>
+    <th>Field</th>
+    <th>Comparator</th>
+    <th>Compared Value</th>
+    <th>Last Value</th>
+    <th>Last Updated</th>
+  </thead>
+  <tbody>
+    {% if compare_checks.count %}
+    {% for check in compare_checks %}
+    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced %}muted{% endif %}">
+      <td width="30%">
+	{{check.name}}
+	{% if check.silenced %}<small class="muted">silenced</small>{% endif %}
+	<a class="modalize" href="{% url main_modal_form 'compareservicecheck' check.id %}?sid={{service.id}}">
+	  <i class="icon-edit"></i>
+	</a>
+	<a class="delete" href="{{check|resource_url}}">
+	  <i class="icon-remove"></i>
+	</a>
+	<a class="modalize" data-type="image" href="{{check.graphite_url}}">
+	  <i class="icon-eye-open"></i>
+	</a>
+      </td>
+      <td width="10%"><span class="tooltipped" data-title="{{check.endpoint}}">{{check.endpoint|truncatechars:10}}<span></td>
+      <td width="10%">{% if check.field %}{{check.field}}{% else %}n/a{% endif %}</td>
+      <td width="10%">{{check.comparator}}</td>
+      <td width="10%">
+	<span class="tooltipped" data-title="{{check.compared_value}}">{{check.compared_value|truncatechars:10}}</span>
+      </td>
+      <td width="10%">
+	<span class="tooltipped" data-title="{{check.last_value}}">{{check.last_value|truncatechars:10}}</span>
+      </td>
+      <td width="25%">{{check.last_updated|since}}
+	<a class="ajaxify" href="{% url main_refresh_compare_check check.id %}">
+	  <i class="icon-refresh"></i>
+	</a>
+      </td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr>
+      <td colspan="7">
+	<center>You currently have no compare checks. Click <a class="modalize" href="{% url main_modal_form 'compareservicecheck' %}?sid={{service.id}}">here</a> to add one</center>
+      </td>
+    </tr>
+    {% endif %}
+  </tbody>
+</table>

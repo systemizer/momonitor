@@ -2,7 +2,9 @@ from django.db import models
 import logging
 from django.core.cache import cache
 import urllib
+from django.contrib.contenttypes import generic
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from main.constants import (STATUS_UNKNOWN,
                             STATUS_GOOD,
                             STATUS_BAD,
@@ -61,6 +63,10 @@ class Service(models.Model):
     def compare_counts(self):
         return self._status_counts(check_type="compareservicecheck")
 
+    @property
+    def complex_counts(self):
+        return self._status_counts(check_type="complexservicecheck")
+
     def send_alert(self,description,event_type="trigger"):
         if not self.pagerduty_key:
             logging.info("No pagerduty key for service %s. Not sending alert." % self.pagerduty_key)
@@ -87,10 +93,13 @@ class Service(models.Model):
             return list(self.umpireservicecheck.all())
         elif check_type == "compareservicecheck":
             return list(self.compareservicecheck.all())
+        elif check_type == "complexservicecheck":
+            return list(self.complexservicecheck.all())
         else:
             return list(self.simpleservicecheck.all()) + \
                 list(self.umpireservicecheck.all()) + \
-                list(self.compareservicecheck.all())
+                list(self.compareservicecheck.all()) + \
+                list(self.complexservicecheck.all())
 
 class ServiceCheck(models.Model):
     resource_name="servicecheck"
@@ -117,7 +126,13 @@ class ServiceCheck(models.Model):
         except Exception:
             return {}
 
-    def set_state(self,status,last_updated,last_value,num_failures):
+    def set_state(self,status,last_value):
+        num_failures = self.num_failures+1 if status==STATUS_BAD else 0
+        last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
+
+        if num_failures>=self.failures_before_alert:
+            self.send_alert()
+
         state = {'status':status,
                  'last_updated':last_updated,
                  'last_value':last_value,
@@ -178,16 +193,7 @@ class SimpleServiceCheck(ServiceCheck):
             value = "Timeout"
             status = STATUS_BAD
 
-        num_failures = self.num_failures+1 if status==STATUS_BAD else 0
-        last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
-        if num_failures>=self.failures_before_alert:
-            self.send_alert()
-
-        self.set_state(status=status,
-                       last_updated=last_updated,
-                       last_value=value,
-                       num_failures = num_failures
-                       )
+        self.set_state(status=status,last_value=value)
 
 class UmpireServiceCheck(ServiceCheck):
     resource_name="umpireservicecheck"    
@@ -249,16 +255,7 @@ class UmpireServiceCheck(ServiceCheck):
             logging.error("Failed at converting value %s to rounded float" % value)
             value = None
 
-        num_failures = self.num_failures+1 if status==STATUS_BAD else 0
-        last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
-        if num_failures>=self.failures_before_alert:
-            self.send_alert()
-
-        self.set_state(status=status,
-                       last_updated=last_updated,
-                       last_value=value,
-                       num_failures = num_failures
-                       )
+        self.set_state(status=status,last_value=value)
 
 '''
 This check looks at a specific field in a 
@@ -331,13 +328,31 @@ class CompareServiceCheck(ServiceCheck):
             logging.error("Unable to connect to the server")            
             status = STATUS_BAD
 
-        num_failures = self.num_failures+1 if status==STATUS_BAD else 0
-        last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
-        if num_failures>=self.failures_before_alert:
-            self.send_alert()
-            
-        self.set_state(status=status,
-                       last_updated=last_updated,
-                       last_value=value,
-                       num_failures = num_failures
-                       )
+        self.set_state(status=status,last_value=value)
+        return status,value
+
+class ComplexServiceCheck(ServiceCheck):
+    resource_name = "complexservicecheck"
+
+    def update_status(self):
+        value = None
+        status = STATUS_UNKNOWN
+
+        for check in self.checks.order_by("order"):
+            status,value = check.update_status()
+            if status==STATUS_BAD:
+                break
+        
+        self.set_state(status=status,last_value=value)
+
+class ComplexRelatedField(models.Model):
+    resource_name = "complexrelatedfield"
+    complex_check = models.ForeignKey(ComplexServiceCheck,related_name="checks")
+    order = models.IntegerField()
+
+    object_type = models.ForeignKey(ContentType, related_name="related_%(class)s")
+    object_id = models.IntegerField(db_index=True)
+    check = generic.GenericForeignKey(ct_field="object_type", fk_field="object_id")
+
+    class Meta:
+        unique_together=(("complex_check","order"),)

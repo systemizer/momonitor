@@ -3,7 +3,9 @@ from tastypie import fields
 from momonitor.main.models import (Service,
                                    SimpleServiceCheck,
                                    UmpireServiceCheck,
-                                   CompareServiceCheck)
+                                   CompareServiceCheck,
+                                   ComplexServiceCheck,
+                                   ComplexRelatedField)
 
 from tastypie.authorization import Authorization
 
@@ -36,4 +38,24 @@ class UmpireServiceCheckResource(ModelResource):
     class Meta:
         queryset = UmpireServiceCheck.objects.all()
         resource_name=UmpireServiceCheck.resource_name
+        authorization=Authorization()
+
+class ComplexServiceCheckResource(ModelResource):
+    service = fields.ToOneField(ServiceResource,'service')
+
+    class Meta:
+        queryset = ComplexServiceCheck.objects.all()
+        resource_name=ComplexServiceCheck.resource_name
+        authorization=Authorization()
+
+class ComplexRelatedFieldResource(ModelResource):
+    check = GenericForeignKeyField({
+            SimpleServiceCheck:SimpleServiceCheckResource,
+            CompareServiceCheck:CompareServiceCheckResource,
+            UmpireServiceCheck:UmpireServiceCheckResource
+            },"check")
+
+    class Meta:
+        resource_name=ComplexRelatedField.resource_name
+        queryset = ComplexRelatedField.objects.all()
         authorization=Authorization()

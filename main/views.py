@@ -83,6 +83,13 @@ def refresh_simple_check(request,check_id):
 
 @login_required
 @ajax_required
+def refresh_complex_check(request,check_id):    
+    check = get_object_or_404(ComplexServiceCheck,pk=check_id)
+    check.update_status()
+    return HttpResponse("OK")
+
+@login_required
+@ajax_required
 def refresh_compare_check(request,check_id):    
     check = get_object_or_404(CompareServiceCheck,pk=check_id)
     check.update_status()
