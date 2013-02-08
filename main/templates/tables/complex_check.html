@@ -1,5 +1,8 @@
+{% load momonitor_tags %}
+
 <div class="btn-group pull-right">
   <a href="{% url main_modal_form 'complexservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+  <a href="{% url main_modal_form 'complexrelatedfield' %}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
   
 </div>
 <h3><a href="#complextable" class="toggle-hide">Complex Checks</a> {{service.complex_counts}}</h3>
@@ -26,9 +29,12 @@
 	<a target="_blank" href="{{check.endpoint}}">
 	  <i class="icon-eye-open"></i>
 	</a>
+	<a target="_blank" href="{% url main_modal_form 'complexrelatedfield' %}?cid={{check.id}}" class="modalize">
+	  <i class="icon-plus"></i>
+	</a>
       </td>
       <td width="45%">
-	{% for subcheck in check.checks %}
+	{% for subcheck in check.checks.all %}
 	{{subcheck.check.name}} <br />
 	{% endfor %}
       </td>

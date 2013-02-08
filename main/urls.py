@@ -4,6 +4,7 @@ from momonitor.main.api import (ServiceResource,
                                 UmpireServiceCheckResource,
                                 CompareServiceCheckResource,
                                 ComplexServiceCheckResource,
+                                ContentTypeResource,
                                 ComplexRelatedFieldResource)
 from tastypie.api import Api
 
@@ -14,6 +15,7 @@ v1_api.register(UmpireServiceCheckResource())
 v1_api.register(CompareServiceCheckResource())
 v1_api.register(ComplexServiceCheckResource())
 v1_api.register(ComplexRelatedFieldResource())
+v1_api.register(ContentTypeResource())
 
 urlpatterns = patterns('momonitor.main.views',
                        url('^$','index',name="main_index"),
