@@ -18,7 +18,7 @@
     {% if services %}
     {% for service in services %}
     <tr class="{{service.status|to_bootstrap_rowclass}}">
-      <td width="40%"><a href="{% url main_service service.id %}">{{service.name}}</a>
+      <td width="40%"><a href="{% url main_service service.id %}">{{service.name}} {% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}</a>
 	<a class="modalize" href="{% url main_modal_form 'service' service.id %}">
 	  <i class="icon-edit"></i>
 	</a>
