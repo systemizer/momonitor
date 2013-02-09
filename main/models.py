@@ -141,7 +141,7 @@ class ServiceCheck(models.Model):
         num_failures = self.num_failures+1 if status==STATUS_BAD else 0
         last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
 
-        if num_failures>=self.failures_before_alert or self.service.failures_before_alert:
+        if num_failures>=(self.failures_before_alert or self.service.failures_before_alert):
             self.send_alert()
 
         state = {'status':status,
