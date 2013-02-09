@@ -11,7 +11,8 @@ class Command(BaseCommand):
         for service in Service.objects.all():
             try:
                 for check in service.all_checks():
-                    if croniter.croniter(check.frequency,now).get_next()-now<=60:
+                    if croniter.croniter(check.frequency or check.service.frequency,
+                                         now).get_next()-now<=60:
                         logging.debug("Cron matched. running check %s" % check.name)
                         check.update_status()
                     else:

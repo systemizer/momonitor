@@ -20,6 +20,11 @@ class Service(models.Model):
 
     silenced = models.BooleanField(default=False)
 
+    #Default values if not specified in the check
+    frequency = models.CharField(max_length=128,default="*/5 * * * *")
+    failures_before_alert = models.IntegerField(default=1)
+    umpire_range = models.IntegerField(default=300)    
+
     def __unicode__(self):
         return self.name
 
