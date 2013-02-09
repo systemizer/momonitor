@@ -7,10 +7,13 @@ from django.contrib.auth.decorators import login_required
 from momonitor.main.models import (Service, 
                                    SimpleServiceCheck,
                                    UmpireServiceCheck,
+                                   ComplexServiceCheck,
                                    CompareServiceCheck)
 from momonitor.main.forms import (UmpireServiceCheckForm,
                                   SimpleServiceCheckForm,
                                   CompareServiceCheckForm,
+                                  ComplexServiceCheckForm,
+                                  ComplexRelatedForm,
                                   ServiceForm)
 from momonitor.main.decorators import ajax_required
 
@@ -31,10 +34,12 @@ def service(request,service_id):
     umpire_checks = service.umpireservicecheck.all().order_by("id")
     simple_checks = service.simpleservicecheck.all().order_by("id")
     compare_checks = service.compareservicecheck.all().order_by("id")
+    complex_checks = service.complexservicecheck.all().order_by("id")
     return render_to_response("service.html",{'service':service,
                                               'umpire_checks':umpire_checks,
                                               'simple_checks':simple_checks,
-                                              'compare_checks':compare_checks},
+                                              'compare_checks':compare_checks,
+                                              'complex_checks':complex_checks},
                               RequestContext(request))
 
 @login_required
@@ -42,6 +47,8 @@ def modal_form(request,resource_name,resource_id=None):
     resource_form_cls = {'service':ServiceForm,
                          'simpleservicecheck':SimpleServiceCheckForm,
                          'umpireservicecheck':UmpireServiceCheckForm,
+                         'complexservicecheck':ComplexServiceCheckForm,
+                         'complexrelatedfield':ComplexRelatedForm,
                          'compareservicecheck':CompareServiceCheckForm}[resource_name]
 
     resource_cls = resource_form_cls._meta.model
@@ -56,6 +63,9 @@ def modal_form(request,resource_name,resource_id=None):
     if request.GET.get("sid"):
         service = get_object_or_404(Service,pk=request.GET.get("sid"))
         form = resource_form_cls(instance=instance,service_id=service.id)
+    elif request.GET.get("cid"):
+        complex_check = get_object_or_404(ComplexServiceCheck,pk=request.GET.get("cid"))
+        form = resource_form_cls(instance=instance,complex_service_id=complex_check.id)
     else:
         form = resource_form_cls(instance=instance)
 
@@ -78,6 +88,13 @@ def refresh_service(request,service_id):
 @ajax_required
 def refresh_simple_check(request,check_id):    
     check = get_object_or_404(SimpleServiceCheck,pk=check_id)
+    check.update_status()
+    return HttpResponse("OK")
+
+@login_required
+@ajax_required
+def refresh_complex_check(request,check_id):    
+    check = get_object_or_404(ComplexServiceCheck,pk=check_id)
     check.update_status()
     return HttpResponse("OK")
 

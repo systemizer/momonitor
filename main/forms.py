@@ -3,6 +3,8 @@ import pdb
 from momonitor.main.models import (SimpleServiceCheck, 
                                    UmpireServiceCheck, 
                                    CompareServiceCheck,
+                                   ComplexServiceCheck,
+                                   ComplexRelatedField,
                                    Service)
 
 class ServiceCheckForm(forms.ModelForm):
@@ -31,6 +33,24 @@ class SimpleServiceCheckForm(ServiceCheckForm):
     class Meta:
         model = SimpleServiceCheck
 
+class ComplexServiceCheckForm(ServiceCheckForm):
+    title="Create/Edit Complex Check"
+    class Meta:
+        model = ComplexServiceCheck
+
+class ComplexRelatedForm(forms.ModelForm):
+    complex_check = forms.CharField(widget=forms.HiddenInput(attrs={'readonly':True}))
+    def __init__(self,*args,**kwargs):
+        complex_check_id = kwargs.pop("complex_service_id")
+        super(ComplexRelatedForm,self).__init__(*args,**kwargs)
+        if complex_check_id:
+            self.fields['complex_check'].widget.attrs['value'] = complex_check_id
+                                    
+    title = "Add Complex Related Things"
+    class Meta:
+        model = ComplexRelatedField
+
 class ServiceForm(forms.ModelForm):
+    title="Create/Edit Service"
     class Meta:
         model = Service

@@ -94,10 +94,19 @@ function init(container$) {
 	if ("service" in data) {
 	    data['service'] = toTastypieResourceUrl('service',data['service'])
 	}
+	//hack to fix foreign key attribute w/ tastypie. need to do this better
+	if ("complex_check" in data) {
+	    data['complex_check'] = toTastypieResourceUrl('complexservicecheck',data['complex_check'])
+	}
+	//hack to fix foreign key attribute w/ tastypie. need to do this better
+	if ("object_type" in data) {
+	    data['object_type'] = toTastypieResourceUrl('objecttype',data['object_type'])
+	}
 	//hack to fix timeout. need to do this better
 	if ("timeout" in data && data['timeout']==="") {
 	    data['timeout'] = null;
 	}
+	dmoney = data;
 
 	$("#loading-container").show();
     	$.ajax({
