@@ -18,6 +18,8 @@ class Service(models.Model):
     name = models.CharField(max_length=256)
     pagerduty_key = models.CharField(max_length=128,blank=True,null=True)
 
+    silenced = models.BooleanField(default=False)
+
     def __unicode__(self):
         return self.name
 
@@ -62,6 +64,10 @@ class Service(models.Model):
         return self._status_counts(check_type="compareservicecheck")
 
     def send_alert(self,description,event_type="trigger"):
+        if self.silenced:
+            logging.debug("Service %s is silenced. Not sending pagerduty alert %s" % (self.name,description))
+            return
+
         if not self.pagerduty_key:
             logging.info("No pagerduty key for service %s. Not sending alert." % self.pagerduty_key)
             return

@@ -9,7 +9,7 @@
     <a class="btn ajaxify tooltipped" data-title="Alert Pagerduty" href="{% url main_test_pagerduty service.id %}" class="btn"><i class="icon-flag"></i></a>
     {% endif %}
   </div>
-  <h1>Service Checks <small>{{service.name}}</small></h1>
+  <h1>Service Checks <small>{{service.name}} {% if service.silenced %}(silenced){% endif %}</small></h1>
 </div>
 <div class="btn-group pull-right">
   <a href="{% url main_modal_form 'simpleservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
@@ -27,9 +27,9 @@
   <tbody>
     {% if simple_checks.count %}
     {% for check in simple_checks.all %}
-    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced %}muted{% endif %}">
+    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced or service.silenced  %}muted{% endif %}">
       <td width="30%">
-	{{check.name}} {% if check.silenced %}<small class="muted">silenced</small>{% endif %}
+	{{check.name}} {% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}
 	<a class="modalize" href="{% url main_modal_form 'simpleservicecheck' check.id %}?sid={{service.id}}">
 	  <i class="icon-edit"></i>
 	</a>
@@ -73,10 +73,10 @@
   <tbody>
     {% if umpire_checks.count %}
     {% for check in umpire_checks %}
-    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced %}muted{% endif %}">
+    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced or service.silenced %}muted{% endif %}">
       <td width="30%">
 	{{check.name}}
-	{% if check.silenced %}<small class="muted">silenced</small>{% endif %}
+	{% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}
 	<a class="modalize" href="{% url main_modal_form 'umpireservicecheck' check.id %}?sid={{service.id}}">
 	  <i class="icon-edit"></i>
 	</a>
@@ -131,10 +131,10 @@
   <tbody>
     {% if compare_checks.count %}
     {% for check in compare_checks %}
-    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced %}muted{% endif %}">
+    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced or service.silenced %}muted{% endif %}">
       <td width="30%">
 	{{check.name}}
-	{% if check.silenced %}<small class="muted">silenced</small>{% endif %}
+	{% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}
 	<a class="modalize" href="{% url main_modal_form 'compareservicecheck' check.id %}?sid={{service.id}}">
 	  <i class="icon-edit"></i>
 	</a>
