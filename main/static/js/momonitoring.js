@@ -102,11 +102,13 @@ function init(container$) {
 	if ("object_type" in data) {
 	    data['object_type'] = toTastypieResourceUrl('objecttype',data['object_type'])
 	}
-	//hack to fix timeout. need to do this better
-	if ("timeout" in data && data['timeout']==="") {
-	    data['timeout'] = null;
+	//hack to fix. need to do this better
+	for (var key in data) {
+	    if (!data.hasOwnProperty(key)) {continue;}
+	    //another hack to make sure silenced works
+	    if (key==="silenced") {continue;}
+	    if (data[key]==="") { data[key] = null;}
 	}
-	dmoney = data;
 
 	$("#loading-container").show();
     	$.ajax({
