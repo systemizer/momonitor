@@ -23,7 +23,7 @@ class Service(models.Model):
     silenced = models.BooleanField(default=False)
 
     #Default values if not specified in the check
-    frequency = models.CharField(max_length=128,default="*/5 * * * *")
+    frequency = models.CharField(max_length=128,default="*/5 * * * *") #cron format
     failures_before_alert = models.IntegerField(default=1)
     umpire_range = models.IntegerField(default=300)    
 
@@ -121,8 +121,8 @@ class ServiceCheck(models.Model):
     description = models.TextField()    
     service = models.ForeignKey(Service,related_name="%(class)s")
     silenced = models.BooleanField(default=False)
-    frequency = models.CharField(max_length=128,default="*/5 * * * *") #cron format
-    failures_before_alert = models.IntegerField(default=1)
+    frequency = models.CharField(max_length=128,null=True,blank=True)
+    failures_before_alert = models.IntegerField(null=True,blank=True)
 
     def __unicode__(self):
         return "%s: %s" % (self.service.name,self.name)
@@ -141,7 +141,7 @@ class ServiceCheck(models.Model):
         num_failures = self.num_failures+1 if status==STATUS_BAD else 0
         last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
 
-        if num_failures>=self.failures_before_alert:
+        if num_failures>=self.failures_before_alert or self.service.failures_before_alert:
             self.send_alert()
 
         state = {'status':status,
@@ -212,7 +212,7 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_metric = models.CharField(max_length=256)
     umpire_min = models.FloatField()
     umpire_max = models.FloatField()
-    umpire_range = models.IntegerField(default=300)
+    umpire_range = models.IntegerField(null=True,blank=True)
 
     def graphite_url(self):
         return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
@@ -235,7 +235,7 @@ class UmpireServiceCheck(ServiceCheck):
             'metric':self.umpire_metric,
             'min':self.umpire_min,
             'max':self.umpire_max,
-            'range':self.umpire_range
+            'range':self.umpire_range or self.service.umpire_range
             }
         endpoint = "%s?%s" % (settings.UMPIRE_ENDPOINT,
                               urllib.urlencode(get_parameters))
