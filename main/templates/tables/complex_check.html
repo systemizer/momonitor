@@ -39,7 +39,7 @@
 	{% endfor %}
       </td>
       <td width="25%">{{check.last_updated|since}}
-	<a class="ajaxify" href="{% url main_refresh_complex_check check.id %}">
+	<a class="ajaxify" href="{% url main_refresh 'complexservicecheck' check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>
       </td>

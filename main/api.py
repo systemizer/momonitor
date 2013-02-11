@@ -2,12 +2,15 @@ from tastypie.resources import ModelResource
 from tastypie.contrib.contenttypes.fields import GenericForeignKeyField
 from django.contrib.contenttypes.models import ContentType
 from tastypie import fields
+from tastypie.authorization import Authorization
 from momonitor.main.models import (Service,
                                    SimpleServiceCheck,
                                    UmpireServiceCheck,
                                    CompareServiceCheck,
                                    ComplexServiceCheck,
                                    ComplexRelatedField)
+
+from tastypie.api import Api
 
 class ContentTypeResource(ModelResource):
     """
@@ -28,7 +31,7 @@ class ContentTypeResource(ModelResource):
         detail_allowed_methods = ['get',]
         list_allowed_methods = ['get',]
     
-from tastypie.authorization import Authorization
+
 
 class ServiceResource(ModelResource):
     class Meta:
@@ -84,3 +87,14 @@ class ComplexRelatedFieldResource(ModelResource):
         resource_name=ComplexRelatedField.resource_name
         queryset = ComplexRelatedField.objects.all()
         authorization=Authorization()
+
+
+
+v1_api = Api(api_name='v1')
+v1_api.register(ServiceResource())
+v1_api.register(SimpleServiceCheckResource())
+v1_api.register(UmpireServiceCheckResource())
+v1_api.register(CompareServiceCheckResource())
+v1_api.register(ComplexServiceCheckResource())
+v1_api.register(ComplexRelatedFieldResource())
+v1_api.register(ContentTypeResource())

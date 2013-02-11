@@ -4,17 +4,12 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
-from momonitor.main.models import (Service, 
-                                   SimpleServiceCheck,
-                                   UmpireServiceCheck,
-                                   ComplexServiceCheck,
-                                   CompareServiceCheck)
-from momonitor.main.forms import (UmpireServiceCheckForm,
-                                  SimpleServiceCheckForm,
-                                  CompareServiceCheckForm,
-                                  ComplexServiceCheckForm,
-                                  ComplexRelatedForm,
-                                  ServiceForm)
+from momonitor.main.models import (RESOURCE_NAME_MAP,
+                                   Service,
+                                   RESOURCES)
+
+from momonitor.main.forms import RESOURCE_FORM_MAP
+
 from momonitor.main.decorators import ajax_required
 
 @login_required
@@ -44,72 +39,43 @@ def service(request,service_id):
 
 @login_required
 def modal_form(request,resource_name,resource_id=None):
-    resource_form_cls = {'service':ServiceForm,
-                         'simpleservicecheck':SimpleServiceCheckForm,
-                         'umpireservicecheck':UmpireServiceCheckForm,
-                         'complexservicecheck':ComplexServiceCheckForm,
-                         'complexrelatedfield':ComplexRelatedForm,
-                         'compareservicecheck':CompareServiceCheckForm}[resource_name]
+    if not RESOURCE_NAME_MAP.has_key(resource_name):
+        raise Http404
+    resource_cls = RESOURCE_NAME_MAP[resource_name]
+    resource_form_cls = RESOURCE_FORM_MAP[resource_cls]
 
-    resource_cls = resource_form_cls._meta.model
     if resource_id:
         instance = get_object_or_404(resource_cls,pk=resource_id)
         method="PUT"
+        action = "/api/v1/%s/%s/?format=json" % (resource_cls.resource_name,
+                                                 instance.id)
     else:
         instance = None
         method="POST"
+        action="/api/v1/%s/?format=json" % (resource_cls.resource_name)
 
-    service = None
-    if request.GET.get("sid"):
-        service = get_object_or_404(Service,pk=request.GET.get("sid"))
-        form = resource_form_cls(instance=instance,service_id=service.id)
-    elif request.GET.get("cid"):
-        complex_check = get_object_or_404(ComplexServiceCheck,pk=request.GET.get("cid"))
-        form = resource_form_cls(instance=instance,complex_service_id=complex_check.id)
+    if hasattr(instance,"service") or request.GET.has_key("sid"):
+        form = resource_form_cls(instance=instance,
+                                 service_id=instance.service.id if instance else request.GET.get("sid"))
+    elif hasattr(instance,"complex_check") or request.GET.has_key("cid"):
+        form = resource_form_cls(instance=instance,
+                                 complex_service_id=instance.complex_check.id if instance else  request.GET.get("cid"))
     else:
         form = resource_form_cls(instance=instance)
 
-    action = "/api/v1/%s/" % resource_cls.resource_name
-    if instance:
-        action+="%s/" % instance.id
-    action+="?format=json"        
-    return render_to_response("modal_form.html",{"form":form,"action":action,'method':method},RequestContext(request))
-
-'''These checks will refresh the check. should be ajax'''
-@login_required
-@ajax_required
-def refresh_service(request,service_id):    
-    service = get_object_or_404(Service,pk=service_id)
-    for check in service.all_checks():
-        check.update_status()
-    return HttpResponse("OK")
+    return render_to_response("modal_form.html",{"form":form,
+                                                 "action":action,
+                                                 'method':method},
+                              RequestContext(request))
 
 @login_required
 @ajax_required
-def refresh_simple_check(request,check_id):    
-    check = get_object_or_404(SimpleServiceCheck,pk=check_id)
-    check.update_status()
-    return HttpResponse("OK")
-
-@login_required
-@ajax_required
-def refresh_complex_check(request,check_id):    
-    check = get_object_or_404(ComplexServiceCheck,pk=check_id)
-    check.update_status()
-    return HttpResponse("OK")
-
-@login_required
-@ajax_required
-def refresh_compare_check(request,check_id):    
-    check = get_object_or_404(CompareServiceCheck,pk=check_id)
-    check.update_status()
-    return HttpResponse("OK")
-
-@login_required
-@ajax_required
-def refresh_umpire_check(request,check_id):    
-    check = get_object_or_404(UmpireServiceCheck,pk=check_id)
-    check.update_status()
+def refresh(request,resource_name,resource_id):
+    if not RESOURCE_NAME_MAP.has_key(resource_name):
+        raise Http404
+    resource_cls = RESOURCE_NAME_MAP[resource_name]
+    resource = get_object_or_404(resource_cls,pk=resource_id)
+    resource.update_status()
     return HttpResponse("OK")
 
 @login_required
@@ -118,4 +84,3 @@ def test_pagerduty(self,service_id):
     service = get_object_or_404(Service,pk=service_id)
     service.send_alert(description="Test alert")
     return HttpResponse("OK")
-    

@@ -5,7 +5,7 @@
 <div class="page-header">
   <h1>All Services</h1>
 </div>
-<a href="{% url main_modal_form 'service' %}" role="button" class="btn modalize pull-right"><i class="icon-plus"></i></a>
+<a id="add-service-button" href="{% url main_modal_form 'service' %}" role="button" class="btn modalize pull-right"><i class="icon-plus"></i></a>
 <p class="clearfix"></p>
 <table class="table table-hover table-bordered">
   <thead>
@@ -33,7 +33,7 @@
     {% endfor %}
     {% else %}
     <tr>
-      <td colspan="3">
+      <td colspan="4">
 	<center class="muted">You don't have any services. Click <a href="{% url main_modal_form 'service' %}" class="modalize">here</a> to create one</center>
       </td>
     </tr>

@@ -46,7 +46,7 @@ class ComplexRelatedForm(forms.ModelForm):
         if complex_check_id:
             self.fields['complex_check'].widget.attrs['value'] = complex_check_id
                                     
-    title = "Add Complex Related Things"
+    title = "Add Rule to Complex Check"
     class Meta:
         model = ComplexRelatedField
 
@@ -54,3 +54,13 @@ class ServiceForm(forms.ModelForm):
     title="Create/Edit Service"
     class Meta:
         model = Service
+
+RESOURCE_FORM_MAP = {
+    Service:ServiceCheckForm,
+    UmpireServiceCheck:UmpireServiceCheckForm,
+    SimpleServiceCheck:SimpleServiceCheckForm,
+    ComplexServiceCheck:ComplexServiceCheckForm,
+    CompareServiceCheck:CompareServiceCheckForm,
+    ComplexRelatedField:ComplexRelatedForm,
+    Service:ServiceForm
+}

@@ -42,7 +42,7 @@
 	<span class="tooltipped" data-title="{{check.last_value}}">{{check.last_value|truncatechars:10}}</span>
       </td>
       <td width="25%">{{check.last_updated|since}}
-	<a class="ajaxify" href="{% url main_refresh_compare_check check.id %}">
+	<a class="ajaxify" href="{% url main_refresh 'compareservicecheck' check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>
       </td>

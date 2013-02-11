@@ -32,7 +32,7 @@
       <td width="30%"><span class="tooltipped" data-title="{{check.endpoint}}">{{check.endpoint|truncatechars:30}}</span></td>
       <td width="15%">{% if check.timeout %}{{check.timeout}}{% else %}n/a{% endif %}</td>
       <td width="25%">{{check.last_updated|since}}
-	<a class="ajaxify" href="{% url main_refresh_simple_check check.id %}">
+	<a class="ajaxify" href="{% url main_refresh 'simpleservicecheck' check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>
       </td>

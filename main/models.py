@@ -112,6 +112,10 @@ class Service(models.Model):
                 list(self.compareservicecheck.all()) + \
                 list(self.complexservicecheck.all())
 
+    def update_status(self):
+        for check in self.all_checks():
+            check.update_status()
+
 class ServiceCheck(models.Model):
     resource_name="servicecheck"
     class Meta:
@@ -369,3 +373,15 @@ class ComplexRelatedField(models.Model):
 
     class Meta:
         unique_together=(("complex_check","order"),)
+
+RESOURCES = [
+    Service,
+    ServiceCheck,
+    SimpleServiceCheck,
+    UmpireServiceCheck,
+    CompareServiceCheck,
+    ComplexServiceCheck,
+    ComplexRelatedField
+]
+
+RESOURCE_NAME_MAP = dict([(cls.resource_name,cls) for cls in RESOURCES])

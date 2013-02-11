@@ -75,14 +75,14 @@ function init(container$) {
     });
     
     $('.ajaxify').click(function(event) {
-	event.preventDefault();
-	$('#loading-container').show()
-	$.ajax({'url':$(this).attr("href"),
-		'type':'GET',
-		'complete': function() {
-		    location.reload();
-		},
-	       });
+    	event.preventDefault();
+    	$('#loading-container').show()
+    	$.ajax({'url':$(this).attr("href"),
+    		'type':'GET',
+    		'complete': function() {
+    		    location.reload();
+    		},
+    	       });
     });
 
     $('form').submit(function(event) {
