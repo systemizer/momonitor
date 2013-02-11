@@ -1,0 +1,32 @@
+{% extends "modal_forms/base.html" %}
+
+{% block form_body %}
+<fieldset>
+  <legend>Basic</legend>
+  <div class="pull-left">
+    <label>Name</label>
+    {{form.name}}
+    <label>PagerDuty Key (optional)</label>
+    {{form.pagerduty_key}}
+  </div>
+  <div class="pull-right">
+    <label class="checkbox">{{form.silenced}} Silenced</label>
+  </div>
+  <div class="clearfix"></div>
+  <legend>
+    <a href="#advanced-settings" class="toggle-hide">
+      <small><i class="icon-plus"></i></small> 
+    </a>
+    Advanced
+  </legend>
+  <div id="advanced-settings" class="hide">
+    <label>Frequency</label>
+    {{form.frequency}}
+    <label>Failures Before Alert</label>
+    {{form.failures_before_alert}}
+    <label>Umpire Range (s)</label>
+    {{form.umpire_range}}
+  </div>
+</fieldset>
+
+{% endblock %}
