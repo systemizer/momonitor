@@ -30,7 +30,7 @@
       </td>
       <td width="45%">
 
-	<div class="progress tooltipped" rel="tooltip" data-title="{{check.last_value}}" data-placement="top" >
+	<div class="progress tooltipped" rel="tooltip" data-title="{% if check.last_value == 0 %}zero{% else %}{{check.last_value}}{% endif %}" data-placement="top" >
 	  <div class="bar {{check.status|to_bootstrap_progressbarclass}}" style="width: {{check.status_progress}}%;"></div>
 	</div>
 	<small class="pull-left muted">{{check.umpire_min}}</small>
