@@ -17,9 +17,12 @@ class Command(BaseCommand):
         for service in Service.objects.all():
             try:
                 for check in service.all_checks():
-                    logging.debug("Cron matched. running check %s" % check.name)
-                    pool.spawn(check.update_status)
-
+                    if croniter.croniter(check.frequency or check.service.frequency,
+                                         now).get_next()-now<=60:
+                        logging.debug("Cron matched. running check %s" % check.name)
+                        pool.spawn(check.update_status)
+                    else:
+                        logging.debug("Cron didn't match. not running check %s" % check.name)
             except:
                 logging.error("Failed to parse cron on check %s" % check.name)
                 continue
