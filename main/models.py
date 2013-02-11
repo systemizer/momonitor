@@ -152,7 +152,22 @@ class ServiceCheck(models.Model):
                  'last_updated':last_updated,
                  'last_value':last_value,
                  'num_failures':num_failures}
-        cache.set(self._redis_key,json.dumps(state))
+        cache.set(self._redis_key,json.dumps(state),timeout=0)
+        self._set_history(state,time.time())
+
+    def _set_history(self,state,cur_time):
+        if not cur_time:
+            cur_time = time.time()
+        cur_time = int(cur_time)
+        history_redis_key = "%s:::%s" % (self._redis_key,(cur_time % (60*60*24)) / (60*5))
+        cache.set(history_redis_key,json.dumps(state),timeout=60*60*24+60*10)
+
+    def get_history(self,state,cur_time):
+        if not cur_time:
+            cur_time = time.time()
+        cur_time = int(cur_time)
+        history_redis_key = "%s:::%s" % (self._redis_key,(cur_time % (60*60*24)) / (60*5))
+        return cache.get(history_redis_key) or {}
 
     @property
     def status(self):        
