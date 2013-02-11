@@ -16,20 +16,29 @@ class ServiceCheckForm(forms.ModelForm):
         if service_id:
             self.fields['service'].widget.attrs['value'] = service_id
         self.fields['description'].widget.attrs['rows'] = 5
+        self.fields['description'].widget.attrs['placeholder'] = "Enter brief description here..."
         
 
 class UmpireServiceCheckForm(ServiceCheckForm):
     title="Create/Edit Umpire Checks"
+    template="modal_forms/umpire_check.html"
     class Meta:
         model = UmpireServiceCheck
 
 class CompareServiceCheckForm(ServiceCheckForm):
     title="Create/Edit Compare Checks"
+    template="modal_forms/compare_check.html"
     class Meta:
         model = CompareServiceCheck
 
+    def __init__(self,*args,**kwargs):
+        super(CompareServiceCheckForm,self).__init__(*args,**kwargs)
+        self.fields['comparator'].widget.attrs['style'] = "width:100px"
+        self.fields['compared_value'].widget.attrs['style'] = "width:100px"
+
 class SimpleServiceCheckForm(ServiceCheckForm):
     title="Create/Edit Simple Checks"
+    template="modal_forms/simple_check.html"
     class Meta:
         model = SimpleServiceCheck
 
@@ -52,6 +61,7 @@ class ComplexRelatedForm(forms.ModelForm):
 
 class ServiceForm(forms.ModelForm):
     title="Create/Edit Service"
+    template="modal_forms/serviceform.html"
     class Meta:
         model = Service
 

@@ -63,9 +63,9 @@ def modal_form(request,resource_name,resource_id=None):
     else:
         form = resource_form_cls(instance=instance)
 
-    return render_to_response("modal_form.html",{"form":form,
-                                                 "action":action,
-                                                 'method':method},
+    return render_to_response(form.template,{"form":form,
+                                             "action":action,
+                                             'method':method},
                               RequestContext(request))
 
 @login_required
