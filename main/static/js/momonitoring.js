@@ -1,3 +1,37 @@
+
+var sortableTable = function(table$) {
+    $('th',table$)
+	.wrapInner("<span title='sort this column' />")
+	.each(function() {
+	    var th$ = $(this),
+	    thIndex = th$.index(),
+	    inverse = false;
+
+            th$.click(function(){
+                
+                table$.find('td').filter(function(){
+                    
+                    return $(this).index() === thIndex;
+                    
+                }).sortElements(function(a, b){
+                    
+                    return $.text([a]) > $.text([b]) ?
+                        inverse ? -1 : 1
+                        : inverse ? 1 : -1;
+                    
+                }, function(){
+                    
+                    // parentNode is the element we want to move
+                    return this.parentNode; 
+                    
+                });
+                
+                inverse = !inverse;
+                    
+            });
+	})
+}
+
 //Used for serializing form object to json
 $.fn.serializeObject = function()
 {
@@ -52,10 +86,12 @@ function deleteResource(urlEndpoint) {
 	   });
 }
 
-function init(container$) {
+function init(container$) {    
     if(typeof(container$)==='undefined') container$ = $('body');
 
     $('.tooltipped').tooltip()
+
+    $('.table-sortable').each(function() {sortableTable($(this));});
 
     $('.modalize').click(function(event) {
 	event.preventDefault();
@@ -91,7 +127,7 @@ function init(container$) {
 	data = form$.serializeObject()
 
 	//hack to fix foreign key attribute w/ tastypie. need to do this better
-	if ("service" in data) {
+	if (("service" in data) && form$.attr("action").indexOf("scriptservicecheck")==-1) {
 	    data['service'] = toTastypieResourceUrl('service',data['service'])
 	}
 	//hack to fix foreign key attribute w/ tastypie. need to do this better
@@ -110,12 +146,19 @@ function init(container$) {
 	    if (data[key]==="") { data[key] = null;}
 	}
 
+	method = form$.attr("method")
+	var contentType = "application/json";
+	if (form$.attr("enctype")) {
+	    contentType = form$.attr("enctype");
+	    method = "POST";
+	}
+
 	$("#loading-container").show();
     	$.ajax({
     	    'url':form$.attr('action'),
-    	    'type':form$.attr('method'),
+    	    'type':method,
 	    'dataType':'json',
-	    'contentType':'application/json',
+	    'contentType':contentType,
     	    'data':JSON.stringify(data),
     	    'success':function(data) {
     		location.reload();
