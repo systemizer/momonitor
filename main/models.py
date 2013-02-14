@@ -253,9 +253,9 @@ class UmpireServiceCheck(ServiceCheck):
         return max(
             min(
                 (self.last_value-self.umpire_min) / (self.umpire_max-self.umpire_min),
-                self.umpire_max
+                1
                 ),
-            self.umpire_min
+            0
             )*100
 
     def update_status(self):
