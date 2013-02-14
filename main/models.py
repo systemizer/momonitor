@@ -298,7 +298,7 @@ class UmpireServiceCheck(ServiceCheck):
 
         self.set_state(status=status,last_value=value)
         if status==STATUS_GOOD:
-            self._update_history
+            self._update_history()
 
 '''
 This check looks at a specific field in a 
