@@ -4,6 +4,7 @@ from momonitor.main.models import (SimpleServiceCheck,
                                    UmpireServiceCheck, 
                                    CompareServiceCheck,
                                    ComplexServiceCheck,
+                                   PastServiceCheck,
                                    ComplexRelatedField,
                                    Service)
 
@@ -24,6 +25,12 @@ class UmpireServiceCheckForm(ServiceCheckForm):
     template="modal_forms/umpire_check.html"
     class Meta:
         model = UmpireServiceCheck
+
+class PastServiceCheckForm(ServiceCheckForm):
+    title="Create/Edit Past Checks"
+    template="modal_forms/past_check.html"
+    class Meta:
+        model = PastServiceCheck
 
 class CompareServiceCheckForm(ServiceCheckForm):
     title="Create/Edit Compare Checks"
@@ -71,6 +78,7 @@ RESOURCE_FORM_MAP = {
     SimpleServiceCheck:SimpleServiceCheckForm,
     ComplexServiceCheck:ComplexServiceCheckForm,
     CompareServiceCheck:CompareServiceCheckForm,
+    PastServiceCheck:PastServiceCheckForm,
     ComplexRelatedField:ComplexRelatedForm,
     Service:ServiceForm
 }

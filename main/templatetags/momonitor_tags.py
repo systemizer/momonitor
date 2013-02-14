@@ -8,6 +8,13 @@ from momonitor.main.constants import (STATUS_GOOD,
                                       STATUS_BAD,
                                       STATUS_UNKNOWN)
 
+def percentage(value):
+    value*=100
+    return ("%s" % int(value)) + "%"
+
+def negate(value):
+    return -value
+
 def resource_url(instance):
     resource_name = instance.__class__.resource_name
     return "/api/v1/%s/%s/" % (resource_name,instance.id)
@@ -48,6 +55,8 @@ def to_bootstrap_progressbarclass(value):
         return "bar-warning"
 
 register.filter('since', since)
+register.filter('percentage', percentage)
+register.filter('negate', negate)
 register.filter('to_bootstrap_rowclass', to_bootstrap_rowclass)
 register.filter('to_bootstrap_progressbarclass', to_bootstrap_progressbarclass)
 register.filter('resource_url', resource_url)

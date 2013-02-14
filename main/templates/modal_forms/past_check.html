@@ -1,0 +1,40 @@
+{% extends "modal_forms/base.html" %}
+
+{% block form_body %}
+{{form.service}}
+<fieldset>
+  <legend>Basic</legend>
+  <div class="pull-left">
+    <label>Name</label>
+    {{form.name}}
+    <label>Description</label>
+    {{form.description}}
+  </div>
+  <div class="pull-right">
+    <label class="checkbox">{{form.silenced}} Silenced</label>
+    <label>Umpire Metric</label>
+    {{form.umpire_metric}}
+    <label>Check Type</label>
+    {{form.check_type}}
+    <label>Max Percentage Difference</label>
+    {{form.max_percent_diff}}
+    <label>Learning Percent</label>
+    {{form.max_percent_diff}}
+  </div>
+  <div class="clearfix"></div>
+  <legend>
+    <a href="#advanced-settings" class="toggle-hide">
+      <small><i class="icon-plus"></i></small> 
+    </a>
+    Advanced
+  </legend>
+    <div id="advanced-settings" class="hide">
+    <label>Frequency</label>
+    {{form.frequency}}
+    <label>Failures Before Alert</label>
+    {{form.failures_before_alert}}
+  </div>
+</fieldset>
+
+
+{% endblock %}

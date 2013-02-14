@@ -7,6 +7,7 @@ from momonitor.main.models import (Service,
                                    SimpleServiceCheck,
                                    UmpireServiceCheck,
                                    CompareServiceCheck,
+                                   PastServiceCheck,
                                    ComplexServiceCheck,
                                    ComplexRelatedField)
 
@@ -56,6 +57,14 @@ class CompareServiceCheckResource(ModelResource):
         resource_name=CompareServiceCheck.resource_name
         authorization=Authorization()
 
+class PastServiceCheckResource(ModelResource):
+    service = fields.ToOneField(ServiceResource,'service')
+
+    class Meta:
+        queryset = PastServiceCheck.objects.all()
+        resource_name=PastServiceCheck.resource_name
+        authorization=Authorization()
+
 class UmpireServiceCheckResource(ModelResource):
     service = fields.ToOneField(ServiceResource,'service')
 
@@ -95,6 +104,7 @@ v1_api.register(ServiceResource())
 v1_api.register(SimpleServiceCheckResource())
 v1_api.register(UmpireServiceCheckResource())
 v1_api.register(CompareServiceCheckResource())
+v1_api.register(PastServiceCheckResource())
 v1_api.register(ComplexServiceCheckResource())
 v1_api.register(ComplexRelatedFieldResource())
 v1_api.register(ContentTypeResource())
