@@ -2,7 +2,7 @@
   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
   <h3>{% block form_title %}{{form.title}}{% endblock %}</h3>
 </div>
-<form action="{{action}}" method="{{method}}">
+<form action="{{action}}" method="{{method}}" {% if form.enctype %}enctype="{{form.enctype}}"{% else %}class="ajaxForm"{% endif %}>
   <div class="modal-body">
     {% csrf_token %}
     {% block form_body %}

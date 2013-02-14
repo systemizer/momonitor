@@ -1,5 +1,6 @@
 from django.db import models
 import logging
+import pdb
 import croniter
 from django.core.cache import cache
 import urllib
@@ -64,6 +65,10 @@ class Service(models.Model):
         return self._status_counts(check_type="simpleservicecheck")
 
     @property
+    def code_counts(self):
+        return self._status_counts(check_type="codeservicecheck")
+
+    @property
     def umpire_counts(self):
         return self._status_counts(check_type="umpireservicecheck")
 
@@ -107,11 +112,14 @@ class Service(models.Model):
             return list(self.compareservicecheck.all())
         elif check_type == "complexservicecheck":
             return list(self.complexservicecheck.all())
+        elif check_type == "codeservicecheck":
+            return list(self.codeservicecheck.all())
         else:
             return list(self.simpleservicecheck.all()) + \
                 list(self.umpireservicecheck.all()) + \
                 list(self.compareservicecheck.all()) + \
-                list(self.complexservicecheck.all())
+                list(self.complexservicecheck.all()) + \
+                list(self.codeservicecheck.all())
 
     def update_status(self):
         for check in self.all_checks():
@@ -123,7 +131,7 @@ class ServiceCheck(models.Model):
         abstract=True
 
     name = models.CharField(max_length=256)
-    description = models.TextField()    
+    description = models.TextField(null=True,blank=True)    
     service = models.ForeignKey(Service,related_name="%(class)s")
     silenced = models.BooleanField(default=False)
     frequency = models.CharField(max_length=128,null=True,blank=True)
@@ -374,7 +382,29 @@ class CompareServiceCheck(ServiceCheck):
             status = STATUS_BAD
 
         self.set_state(status=status,last_value=value)
-        return status,value
+
+class CodeServiceCheck(ServiceCheck):
+    resource_name = "codeservicecheck"
+    code_file = models.FileField(upload_to="uploaded_scripts")
+
+    @property
+    def file_name(self):
+        return self.code_file.name.split("/")[-1].replace(".py","")
+
+    def update_status(self):
+        value = None
+        status = STATUS_UNKNOWN
+
+        try:
+            parent_module = __import__("uploaded_scripts.%s" % self.file_name)
+            module = eval("parent_module.%s" % self.file_name)
+            value,succeeded = module.run()
+            status = STATUS_GOOD if succeeded else STATUS_BAD
+        except:            
+            status = STATUS_UNKNOWN
+            value = None
+        
+        self.set_state(status=status,last_value=value)
 
 class ComplexServiceCheck(ServiceCheck):
     resource_name = "complexservicecheck"
@@ -408,6 +438,7 @@ RESOURCES = [
     SimpleServiceCheck,
     UmpireServiceCheck,
     CompareServiceCheck,
+    CodeServiceCheck,
     ComplexServiceCheck,
     ComplexRelatedField
 ]

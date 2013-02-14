@@ -10,6 +10,10 @@ urlpatterns = patterns('momonitor.main.views',
                        url('^modal/form/(?P<resource_name>.*)/(?P<resource_id>.*)/$','modal_form',name="main_modal_form"),
                        url('^modal/form/(?P<resource_name>.*)/$','modal_form',name="main_modal_form"),
 
+                       #Going to handle upload to code check manually because tastypie sucks at it
+                       url(r'^api/v1/codeservicecheck/$','code_check_upload',name="main_code_check_upload"),
+                       url(r'^api/v1/codeservicecheck/(?P<instance_id>.*)/$','code_check_upload',name="main_code_check_upload"),
+
                        #Test pagerduty functionality
                        url('^test/pagerduty/(?P<service_id>.*)/$','test_pagerduty',name="main_test_pagerduty"),
 

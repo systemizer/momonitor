@@ -4,11 +4,13 @@ from momonitor.main.models import (SimpleServiceCheck,
                                    UmpireServiceCheck, 
                                    CompareServiceCheck,
                                    ComplexServiceCheck,
+                                   CodeServiceCheck,
                                    ComplexRelatedField,
                                    Service)
 
 class ServiceCheckForm(forms.ModelForm):
     title = "Create/Edit Resources"
+    enctype = None
     service = forms.CharField(widget=forms.HiddenInput(attrs={'readonly':True}))
     def __init__(self,*args,**kwargs):
         service_id = kwargs.pop("service_id","")
@@ -42,6 +44,22 @@ class SimpleServiceCheckForm(ServiceCheckForm):
     class Meta:
         model = SimpleServiceCheck
 
+class CodeServiceCheckForm(forms.ModelForm):
+    enctype = "multipart/form-data"
+    title="Create/Edit Code Checks"
+    template="modal_forms/code_check.html"
+    
+    def __init__(self,*args,**kwargs):
+        service_id = kwargs.pop("service_id","")
+        super(CodeServiceCheckForm,self).__init__(*args,**kwargs)
+        self.fields['service'].widget.attrs['class']="hide"
+        self.fields['service'].widget.attrs['readonly']=True
+        self.fields['description'].widget.attrs['rows'] = 5
+        self.fields['description'].widget.attrs['placeholder'] = "Enter brief description here..."
+
+    class Meta:
+        model = CodeServiceCheck
+
 class ComplexServiceCheckForm(ServiceCheckForm):
     title="Create/Edit Complex Check"
     class Meta:
@@ -49,12 +67,6 @@ class ComplexServiceCheckForm(ServiceCheckForm):
 
 class ComplexRelatedForm(forms.ModelForm):
     complex_check = forms.CharField(widget=forms.HiddenInput(attrs={'readonly':True}))
-    def __init__(self,*args,**kwargs):
-        complex_check_id = kwargs.pop("complex_service_id")
-        super(ComplexRelatedForm,self).__init__(*args,**kwargs)
-        if complex_check_id:
-            self.fields['complex_check'].widget.attrs['value'] = complex_check_id
-                                    
     title = "Add Rule to Complex Check"
     class Meta:
         model = ComplexRelatedField
@@ -71,6 +83,7 @@ RESOURCE_FORM_MAP = {
     SimpleServiceCheck:SimpleServiceCheckForm,
     ComplexServiceCheck:ComplexServiceCheckForm,
     CompareServiceCheck:CompareServiceCheckForm,
+    CodeServiceCheck:CodeServiceCheckForm,
     ComplexRelatedField:ComplexRelatedForm,
     Service:ServiceForm
 }

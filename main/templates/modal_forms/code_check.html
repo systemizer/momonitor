@@ -1,0 +1,34 @@
+{% extends "modal_forms/base.html" %}
+
+{% block form_body %}
+{{form.service}}
+<fieldset>
+  <legend>Basic</legend>
+  <div class="pull-left half">
+    <label>Name</label>
+    {{form.name}}
+    <label>Description</label>
+    {{form.description}}
+  </div>
+  <div class="pull-right half">
+    <label class="checkbox">{{form.silenced}} Silenced</label>
+    <label>Code File</label>
+    {{form.code_file}}
+  </div>
+  <div class="clearfix"></div>
+  <legend>
+    <a href="#advanced-settings" class="toggle-hide">
+      <small><i class="icon-plus"></i></small> 
+    </a>
+    Advanced
+  </legend>
+    <div id="advanced-settings" class="hide">
+    <label>Frequency</label>
+    {{form.frequency}}
+    <label>Failures Before Alert</label>
+    {{form.failures_before_alert}}
+  </div>
+</fieldset>
+
+
+{% endblock %}

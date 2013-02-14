@@ -121,11 +121,11 @@ function init(container$) {
     	       });
     });
 
-    $('form').submit(function(event) {
+    $('form.ajaxForm').submit(function(event) {
     	event.preventDefault()	
     	var form$ = $(this);
 	data = form$.serializeObject()
-
+	
 	//hack to fix foreign key attribute w/ tastypie. need to do this better
 	if (("service" in data) && form$.attr("action").indexOf("scriptservicecheck")==-1) {
 	    data['service'] = toTastypieResourceUrl('service',data['service'])
@@ -148,11 +148,7 @@ function init(container$) {
 
 	method = form$.attr("method")
 	var contentType = "application/json";
-	if (form$.attr("enctype")) {
-	    contentType = form$.attr("enctype");
-	    method = "POST";
-	}
-
+	
 	$("#loading-container").show();
     	$.ajax({
     	    'url':form$.attr('action'),

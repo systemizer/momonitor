@@ -1,11 +1,13 @@
 from django.template import RequestContext
+from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponse
+from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.contrib.auth.decorators import login_required
 
 from momonitor.main.models import (RESOURCE_NAME_MAP,
                                    Service,
+                                   CodeServiceCheck,
                                    RESOURCES)
 
 from momonitor.main.forms import RESOURCE_FORM_MAP
@@ -29,11 +31,13 @@ def service(request,service_id):
     umpire_checks = service.umpireservicecheck.all().order_by("id")
     simple_checks = service.simpleservicecheck.all().order_by("id")
     compare_checks = service.compareservicecheck.all().order_by("id")
+    code_checks = service.codeservicecheck.all().order_by("id")
     complex_checks = service.complexservicecheck.all().order_by("id")
     return render_to_response("service.html",{'service':service,
                                               'umpire_checks':umpire_checks,
                                               'simple_checks':simple_checks,
                                               'compare_checks':compare_checks,
+                                              'code_checks':code_checks,
                                               'complex_checks':complex_checks},
                               RequestContext(request))
 
@@ -54,12 +58,17 @@ def modal_form(request,resource_name,resource_id=None):
         method="POST"
         action="/api/v1/%s/?format=json" % (resource_cls.resource_name)
 
+    #Hack to get code check upload to work
+    if resource_cls == CodeServiceCheck:
+        method="POST"
+
     if hasattr(instance,"service") or request.GET.has_key("sid"):
         form = resource_form_cls(instance=instance,
-                                 service_id=instance.service.id if instance else request.GET.get("sid"))
+                                 initial={'service':instance.service.id if instance else request.GET.get("sid")})
+
     elif hasattr(instance,"complex_check") or request.GET.has_key("cid"):
         form = resource_form_cls(instance=instance,
-                                 complex_service_id=instance.complex_check.id if instance else  request.GET.get("cid"))
+                                 initial={"complex_check":instance.complex_check.id if instance else  request.GET.get("cid")})
     else:
         form = resource_form_cls(instance=instance)
 
@@ -69,7 +78,6 @@ def modal_form(request,resource_name,resource_id=None):
                               RequestContext(request))
 
 @login_required
-@ajax_required
 def refresh(request,resource_name,resource_id):
     if not RESOURCE_NAME_MAP.has_key(resource_name):
         raise Http404
@@ -80,7 +88,27 @@ def refresh(request,resource_name,resource_id):
 
 @login_required
 @ajax_required
-def test_pagerduty(self,service_id):
+def test_pagerduty(request,service_id):
     service = get_object_or_404(Service,pk=service_id)
     service.send_alert(description="Test alert")
     return HttpResponse("OK")
+
+@csrf_exempt
+@login_required
+def code_check_upload(request,instance_id=None):
+    instance = None
+    if instance_id:
+        instance = get_object_or_404(CodeServiceCheck,pk=instance_id)
+
+    if request.method == "DELETE":
+        instance.delete()
+        return HttpResponse("OK")
+
+    data = request.POST.copy()
+    form_cls = RESOURCE_FORM_MAP[CodeServiceCheck]
+    form = form_cls(data,request.FILES,instance=instance)
+    if form.is_valid():
+        form.save()
+        return redirect(reverse("main_service",kwargs={'service_id':data['service']}))
+    else:
+        return HttpResponseBadRequest(form.errors.items())
