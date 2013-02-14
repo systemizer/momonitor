@@ -10,7 +10,7 @@ from main.constants import (STATUS_UNKNOWN,
                             STATUS_GOOD,
                             STATUS_BAD,
                             SERIALIZATION_CHOICES,
-                            UMPIRE_CHECK_CHOICES,
+                            PAST_CHECK_CHOICES,
                             COMPARATOR_CHOICES)
 import requests
 import json
@@ -220,21 +220,18 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_min = models.FloatField()
     umpire_max = models.FloatField()
     umpire_range = models.IntegerField(null=True,blank=True)
-    umpire_check_type = models.CharField(max_length=64,choices=UMPIRE_CHECK_CHOICES,default="static")
-    umpire_percent_change = models.FloatField(default=.2)
 
     def graphite_url(self):
         return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
 
     def status_progress(self):
-        if not self.last_value:
-            return 0
-        if self.last_value<self.umpire_min:
-            return 0
-        elif self.last_value>self.umpire_max:
-            return 100
-        else:
-            return (self.last_value-self.umpire_min)/(self.umpire_max-self.umpire_min)*100
+        return max(
+            min(
+                (self.last_value-self.umpire_min) / (self.umpire_max-self.umpire_min),
+                self.umpire_max
+                ),
+            self.umpire_min
+            )*100
 
     def update_status(self):
         value = None
@@ -253,7 +250,7 @@ class UmpireServiceCheck(ServiceCheck):
             res = requests.get(endpoint)
             res_data = res.json()
             if res.status_code == 200:                
-                value = res.json()['value']
+                value = res_data['value']
                 status = STATUS_GOOD
             else:
                 if res_data.has_key("value"):
@@ -269,9 +266,8 @@ class UmpireServiceCheck(ServiceCheck):
             status = STATUS_UNKNOWN
 
         try:
-            if value!=None:
-                value = round(float(value),2) #round to 2 decimal places for now
-        except ValueError:
+            value = round(float(value),2) #round to 2 decimal places for now
+        except (ValueError,TypeError) as e:
             logging.error("Failed at converting value %s to rounded float" % value)
             value = None
 
@@ -302,22 +298,26 @@ class PastServiceCheck(ServiceCheck):
             )*100
 
     def _update_history(self):
-        new_value = self.history_value*(1-self.learning_percent) \
-            + self.last_value*self.learning_percent
+        if self.history_value:
+            new_value = self.history_value*(1-self.learning_percent) \
+                + self.last_value*self.learning_percent
+        else:
+            new_value = self.last_value
+
         new_history = {
             'last_value':new_value,
             'last_updated':time.time()
             }
-        cache.set(self.history_redis_key,json.dumps(new_history),timeout=0)
+        cache.set(self._history_redis_key,json.dumps(new_history),timeout=0)
 
     @property
     def history_value(self):
-        if not cache.has_key(self.history_redis_key):
-            return None
-        return json.loads(cache.get(self.history_redis_key)).get("state")
+        if not cache.has_key(self._history_redis_key):
+            return 0
+        return json.loads(cache.get(self._history_redis_key)).get("last_value")
 
     @property
-    def history_redis_key(self):
+    def _history_redis_key(self):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,
                                      time.time()).get_next()
         cur_time = int(cur_time)
@@ -330,14 +330,15 @@ class PastServiceCheck(ServiceCheck):
         if self.check_type=="current":
             range = 60
         else:
-            range = time.time() % (60*60*24)
+            range = max(time.time() % (60*60*24),60)
 
         if self.history_value:
             umpire_min = self.history_value*(1-self.max_percent_diff)
             umpire_max = self.history_value*(1+self.max_percent_diff)
         else:
-            umpire_min = None
-            umpire_max = None
+            #NO HISTORY. WE WILL ASSUME IT SUCCEED ON FIRST TRY
+            umpire_min = 0
+            umpire_max = 9999999999999
 
         get_parameters = {
             'metric':self.umpire_metric,
@@ -350,8 +351,9 @@ class PastServiceCheck(ServiceCheck):
 
         try:
             res = requests.get(endpoint)
+            res_data = res.json()
             if res.status_code == 200:
-                value = res.json()['value']
+                value = res_data['value']
                 status = STATUS_GOOD
             else:
                 if res_data.has_key("value"):
@@ -374,6 +376,8 @@ class PastServiceCheck(ServiceCheck):
             value = None
 
         self.set_state(status=status,last_value=value)
+
+        #Only record in history if it was successful
         if status==STATUS_GOOD:
             self._update_history()
 

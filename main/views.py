@@ -30,11 +30,13 @@ def service(request,service_id):
     simple_checks = service.simpleservicecheck.all().order_by("id")
     compare_checks = service.compareservicecheck.all().order_by("id")
     complex_checks = service.complexservicecheck.all().order_by("id")
+    past_checks = service.pastservicecheck.all().order_by("id")
     return render_to_response("service.html",{'service':service,
                                               'umpire_checks':umpire_checks,
                                               'simple_checks':simple_checks,
                                               'compare_checks':compare_checks,
-                                              'complex_checks':complex_checks},
+                                              'complex_checks':complex_checks,
+                                              'past_checks':past_checks},
                               RequestContext(request))
 
 @login_required
