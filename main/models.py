@@ -10,7 +10,6 @@ from main.constants import (STATUS_UNKNOWN,
                             STATUS_GOOD,
                             STATUS_BAD,
                             SERIALIZATION_CHOICES,
-                            PAST_CHECK_CHOICES,
                             COMPARATOR_CHOICES)
 import requests
 import json
@@ -221,6 +220,32 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_max = models.FloatField()
     umpire_range = models.IntegerField(null=True,blank=True)
 
+    def _update_history(self):
+        if self.history_value:
+            new_value = self.history_value*.9 \
+                + self.last_value*.1
+        else:
+            new_value = self.last_value
+
+        new_history = {
+            'last_value':new_value,
+            'last_updated':time.time()
+            }
+        cache.set(self._history_redis_key,json.dumps(new_history),timeout=60*60*24*7)
+
+    @property
+    def history_value(self):
+        if not cache.has_key(self._history_redis_key):
+            return 0
+        return json.loads(cache.get(self._history_redis_key)).get("last_value")
+
+    @property
+    def _history_redis_key(self):
+        cur_time = croniter.croniter(self.frequency or self.service.frequency,
+                                     time.time()).get_next()
+        cur_time = int(cur_time)
+        return "%s:::%s" % (self._redis_key,(cur_time % (60*60*24)) / 60)
+
     def graphite_url(self):
         return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
 
@@ -272,114 +297,8 @@ class UmpireServiceCheck(ServiceCheck):
             value = None
 
         self.set_state(status=status,last_value=value)
-
-class PastServiceCheck(ServiceCheck):
-    resource_name="pastservicecheck"    
-
-    umpire_metric = models.CharField(max_length=256)
-    check_type = models.CharField(max_length=64,choices=PAST_CHECK_CHOICES,default="current")
-    max_percent_diff = models.FloatField(default=.25)
-    learning_percent = models.FloatField(default=.1)
-
-    def graphite_url(self):
-        return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
-
-    def status_progress(self):
-        if not self.history_value or not self.last_value:
-            return 0
-
-        return max(
-            min(
-                (self.last_value-(self.history_value*(1-self.max_percent_diff))) / \
-                    (self.history_value*self.max_percent_diff*2),
-                self.max_percent_diff
-                ),
-            -self.max_percent_diff
-            )*100
-
-    def _update_history(self):
-        if self.history_value:
-            new_value = self.history_value*(1-self.learning_percent) \
-                + self.last_value*self.learning_percent
-        else:
-            new_value = self.last_value
-
-        new_history = {
-            'last_value':new_value,
-            'last_updated':time.time()
-            }
-        cache.set(self._history_redis_key,json.dumps(new_history),timeout=0)
-
-    @property
-    def history_value(self):
-        if not cache.has_key(self._history_redis_key):
-            return 0
-        return json.loads(cache.get(self._history_redis_key)).get("last_value")
-
-    @property
-    def _history_redis_key(self):
-        cur_time = croniter.croniter(self.frequency or self.service.frequency,
-                                     time.time()).get_next()
-        cur_time = int(cur_time)
-        return "%s:::%s" % (self._redis_key,(cur_time % (60*60*24)) / 60)
-
-    def update_status(self):
-        value = None
-        status = STATUS_UNKNOWN
-
-        if self.check_type=="current":
-            range = 60
-        else:
-            range = max(time.time() % (60*60*24),60)
-
-        if self.history_value:
-            umpire_min = self.history_value*(1-self.max_percent_diff)
-            umpire_max = self.history_value*(1+self.max_percent_diff)
-        else:
-            #NO HISTORY. WE WILL ASSUME IT SUCCEED ON FIRST TRY
-            umpire_min = 0
-            umpire_max = 9999999999999
-
-        get_parameters = {
-            'metric':self.umpire_metric,
-            'min':umpire_min,
-            'max':umpire_max,
-            'range':self.umpire_range or self.service.umpire_range
-            }
-        endpoint = "%s?%s" % (settings.UMPIRE_ENDPOINT,
-                              urllib.urlencode(get_parameters))
-
-        try:
-            res = requests.get(endpoint)
-            res_data = res.json()
-            if res.status_code == 200:
-                value = res_data['value']
-                status = STATUS_GOOD
-            else:
-                if res_data.has_key("value"):
-                    value = res_data['value']
-                    status = STATUS_BAD
-                else:
-                    logging.error("Error fetching value from umpire: %s" % endpoint)
-                    value = self.last_value
-                    status = STATUS_UNKNOWN
-
-        except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
-            logging.error("Umpire is down?!?")
-            status = STATUS_UNKNOWN
-
-        try:
-            if value!=None:
-                value = round(float(value),2) #round to 2 decimal places for now
-        except ValueError:
-            logging.error("Failed at converting value %s to rounded float" % value)
-            value = None
-
-        self.set_state(status=status,last_value=value)
-
-        #Only record in history if it was successful
         if status==STATUS_GOOD:
-            self._update_history()
+            self._update_history
 
 '''
 This check looks at a specific field in a 
@@ -489,7 +408,6 @@ RESOURCES = [
     SimpleServiceCheck,
     UmpireServiceCheck,
     CompareServiceCheck,
-    PastServiceCheck,
     ComplexServiceCheck,
     ComplexRelatedField
 ]

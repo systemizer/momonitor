@@ -17,8 +17,3 @@ COMPARATOR_CHOICES = (
     ("<=","<="),
     ("contains","contains"),
 )
-
-PAST_CHECK_CHOICES = (
-    ("current","current"),
-    ("accumulate","accumulate")
-)
