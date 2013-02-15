@@ -4,8 +4,8 @@
 <div class="page-header">
   <div class="btn-group pull-right">
     <a class="btn ajaxify tooltipped" data-title="Run Checks" href="{% url main_refresh 'service' service.id %}" class="btn"><i class="icon-refresh"></i></a>
-    {% if service.pagerduty_key %}
-    <a class="btn ajaxify tooltipped" {% if service.silenced %}disabled{% endif %} data-title="Alert Pagerduty" href="{% url main_test_pagerduty service.id %}" class="btn"><i class="icon-flag"></i></a>
+    {% if service.alert_type != "none" %}
+    <a class="btn ajaxify tooltipped" {% if service.silenced %}disabled{% endif %} data-title="Test Alert" href="{% url main_test_alert service.id %}" class="btn"><i class="icon-flag"></i></a>
     {% endif %}
   </div>
   <h1>Service Checks <small>{{service.name}} {% if service.silenced %}(silenced){% endif %}</small></h1>

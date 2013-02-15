@@ -1,5 +1,8 @@
 from django.db import models
 import logging
+from django.template import Context
+from django.core.urlresolvers import reverse
+from django.template.loader import get_template
 from django.core.mail import send_mail
 from smtplib import SMTPException
 import pdb
@@ -105,7 +108,7 @@ class Service(models.Model):
         if not res.status_code==200:
             logging.error("Failed to alert pagerduty of event %s" % description)
 
-    def _send_alert_email(self,description,event_type):
+    def _send_alert_email(self,description):
         if not self.email_contact:
             logging.info("No email contact for service %s" % self.name)
         try:
@@ -132,9 +135,9 @@ class Service(models.Model):
 
         alert_type = alert_type or self.alert_type
         if alert_type == "pagerduty":
-            self._send_alert_pagerduty(self,description,event_type)
+            self._send_alert_pagerduty(description,event_type)
         elif alert_type == "email":
-            self._send_alert_email(self,description,event_type)
+            self._send_alert_email(description)
         else:
             logging.info("No alert being sent because alert type is 'none'")
         

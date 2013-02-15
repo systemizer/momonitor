@@ -19,7 +19,7 @@ COMPARATOR_CHOICES = (
 )
 
 ALERT_CHOICES = (
-    "pagerduty","pagerduty",
-    "email","email",
-    "none","none"
+    ("pagerduty","pagerduty"),
+    ("email","email"),
+    ("none","none")
     )

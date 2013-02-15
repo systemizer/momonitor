@@ -87,8 +87,7 @@ def refresh(request,resource_name,resource_id):
     return HttpResponse("OK")
 
 @login_required
-@ajax_required
-def test_pagerduty(request,service_id):
+def test_alert(request,service_id):
     service = get_object_or_404(Service,pk=service_id)
     service.send_alert(description="Test alert")
     return HttpResponse("OK")

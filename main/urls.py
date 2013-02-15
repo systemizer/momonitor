@@ -15,7 +15,7 @@ urlpatterns = patterns('momonitor.main.views',
                        url(r'^api/v1/codeservicecheck/(?P<instance_id>.*)/$','code_check_upload',name="main_code_check_upload"),
 
                        #Test pagerduty functionality
-                       url('^test/pagerduty/(?P<service_id>.*)/$','test_pagerduty',name="main_test_pagerduty"),
+                       url('^test/alert/(?P<service_id>.*)/$','test_alert',name="main_test_alert"),
 
 
                        (r'^api/', include(v1_api.urls)),
