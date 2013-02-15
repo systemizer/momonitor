@@ -1,6 +1,7 @@
 from tastypie.resources import ModelResource
 from tastypie.contrib.contenttypes.fields import GenericForeignKeyField
 from django.contrib.contenttypes.models import ContentType
+from tastypie.authentication import Authentication
 from tastypie import fields
 from tastypie.authorization import Authorization
 from momonitor.main.models import (Service,
@@ -12,6 +13,12 @@ from momonitor.main.models import (Service,
                                    ComplexRelatedField)
 
 from tastypie.api import Api
+
+class CustomAuthentication(Authentication):
+    def is_authenticated(self,request,**kwargs):
+        if request.user.is_authenticated():
+            return True
+        return False
 
 class ContentTypeResource(ModelResource):
     """
@@ -39,6 +46,7 @@ class ServiceResource(ModelResource):
         queryset = Service.objects.all()
         resource_name=Service.resource_name
         authorization=Authorization()
+        authentication=CustomAuthentication()
 
 
 class SimpleServiceCheckResource(ModelResource):
@@ -48,6 +56,7 @@ class SimpleServiceCheckResource(ModelResource):
         queryset = SimpleServiceCheck.objects.all()
         resource_name=SimpleServiceCheck.resource_name
         authorization=Authorization()
+        authentication=CustomAuthentication()
 
 class CodeServiceCheckResource(ModelResource):
     service = fields.ToOneField(ServiceResource,'service')
@@ -56,6 +65,7 @@ class CodeServiceCheckResource(ModelResource):
         queryset = CodeServiceCheck.objects.all()
         resource_name=CodeServiceCheck.resource_name
         authorization=Authorization()
+        authentication=CustomAuthentication()
 
 class CompareServiceCheckResource(ModelResource):
     service = fields.ToOneField(ServiceResource,'service')
@@ -64,6 +74,7 @@ class CompareServiceCheckResource(ModelResource):
         queryset = CompareServiceCheck.objects.all()
         resource_name=CompareServiceCheck.resource_name
         authorization=Authorization()
+        authentication=CustomAuthentication()
 
 class UmpireServiceCheckResource(ModelResource):
     service = fields.ToOneField(ServiceResource,'service')
@@ -72,6 +83,7 @@ class UmpireServiceCheckResource(ModelResource):
         queryset = UmpireServiceCheck.objects.all()
         resource_name=UmpireServiceCheck.resource_name
         authorization=Authorization()
+        authentication=CustomAuthentication()
 
 class ComplexServiceCheckResource(ModelResource):
     service = fields.ToOneField(ServiceResource,'service')
@@ -96,6 +108,7 @@ class ComplexRelatedFieldResource(ModelResource):
         resource_name=ComplexRelatedField.resource_name
         queryset = ComplexRelatedField.objects.all()
         authorization=Authorization()
+        authentication=CustomAuthentication()
 
 
 
