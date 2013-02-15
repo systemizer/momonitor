@@ -36,7 +36,7 @@ class Service(models.Model):
     frequency = models.CharField(max_length=128,default="*/5 * * * *") #cron format
     failures_before_alert = models.IntegerField(default=1)
     umpire_range = models.IntegerField(default=300)    
-    alert_type = models.CharField(max_length=64,choices=ALERT_CHOICES,default="pagerduty")
+    alert_type = models.CharField(max_length=64,choices=ALERT_CHOICES,default="none")
 
     def __unicode__(self):
         return self.name

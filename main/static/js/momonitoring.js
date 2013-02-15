@@ -88,13 +88,32 @@ function deleteResource(urlEndpoint) {
 
 function init(container$) {    
     if(typeof(container$)==='undefined') container$ = $('body');
+    d = container$;
 
-    $('.tooltipped').tooltip()
+    $('.choicebox',container$).each(function() {
+	var selectName = $(this).data("name");
+	var select$ = $('select[name='+selectName+']',container$);
+	var choicebox$ = $(this)
+	var choices$ = $('.choice',choicebox$);
+	select$.change(function() {
+	    choices$.each(function() {
+		if ($(this).attr("id")!==select$.val()) {
+		    $(this).hide();
+		} else {
+		    $(this).show();
+		}
+	    });
+	});
+	select$.change();
+    });
+	
+    $('.tooltipped',container$).tooltip()
 
-    $('.table-sortable').each(function() {sortableTable($(this));});
+    $('.table-sortable',container$).each(function() {sortableTable($(this));});
 
-    $('.modalize').click(function(event) {
+    $('.modalize',container$).click(function(event) {
 	event.preventDefault();
+	console.log("modalizing!");
 	var urlEndpoint = $(this).attr("href");
 	var dataType = $(this).data("type") || "html"
 	if (dataType==="image") {
@@ -105,12 +124,12 @@ function init(container$) {
 	}
     });
 
-    $('.delete').click(function(event) {
+    $('.delete',container$).click(function(event) {
 	event.preventDefault();
 	deleteResource($(this).attr("href"));
     });
     
-    $('.ajaxify').click(function(event) {
+    $('.ajaxify',container$).click(function(event) {
     	event.preventDefault();
     	$('#loading-container').show()
     	$.ajax({'url':$(this).attr("href"),
@@ -121,7 +140,7 @@ function init(container$) {
     	       });
     });
 
-    $('form.ajaxForm').submit(function(event) {
+    $('form.ajaxForm',container$).submit(function(event) {
     	event.preventDefault()	
     	var form$ = $(this);
 	data = form$.serializeObject()
@@ -168,7 +187,7 @@ function init(container$) {
     	});
     });
 
-    $('form').each(function() {
+    $('form',container$).each(function() {
 	var form$ = $(this);
 	$('input',form$).keypress(function(event) {
 	    if (event.which == 13) {
@@ -178,7 +197,7 @@ function init(container$) {
 	});
     });
 
-    $('.toggle-hide').click(function(e) {
+    $('.toggle-hide',container$).click(function(e) {
 	e.preventDefault()	
 	$($(this).attr("href")).toggle();
     });

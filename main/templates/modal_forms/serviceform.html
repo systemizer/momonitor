@@ -3,18 +3,24 @@
 {% block form_body %}
 <fieldset>
   <legend>Basic</legend>
-  <div class="pull-left">
+  <div class="pull-left half">
     <label>Name</label>
     {{form.name}}
-    <label>PagerDuty Key (optional)</label>
-    {{form.pagerduty_key}}
-    <label>Email Contact</label>
-    {{form.email_contact}}    
-  </div>
-  <div class="pull-right">
-    <label class="checkbox">{{form.silenced}} Silenced</label>
     <label>Alert Type</label>
     {{form.alert_type}}    
+  </div>
+  <div class="pull-right half">
+    <label class="checkbox">{{form.silenced}} Silenced</label>
+    <div class="choicebox" data-name="alert_type">
+      <div class="choice" id="pagerduty">
+	<label>PagerDuty Key (optional)</label>
+	{{form.pagerduty_key}}
+      </div>
+      <div class="choice" id="email">
+	<label>Email Contact</label>
+	{{form.email_contact}}    
+      </div>
+    </div>
   </div>
 
   <div class="clearfix"></div>

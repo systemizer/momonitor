@@ -11,7 +11,7 @@
   <thead>
     <th>Service Name</th>
     <th>P/F/U</th>
-    <th>Pagerduty Enabled</th>
+    <th>Alert Type</th>
     <th>Last Updated</th>
   </thead>
   <tbody>
@@ -27,7 +27,7 @@
 	</a>
       </td>
       <td width="10%">{{service.all_counts}}</td>
-      <td width="20%">{% if service.pagerduty_key %}True {% else %} False {% endif %}</td>
+      <td width="20%">{{service.alert_type}}</td>
       <td width="30%">{{service.last_updated|since}}</td>
     </tr>
     {% endfor %}
