@@ -296,6 +296,9 @@ class UmpireServiceCheck(ServiceCheck):
         return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
 
     def status_progress(self):
+        #MMEEENNNGGG
+        if self.umpire_max-self.umpire_min == 0:
+            return 0
         return max(
             min(
                 (self.last_value-self.umpire_min) / (self.umpire_max-self.umpire_min),
