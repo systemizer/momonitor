@@ -17,3 +17,9 @@ COMPARATOR_CHOICES = (
     ("<=","<="),
     ("contains","contains"),
 )
+
+ALERT_CHOICES = (
+    "pagerduty","pagerduty",
+    "email","email",
+    "none","none"
+    )

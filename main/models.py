@@ -1,5 +1,7 @@
 from django.db import models
 import logging
+from django.core.mail import send_mail
+from smtplib import SMTPException
 import pdb
 import croniter
 from django.core.cache import cache
@@ -10,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from main.constants import (STATUS_UNKNOWN,
                             STATUS_GOOD,
                             STATUS_BAD,
+                            ALERT_CHOICES,
                             SERIALIZATION_CHOICES,
                             COMPARATOR_CHOICES)
 import requests
@@ -21,13 +24,16 @@ class Service(models.Model):
 
     name = models.CharField(max_length=256)
     pagerduty_key = models.CharField(max_length=128,blank=True,null=True)
+    email_contact = models.EmailField(null=True,blank=True)
 
     silenced = models.BooleanField(default=False)
+
 
     #Default values if not specified in the check
     frequency = models.CharField(max_length=128,default="*/5 * * * *") #cron format
     failures_before_alert = models.IntegerField(default=1)
     umpire_range = models.IntegerField(default=300)    
+    alert_type = models.CharField(max_length=64,choices=ALERT_CHOICES,default="pagerduty")
 
     def __unicode__(self):
         return self.name
@@ -80,13 +86,9 @@ class Service(models.Model):
     def complex_counts(self):
         return self._status_counts(check_type="complexservicecheck")
 
-    def send_alert(self,description,event_type="trigger"):
-        if self.silenced:
-            logging.debug("Service %s is silenced. Not sending pagerduty alert %s" % (self.name,description))
-            return
-
+    def _send_alert_pagerduty(self,description,event_type="trigger"):
         if not self.pagerduty_key:
-            logging.info("No pagerduty key for service %s. Not sending alert." % self.pagerduty_key)
+            logging.info("No pagerduty key for service %s. Not sending alert." % self.name)
             return
 
         payload = {
@@ -102,6 +104,41 @@ class Service(models.Model):
 
         if not res.status_code==200:
             logging.error("Failed to alert pagerduty of event %s" % description)
+
+    def _send_alert_email(self,description,event_type):
+        if not self.email_contact:
+            logging.info("No email contact for service %s" % self.name)
+        try:
+            email_msg = get_template("alert_email.txt").render(
+                Context({"description":description,
+                         "service_name":self.name,
+                         "url":"%s%s" % (settings.DOMAIN,
+                                         reverse("main_service",kwargs={'service_id':self.id}))
+                         })
+                )
+                    
+            send_mail("MOMONITOR EVENT TRIGGERED",
+                      email_msg,
+                      settings.SERVER_EMAIL,
+                      [self.email_contact,],
+                      fail_silently=False)
+        except SMTPException:
+            logging.error("Failed to send email to %s for error %s" % (self.email_contact,description))
+
+    def send_alert(self,description,alert_type=None,event_type="trigger"):
+        if self.silenced:
+            logging.debug("Service %s is silenced. Not sending pagerduty alert %s" % (self.name,description))
+            return
+
+        alert_type = alert_type or self.alert_type
+        if alert_type == "pagerduty":
+            self._send_alert_pagerduty(self,description,event_type)
+        elif alert_type == "email":
+            self._send_alert_email(self,description,event_type)
+        else:
+            logging.info("No alert being sent because alert type is 'none'")
+        
+
 
     def all_checks(self,check_type=""):
         if check_type == "simpleservicecheck":
@@ -134,6 +171,7 @@ class ServiceCheck(models.Model):
     description = models.TextField(null=True,blank=True)    
     service = models.ForeignKey(Service,related_name="%(class)s")
     silenced = models.BooleanField(default=False)
+    alert_type = models.CharField(max_length=64,choices=ALERT_CHOICES,null=True,blank=True)
     frequency = models.CharField(max_length=128,null=True,blank=True)
     failures_before_alert = models.IntegerField(null=True,blank=True)
 
