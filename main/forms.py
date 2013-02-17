@@ -19,6 +19,13 @@ class ServiceCheckForm(forms.ModelForm):
             self.fields['service'].widget.attrs['value'] = service_id
         self.fields['description'].widget.attrs['rows'] = 5
         self.fields['description'].widget.attrs['placeholder'] = "Enter brief description here..."
+        self.fields['name'].widget.attrs['placeholder'] = "Check Name"
+        self.fields['failures_before_alert'].widget.attrs['placeholder'] = "i.e. 1"
+        self.fields['frequency'].widget.attrs['placeholder'] = "i.e. */5 * * * *"
+        if self.fields.has_key("endpoint"):
+            self.fields['endpoint'].widget.attrs['placeholder'] = "http://example.org"
+        if self.fields.has_key("timeout"):
+            self.fields['timeout'].widget.attrs['placeholder'] = "i.e. 100"
         
 
 class UmpireServiceCheckForm(ServiceCheckForm):

@@ -1,9 +1,13 @@
 {% load momonitor_tags %}
 
 <div class="btn-group pull-right">
-  <a href="{% url main_modal_form 'compareservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+  <a href="{% url main_modal_form 'compareservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize">
+    <i class="icon-plus tooltipped" data-title="Add Compare Check"></i>
+  </a>
 </div>
-<h3><a href="#comparetable" class="toggle-hide">Compare Checks</a> {{service.compare_counts}}</h3>
+<h3><a href="#comparetable" class="toggle-hide">Compare Checks</a> 
+  <small>{{service.compare_counts}}</small>
+</h3>
 <div class="clearfix"></div>
 <table id="comparetable" class="table table-hover table-bordered table-sortable">
   <thead>
@@ -28,7 +32,7 @@
 	<a class="delete" href="{{check|resource_url}}">
 	  <i class="icon-remove"></i>
 	</a>
-	<a class="modalize" data-type="image" href="{{check.graphite_url}}">
+	<a target="_blank" href="{{check.endpoint}}">
 	  <i class="icon-eye-open"></i>
 	</a>
       </td>

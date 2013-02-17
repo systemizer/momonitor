@@ -1,9 +1,13 @@
 {% load momonitor_tags %}
 
 <div class="btn-group pull-right">
-  <a href="{% url main_modal_form 'umpireservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize"><i class="icon-plus"></i></a>
+  <a href="{% url main_modal_form 'umpireservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize">
+    <i class="icon-plus tooltipped" data-title="Add Umpire Check"></i>
+  </a>
 </div>
-<h3><a href="#umpiretable" class="toggle-hide">Umpire Checks</a> {{service.umpire_counts}}</h3>
+<h3><a href="#umpiretable" class="toggle-hide">Umpire Checks</a> 
+  <small>{{service.umpire_counts}}</small>
+</h3>
 <div class="clearfix"></div>
 <table id="umpiretable" class="table table-hover table-bordered table-sortable">
   <thead>

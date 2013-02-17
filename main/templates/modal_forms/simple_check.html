@@ -3,35 +3,25 @@
 {% block form_body %}
 {{form.service}}
 <fieldset>
-  <legend>Basic</legend>
+  <legend class="modal-section-header">Basic</legend>
   <div class="pull-left">
     <label>Name</label>
     {{form.name}}
-    <label>Description</label>
+    <label>Description <small class="muted">(optional)</small></label>
     {{form.description}}
   </div>
   <div class="pull-right">
     <label class="checkbox">{{form.silenced}} Silenced</label>
     <label>URL Endpoint</label>
     {{form.endpoint}}
-    <label>Timeout (ms) (optional)</label>
+    <label>Timeout (ms) <small class="muted">(optional)</small></label>
     {{form.timeout}}
   </div>
   <div class="clearfix"></div>
-  <legend>
-    <a href="#advanced-settings" class="toggle-hide">
-      <small><i class="icon-plus"></i></small> 
-    </a>
-    Advanced
-  </legend>
-    <div id="advanced-settings" class="hide">
-    <label>Frequency</label>
-    {{form.frequency}}
-    <label>Failures Before Alert</label>
-    {{form.failures_before_alert}}
-    <label>Alert Type</label>
-    {{form.alert_type}}    
-  </div>
+</fieldset>
+<hr />
+<fieldset>
+  {% include "modal_forms/advanced_form_directions.html" %}
 </fieldset>
 
 

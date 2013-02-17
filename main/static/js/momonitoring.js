@@ -90,6 +90,8 @@ function init(container$) {
     if(typeof(container$)==='undefined') container$ = $('body');
     d = container$;
 
+    $('.popovered',container$).popover()
+
     $('.choicebox',container$).each(function() {
 	var selectName = $(this).data("name");
 	var select$ = $('select[name='+selectName+']',container$);

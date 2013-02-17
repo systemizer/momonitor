@@ -3,10 +3,12 @@
 
 {% block body %}
 <div class="page-header">
-  <h1>All Services</h1>
+  <a id="add-service-button" href="{% url main_modal_form 'service' %}" role="button" class="btn modalize pull-right tooltipped" data-title="Add Service"><i class="icon-plus"></i></a>
+  <h1>All Services</h1>  
+  <div class="clearfix"></div>
 </div>
-<a id="add-service-button" href="{% url main_modal_form 'service' %}" role="button" class="btn modalize pull-right"><i class="icon-plus"></i></a>
-<p class="clearfix"></p>
+
+
 <table class="table table-hover table-bordered table-sortable">
   <thead>
     <th>Service Name</th>
@@ -40,4 +42,14 @@
     {% endif %}
   </tbody>
 </table>
+<hr />
+<footer class="footer">
+  <div class="container">
+    <center>
+      <p><a href="{% url main_how_it_works %}">How it works</a></p>
+      <p>Designed and built by <a href="http://twitter.com/systemizer">@systemizer</a></p>
+      <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License v2.0</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a></p>
+    </center>
+  </div>
+</footer>
 {% endblock %}

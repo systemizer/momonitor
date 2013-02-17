@@ -111,3 +111,8 @@ def code_check_upload(request,instance_id=None):
         return redirect(reverse("main_service",kwargs={'service_id':data['service']}))
     else:
         return HttpResponseBadRequest(form.errors.items())
+
+def how_it_works(request):
+    request.breadcrumbs("Services",reverse("main_index"))
+    request.breadcrumbs("How it works",reverse("main_how_it_works"))
+    return render_to_response("how-it-works.html",{},RequestContext(request))

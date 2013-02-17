@@ -5,6 +5,7 @@ urlpatterns = patterns('momonitor.main.views',
                        url('^$','index',name="main_index"),
                        url('^service/(?P<service_id>.*)/$','service',name="main_service"),                       
                        url('^refresh/(?P<resource_name>.*)/(?P<resource_id>.*)/$','refresh',name="main_refresh"),
+                       url('^how-it-works/$','how_it_works',name="main_how_it_works"),
 
                        #CRUD FORMS
                        url('^modal/form/(?P<resource_name>.*)/(?P<resource_id>.*)/$','modal_form',name="main_modal_form"),
