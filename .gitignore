@@ -7,3 +7,5 @@ main/migrations
 dump.rdb
 test_data.json
 media/*
+test_settings.py
+\.DS_STORE
