@@ -121,3 +121,4 @@ except:
     print "Could not find local_settings.py. Exiting"
     sys.exit()
 
+TESTING = sys.argv[1:2] == ['test']

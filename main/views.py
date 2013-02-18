@@ -3,7 +3,17 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required as _login_required
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.conf import settings
+
+def login_required(function=None,
+                   redirect_field_name=REDIRECT_FIELD_NAME,
+                   login_url=None):
+    if settings.TESTING or settings.DEBUG:
+        return function
+    else:
+        return _login_required(function,redirect_field_name,login_url)
 
 from momonitor.main.models import (RESOURCE_NAME_MAP,
                                    Service,
