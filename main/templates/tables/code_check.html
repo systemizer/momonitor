@@ -21,8 +21,8 @@
     <th>Last Updated</th>
   </thead>
   <tbody>
-    {% if code_checks.count %}
-    {% for check in code_checks.all %}
+    {% if service.codeservicecheck.count %}
+    {% for check in service.codeservicecheck.all|dictsort:"id" %}
     <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced or service.silenced %}muted{% endif %}">
       <td width="30%">
 	{{check.name}} {% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}

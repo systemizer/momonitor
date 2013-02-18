@@ -7,29 +7,32 @@ from django.contrib.auth.decorators import login_required as _login_required
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.conf import settings
 
-def login_required(function=None,
-                   redirect_field_name=REDIRECT_FIELD_NAME,
-                   login_url=None):
-    if settings.TESTING or settings.DEBUG:
-        return function
-    else:
-        return _login_required(function,redirect_field_name,login_url)
-
 from momonitor.main.models import (RESOURCE_NAME_MAP,
                                    Service,
                                    CodeServiceCheck,
                                    RESOURCES)
 
 from momonitor.main.forms import RESOURCE_FORM_MAP
-
 from momonitor.main.decorators import ajax_required
+
+###django-social-auth does a terrible job allowing for unitests. 
+###I rather just skip the whole process
+def login_required(function=None,
+                   redirect_field_name=REDIRECT_FIELD_NAME,
+                   login_url=None):
+    if settings.TESTING:
+        return function
+    else:
+        return _login_required(function,redirect_field_name,login_url)
 
 @login_required
 def index(request):
     request.breadcrumbs("Services",reverse("main_index"))
 
     services = Service.objects.all().order_by("id")
-    return render_to_response("index.html",{'services':services},RequestContext(request))
+    return render_to_response("index.html",
+                              {'services':services},
+                              RequestContext(request))
 
 @login_required
 def service(request,service_id):
@@ -38,17 +41,8 @@ def service(request,service_id):
     request.breadcrumbs("Services",reverse("main_index"))
     request.breadcrumbs(service.name,reverse("main_service",kwargs={'service_id':service.id}))
 
-    umpire_checks = service.umpireservicecheck.all().order_by("id")
-    simple_checks = service.simpleservicecheck.all().order_by("id")
-    compare_checks = service.compareservicecheck.all().order_by("id")
-    code_checks = service.codeservicecheck.all().order_by("id")
-    complex_checks = service.complexservicecheck.all().order_by("id")
-    return render_to_response("service.html",{'service':service,
-                                              'umpire_checks':umpire_checks,
-                                              'simple_checks':simple_checks,
-                                              'compare_checks':compare_checks,
-                                              'code_checks':code_checks,
-                                              'complex_checks':complex_checks},
+    return render_to_response("service.html",
+                              {'service':service},
                               RequestContext(request))
 
 @login_required
@@ -68,7 +62,7 @@ def modal_form(request,resource_name,resource_id=None):
         method="POST"
         action="/api/v1/%s/?format=json" % (resource_cls.resource_name)
 
-    #Hack to get code check upload to work
+    #Most of this junk is to make tastypie happy. I regret using it. 
     if resource_cls == CodeServiceCheck:
         method="POST"
 
@@ -102,7 +96,8 @@ def test_alert(request,service_id):
     service.send_alert(description="Test alert")
     return HttpResponse("OK")
 
-@csrf_exempt
+# We need a separate upload handler for code checks
+# because tastypie is bad with uploading files
 @login_required
 def code_check_upload(request,instance_id=None):
     instance = None
@@ -113,15 +108,15 @@ def code_check_upload(request,instance_id=None):
         instance.delete()
         return HttpResponse("OK")
 
-    data = request.POST.copy()
     form_cls = RESOURCE_FORM_MAP[CodeServiceCheck]
-    form = form_cls(data,request.FILES,instance=instance)
+    form = form_cls(request.POST,request.FILES,instance=instance)
     if form.is_valid():
         form.save()
-        return redirect(reverse("main_service",kwargs={'service_id':data['service']}))
+        return redirect(reverse("main_service",kwargs={'service_id':request.POST.get('service')}))
     else:
         return HttpResponseBadRequest(form.errors.items())
 
+@login_required
 def how_it_works(request):
     request.breadcrumbs("Services",reverse("main_index"))
     request.breadcrumbs("How it works",reverse("main_how_it_works"))
