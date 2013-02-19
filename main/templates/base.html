@@ -28,12 +28,20 @@
 	</div>
 	{% endfor %}
 	{% endif %}
-
-	
 	{% block body %}
 	{% endblock %}
       </div>
     </div>
+    {% block footer %}
+    <hr />
+    <footer class="footer">
+      <div class="container">
+	<center>
+	  <a href="{% url main_index %}">Go back home</a>
+	</center>
+      </div>
+    </footer>
+    {% endblock %}
     <div class="modal hide fade" id="myModalContainer">
     </div>
     <div id="loading-container" class="hide">

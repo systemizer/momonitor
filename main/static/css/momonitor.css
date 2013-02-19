@@ -8,7 +8,7 @@ a:hover {text-decoration:none;}
 .half {width:50%;}
 .modal form .checkbox {padding-bottom:10px;border-bottom:solid thin #999;margin-bottom:10px;}
 dt, dd {line-height:normal;}
-dt {margin-top:7px;}
+dt {margin-top:7px;margin-bottom:2px;}
 .modal-section-header {
     background-color:#369;
     padding-left:10px;

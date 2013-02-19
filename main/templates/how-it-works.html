@@ -13,42 +13,69 @@
 <h3>What it isn't</h3>
 <p>Momonitor is not a tool for finding errors on single machines. It lacks the functionality at peforming specific checks on specific machines. This is better done using a tol like <a href="https://github.com/sensu">Sensu</a>. Sensu / Momonitor integration is coming.</p> 
 <h3 class="page-header">Types of Checks</h3>
-<dl>
-  <dt>Simple Check</dt>
-  <dd>Simple Checks check a single URL endpoint and report whether the response was a 200 or 500</dd>
-  <dt>Umpire Check</dt>
-  <dd>Umpire Checks allows to put minimum and maximum threholds on <a href="http://graphite.wikidot.com/">Graphite</a> data. This check requires an umpire endpoint to be specified in the settings.py file for momonitor.</dd>
-  <dt>Compare Check</dt>
-  <dd>Compare Checks check a single URL endpoint that returns serialized data (i.e. json). You can compare a single data field via dot-notation and compare arithmatically compare it to a given value</dd>
-  <dt>Code Check</dt>
-  <dd>Code Checks checks run arbitrary code on the momonitor server. This allows for the ultimate custom check, but be careful! The uploaded code should be a .py file that has a run function which returns a tuple (value,succeeded).</dd>
-</dl>
+<div class="row">
+  <div class="span7">
+    <dl>
+      <dt>Simple Check</dt>
+      <dd>Simple Checks check a single URL endpoint and report whether the response was a 200 or 500</dd>
+      <dt>Umpire Check</dt>
+      <dd>Umpire Checks allows to put minimum and maximum threholds on <a href="http://graphite.wikidot.com/">Graphite</a> data. This check requires an umpire endpoint to be specified in the settings.py file for momonitor.</dd>
+      <dt>Compare Check</dt>
+      <dd>Compare Checks check a single URL endpoint that returns serialized data (i.e. json). You can compare a single data field via dot-notation and compare arithmatically compare it to a given value</dd>
+      <dt>Code Check</dt>
+      <dd>Code Checks checks run arbitrary code on the momonitor server. This allows for the ultimate custom check, but be careful! The uploaded code should be a .py file that has a run function which returns a tuple (value,succeeded).</dd>
+    </dl>
+  </div>
+  <div class="span5">
+    <img src="{{STATIC_URL}}img/screenshot1.jpg" />
+  </div>
+</div>
 <h3 class="page-header">Check Options</h3>
-<dl>
-  <dt>Frequency</dt>
-  <dd>Cron-like interface to specify how often you would like your check to run</dd>
-  <dt>Failures before Alert</dt>
-  <dd>Number of consecutive failures to occur before an alert is sent</dd>
-  <dt>Silenced</dt>
-  <dd>If a check is silenced, it will not send alerts even if it is failing</dd>
-</dl>
+<div class="row">
+  <div class="span4">
+    <img src="{{STATIC_URL}}img/screenshot2.jpg" />
+  </div>
+  <div class="span8">
+    <dl>
+      <dt>Frequency</dt>
+      <dd>Cron-like interface to specify how often you would like your check to run</dd>
+      <dt>Failures before Alert</dt>
+      <dd>Number of consecutive failures to occur before an alert is sent</dd>
+      <dt>Silenced</dt>
+      <dd>If a check is silenced, it will not send alerts even if it is failing</dd>
+    </dl>
+  </div>
+</div>
 <h3 class="page-header">Check Statuses</h3>
-<dl>
-  <dt>Good</dt>
-  <dd>The last check was passing</dd>
-  <dt>Bad</dt>
-  <dd>The check has failed at least X times (default 1). This value is configurable via the "Failures Before Alert" option</dd>  
-  <dt>Unknown</dt>
-  <dd>The service / endpoint providing the check either failed or gave a non-valid response</dd>
-</dl>
+<div class="row">  
+  <div class="span7">
+    <dl>
+      <dt>Good</dt>
+      <dd>The last check was passing</dd>
+      <dt>Bad</dt>
+      <dd>The check has failed at least X times (default 1). This value is configurable via the "Failures Before Alert" option</dd>  
+      <dt>Unknown</dt>
+      <dd>The service / endpoint providing the check either failed or gave a non-valid response</dd>
+    </dl>
+  </div>
+  <div class="span5">
+    <img src="{{STATIC_URL}}img/screenshot3.jpg" />
+  </div>
+</div>
 <h3 class="page-header">Types of Alerts</h3>
-<dl>
-  <dt>Email</dt>
-  <dd>Email alerts will send an an email to the specified contact upon a check failing</dd>
-  <dt>Pagerduty</dt>
-  <dd>Pagerduty alerts will trigger an event to the specified <a href="http://www.pagerduty.com/">Pagerduty</a> service key upon a check failing</dd>
-  <dt>None</dt>
-  <dd>This option will disable alerts for the service</dd>
-</dl>
-
+<div class="row">
+  <div class="span4">
+    <img src="{{STATIC_URL}}img/screenshot4.jpg" />
+  </div>
+  <div class="span8">    
+    <dl>
+      <dt>Email</dt>
+      <dd>Email alerts will send an an email to the specified contact upon a check failing</dd>
+      <dt>Pagerduty</dt>
+      <dd>Pagerduty alerts will trigger an event to the specified <a href="http://www.pagerduty.com/">Pagerduty</a> service key upon a check failing</dd>
+      <dt>None</dt>
+      <dd>This option will disable alerts for the service</dd>
+    </dl>
+  </div>
+</div>
 {% endblock %}
