@@ -1,31 +1,26 @@
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-
-MANAGERS = ADMINS
-SECRET_KEY = '' #set to something unique
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
-PAGERDUTY_ENDPOINT = "https://events.pagerduty.com/generic/2010-04-15/create_event.json"
+#Optional (if you are using umpire checks)
 UMPIRE_ENDPOINT = ""
 GRAPHITE_ENDPOINT = ""
 
+#By default, use GoogleBackend
 AUTHENTICATION_BACKENDS = (
     'social_auth.backends.google.GoogleBackend',
 )
 
-LOGIN_URL = '/social_auth/login/google/'
-
+#OAuth rule. Only allow people with a google email ending in 'example.org' to access the site
 GOOGLE_WHITE_LISTED_DOMAINS = ['example.org']
+DOMAIN = "http://localhost"

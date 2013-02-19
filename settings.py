@@ -1,44 +1,24 @@
+#################
+##
+## Momonitor Django Settings
+##
+#################
 
 
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# On Unix systems, a value of None will cause Django to use the same
-# timezone as the operating system.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
 TIME_ZONE = 'America/Chicago'
-
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
-
 SITE_ID = 1
-
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
 USE_I18N = True
-
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale
 USE_L10N = True
 
+#Setup media path
 import os
 dir_path = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
-
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = '%s/media/' % dir_path
 
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash if there is a path component (optional in other cases).
-# Examples: "http://media.lawrence.com", "http://example.com/media/"
+#URLs. Probably want to serve these via a static http server, but here for DEBUG=True situations
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/admin-media/'
 
 # List of callables that know how to import templates from various sources.
@@ -72,6 +52,7 @@ INSTALLED_APPS = (
     'social_auth'
 )
 
+#Redis Cache required to keep application state.
 CACHES = {
     "default": {
         "BACKEND": "redis_cache.cache.RedisCache",
@@ -91,6 +72,7 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
                                "django.contrib.messages.context_processors.messages",
                                'django.core.context_processors.request')
 
+#Email the admins if momonitor ever breaks
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -109,11 +91,18 @@ LOGGING = {
     }
 }
 
-SERVER_EMAIL = "momonitor-alert@mopub.com"
+#This is the global endpoint that pagerduty uses for custom events.
+PAGERDUTY_ENDPOINT = "https://events.pagerduty.com/generic/2010-04-15/create_event.json"
+LOGIN_URL = '/social_auth/login/google/'
 
+#Add media to the python path so that we can run code checks in the media/uploaded_scripts directory
 import sys
 sys.path.insert(0,os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)) ,'media')))
 
+#Hackish way to set a TESTING variable. Currently this is only used so OAuth can be bypassed during testing.
+TESTING = sys.argv[1:2] == ['test']
+
+#Attempt to import local_settings
 try:
     from local_settings import *
 except:
@@ -121,4 +110,4 @@ except:
     print "Could not find local_settings.py. Exiting"
     sys.exit()
 
-TESTING = sys.argv[1:2] == ['test']
+
