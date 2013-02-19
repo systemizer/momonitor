@@ -2,6 +2,24 @@
 
 Momonitor was originally developed as a replacement to Nagios. It is currently the primary monitoring / reporting tool used at MoPub, which monitors hundreds of servers and billions of requests everyday. Momonitor was developed by @systemizer.
 
+# Getting Started
+
+Momonitor is a Django app that runs on a PostgreSQL backend and Redis Cache. Check and service configurations are kept in Postgres while application state is kept in Redis. Momonitor is configured to use Google OAuth for authentication via django-social-auth. For regular reporting checks, a crontab template has been provided. A gunicorn configuration file is provided in case you choose to run Momonitor with under a gunicorn process.
+
+To install Momonitor, follow the below steps:
+
+* git clone git@github.com:mopub/momonitor.git
+* pip install -r requirements.txt
+* cp local_settings_template.py local_settings.py
+* Fill out the necessary constants in local_settings.py 
+* Start the PostgreSQL server, create the necessary database. 
+* python manage.py schemamigration main --initial
+* python manage.py syncdb
+* python manage.py migrate main
+* python manage.py runserver
+
+# Overview
+
 ## What it is
 Momonitor is a simple tool that polls URL endpoints and runs checks on the respective responses. It integrates with several types of responses from multiple services, thus it leaves the check complexity to the process listening on the endpoint.
 
