@@ -115,7 +115,6 @@ function init(container$) {
 
     $('.modalize',container$).click(function(event) {
 	event.preventDefault();
-	console.log("modalizing!");
 	var urlEndpoint = $(this).attr("href");
 	var dataType = $(this).data("type") || "html"
 	if (dataType==="image") {
@@ -124,6 +123,24 @@ function init(container$) {
 	} else {
 	    fetchModal(urlEndpoint,"#myModalContainer",dataType)
 	}
+    });
+    $('.highchartize',container$).click(function(event) {
+	event.preventDefault();
+	target$ = $(this);
+	dataSeries = target$.data("series");
+	var container = $("<div id='highchart-container'>");
+	container.appendTo("#myModalContainer");
+	var chart = new Highcharts.Chart({
+	    chart : {
+		renderTo:'highchart-container',
+		type:'line'
+	    },
+	    series : [{
+		name : "test",
+		data : dataSeries
+	    }]
+	});
+	$('#myModalContainer').modal();
     });
 
     $('.delete',container$).click(function(event) {

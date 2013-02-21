@@ -4,20 +4,29 @@
 {{form.service}}
 <fieldset>
   <legend class="modal-section-header">Basic</legend>
-  <div class="pull-left">
+  <div class="pull-left half">
     <label>Name</label>
     {{form.name}}
     <label>Description</label>
     {{form.description}}
+    <label>Umpire Check Type</label>
+    {{form.umpire_check_type}}
   </div>
-  <div class="pull-right">
+  <div class="pull-right half">
     <label class="checkbox">{{form.silenced}} Silenced</label>
     <label>Umpire Metric</label>
     {{form.umpire_metric}}
-    <label>Umpire Min</label>
-    {{form.umpire_min}}
-    <label>Umpire Max</label>
-    {{form.umpire_max}}
+    <div class="choicebox" data-name="umpire_check_type">
+      <div class="choice" id="static">
+	<label>Umpire Min</label>
+	{{form.umpire_min}}
+	<label>Umpire Max</label>
+	{{form.umpire_max}}
+      </div>
+      <div class="choice" id="dynamic">
+	<i class="muted">Error range will be computed over time based on past history</i>
+      </div>
+    </div>
   </div>
   <div class="clearfix"></div>
 </fieldset>

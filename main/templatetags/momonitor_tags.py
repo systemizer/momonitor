@@ -12,6 +12,9 @@ def percentage(value):
     value*=100
     return ("%s" % int(value)) + "%"
 
+def multiply(value,factor):
+    return value*factor
+
 def negate(value):
     return -value
 
@@ -56,6 +59,7 @@ def to_bootstrap_progressbarclass(value):
 
 register.filter('since', since)
 register.filter('percentage', percentage)
+register.filter('multiply', multiply)
 register.filter('negate', negate)
 register.filter('to_bootstrap_rowclass', to_bootstrap_rowclass)
 register.filter('to_bootstrap_progressbarclass', to_bootstrap_progressbarclass)

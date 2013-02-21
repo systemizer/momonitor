@@ -17,6 +17,7 @@ from main.constants import (STATUS_UNKNOWN,
                             STATUS_BAD,
                             ALERT_CHOICES,
                             SERIALIZATION_CHOICES,
+                            UMPIRE_CHECK_TYPES,
                             COMPARATOR_CHOICES)
 import requests
 import json
@@ -268,6 +269,7 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_min = models.FloatField()
     umpire_max = models.FloatField()
     umpire_range = models.IntegerField(null=True,blank=True)
+    umpire_check_type = models.CharField(max_length=64,choices=UMPIRE_CHECK_TYPES,default="static")
 
     def _update_history(self):
         if self.history_value:
@@ -316,14 +318,28 @@ class UmpireServiceCheck(ServiceCheck):
             0
             )*100
 
+    def _update_status_static(self):
+        return (self.umpire_min,self.umpire_max)
+
+    def _update_status_dynamic(self):
+        if not self.history_value:
+            #if you have no history, then you should accept all
+            return 0,99999999999999999
+        return .8*self.history_value,1.2*self.history_value
+
     def update_status(self):
         value = None
         status = STATUS_UNKNOWN
+        
+        if self.umpire_check_type=="static":            
+            umpire_min,umpire_max = self._update_status_static()
+        else:
+            umpire_min,umpire_max = self._update_status_dynamic()
 
         get_parameters = {
             'metric':self.umpire_metric,
-            'min':self.umpire_min,
-            'max':self.umpire_max,
+            'min':umpire_min,
+            'max':umpire_max,
             'range':self.umpire_range or self.service.umpire_range
             }
         endpoint = "%s?%s" % (settings.UMPIRE_ENDPOINT,
