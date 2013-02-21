@@ -129,6 +129,7 @@ function init(container$) {
 	target$ = $(this);
 	dataSeries = target$.data("series");
 	dataNames = target$.data("names").split(",")
+	$('#myModalContainer').html("") //clean up modal for next request.
 	var container = $("<div id='highchart-container'>");
 	container.appendTo("#myModalContainer");
 	

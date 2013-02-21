@@ -301,12 +301,18 @@ class UmpireServiceCheck(ServiceCheck):
     def history_series(self,num_values=20):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
         key_series = ["%s:::%s" % (self._redis_key,(int(cur_time.get_prev()) % (60*60*24)) / 60) for i in range(num_values)]
-        return [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
+        value_series = [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
+        value_series.reverse()
+        value_series.append(self.history_value)
+        return value_series
 
     def last_series(self,num_values=20):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
         key_series = ["%s:::%s:::%s" % (self._redis_key,(int(cur_time.get_prev()) % (60*60*24)) / 60,"last") for i in range(num_values)]
-        return [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
+        value_series = [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
+        value_series.reverse()
+        value_series.append(self.last_value)
+        return value_series
 
     @property
     def _history_redis_key(self):
@@ -315,6 +321,7 @@ class UmpireServiceCheck(ServiceCheck):
         cur_time = int(cur_time)
         return "%s:::%s" % (self._redis_key,(cur_time % (60*60*24)) / 60)
 
+    @property
     def _last_history_redis_key(self):
         return "%s:::%s" % (self._history_redis_key,"last")
 
@@ -322,12 +329,32 @@ class UmpireServiceCheck(ServiceCheck):
         return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
 
     def status_progress(self):
+        if self.umpire_check_type=="static":
+            return self._status_progress_static()
+        else:
+            return self._status_progress_dynamic()
+
+    def _status_progress_static(self):
         #MMEEENNNGGG
         if self.umpire_max-self.umpire_min == 0:
             return 0
         return max(
             min(
                 (self.last_value-self.umpire_min) / (self.umpire_max-self.umpire_min),
+                1
+                ),
+            0
+            )*100
+
+    def _status_progress_dynamic(self):
+        min_value = self.history_value*.8
+        max_value = self.history_value*1.2
+        #MMEEENNNGGG
+        if max_value-min_value == 0:
+            return 0
+        return max(
+            min(
+                (self.last_value-min_value) / (max_value-min_value),
                 1
                 ),
             0
