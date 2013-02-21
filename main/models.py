@@ -386,12 +386,23 @@ class CompareServiceCheck(ServiceCheck):
                 if self.serialization=="json":
                     res_data = res.json()
                     for subfield in self.field.split("."):
-                        if not res_data.has_key(subfield):
-                            logging.error("Bad field path for check %s and field path %s" % (self.name,self.field))
-                            status = STATUS_BAD
-                            res_data = None
-                            break
-                        res_data = res_data[subfield]
+                        if type(res_data) == list:
+                            try:
+                                subfield = int(subfield)
+                                res_data = res_data[subfield]
+                            except (ValueError,IndexError):
+                                logging.error("Failed to parse json data correctly. Can't index %s in list of length" % (subfield,len(res_data)))
+                                status = STATUS_UNKNOWN
+                                res_data = None
+                                break                            
+                            
+                        else:
+                            if not res_data.has_key(subfield):
+                                logging.error("Bad field path for check %s and field path %s" % (self.name,self.field))
+                                status = STATUS_BAD
+                                res_data = None
+                                break
+                            res_data = res_data[subfield]
 
                 elif self.serialization=="plaintext":
                     res_data = res.text
