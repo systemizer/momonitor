@@ -287,10 +287,12 @@ class UmpireServiceCheck(ServiceCheck):
         if not cache.has_key(self._history_redis_key):
             return 0
         return json.loads(cache.get(self._history_redis_key)).get("last_value")
-    
+
     def history_series(self,num_values=20):
-        key_series = ["%s:::%s" % (self._redis_key,a.get_prev() % (60*60*24) / 60) for i in range(num_values)]
-        return [cache.get(key) if cache.has_key(key) else 0 for key in key_series]
+        cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
+        key_series = ["%s:::%s" % (self._redis_key,(int(cur_time.get_prev()) % (60*60*24)) / 60) for i in range(num_values)]
+        print key_series
+        return [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
 
     @property
     def _history_redis_key(self):
