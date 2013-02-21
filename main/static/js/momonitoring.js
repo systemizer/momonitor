@@ -128,18 +128,21 @@ function init(container$) {
 	event.preventDefault();
 	target$ = $(this);
 	dataSeries = target$.data("series");
+	dataNames = target$.data("names").split(",")
 	var container = $("<div id='highchart-container'>");
 	container.appendTo("#myModalContainer");
-	var chart = new Highcharts.Chart({
+	
+	var chartOptions = {
 	    chart : {
 		renderTo:'highchart-container',
 		type:'line'
 	    },
-	    series : [{
-		name : "test",
-		data : dataSeries
-	    }]
+	    series : []
+	}
+	$(dataSeries).each(function(index,series) {
+	    chartOptions['series'].push({'name':dataNames[index],'data':series});
 	});
+	var chart = new Highcharts.Chart(chartOptions);
 	$('#myModalContainer').modal();
     });
 
