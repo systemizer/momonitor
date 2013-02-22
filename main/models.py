@@ -283,7 +283,7 @@ class UmpireServiceCheck(ServiceCheck):
             'last_value':new_value,
             'last_updated':time.time()
             }
-        cache.set(self._history_redis_key,json.dumps(new_history),timeout=60*60*24*7)
+        cache.set(self._history_redis_key(),json.dumps(new_history),timeout=60*60*24*7)
 
     def set_state(self,status,last_value):
         super(UmpireServiceCheck,self).set_state(status,last_value)
@@ -291,36 +291,41 @@ class UmpireServiceCheck(ServiceCheck):
             'last_value':last_value,
             'last_updated':time.time()
             }
-        cache.set(self._last_history_redis_key,json.dumps(last_history),timeout=60*60*24*1.2)
+        cache.set(self._last_history_redis_key(),json.dumps(last_history),timeout=60*60*24*1.2)
 
     @property
     def history_value(self):
-        if not cache.has_key(self._history_redis_key):
+        if not cache.has_key(self._history_redis_key()):
             return 0
-        return json.loads(cache.get(self._history_redis_key)).get("last_value")
+        return json.loads(cache.get(self._history_redis_key())).get("last_value")
 
     def history_series(self,num_values=60):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
-        key_series = ["%s:::%s" % (self._redis_key,(int(cur_time.get_prev()) % (60*60*24)) / 60) for i in range(num_values)]
+        cur_time.get_next() #get next so the first get_prev is the current value
+
+        key_series = ["%s:::%s" % (self._redis_key,self._standardize_minutes(cur_time.get_prev())) for i in range(num_values)]
+
         value_series = [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
         value_series.reverse()
-        value_series.append(self.history_value)
         return value_series
 
     def last_series(self,num_values=60):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
-        key_series = ["%s:::%s:::%s" % (self._redis_key,(int(cur_time.get_prev()) % (60*60*24)) / 60,"last") for i in range(num_values)]
+        cur_time.get_next() #get next so the first get_prev is the current value
+
+        key_series = ["%s:::%s:::%s" % (self._redis_key,self._standardize_minutes(cur_time.get_prev()),"last") for i in range(num_values)]
+
         value_series = [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
         value_series.reverse()
-        value_series.append(self.last_value)
         return value_series
 
     @property
     def _history_redis_key(self):
-        cur_time = croniter.croniter(self.frequency or self.service.frequency,
-                                     time.time()).get_next()
-        cur_time = int(cur_time)
-        return "%s:::%s" % (self._redis_key,(cur_time % (60*60*24)) / 60)
+        cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time()).get_next()
+        return "%s:::%s" % (self._redis_key,self._standardize_minutes(cur_time))
+
+    def _standardize_minutes(self,cur_time):
+        return (int(cur_time) % (60*60*24)) / 60
 
     @property
     def error_lower_bound(self):
@@ -332,7 +337,7 @@ class UmpireServiceCheck(ServiceCheck):
 
     @property
     def _last_history_redis_key(self):
-        return "%s:::%s" % (self._history_redis_key,"last")
+        return "%s:::%s" % (self._history_redis_key(),"last")
 
     def graphite_url(self):
         return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
