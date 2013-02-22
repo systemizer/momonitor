@@ -135,7 +135,7 @@ function init(container$) {
 	var chartOptions = {
 	    chart : {
 		renderTo:'highchart-container',
-		type:'area'		
+		type:'line'		
 	    },
 	    title : {
 		text : target$.data("title") || "No title given"
