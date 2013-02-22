@@ -299,7 +299,7 @@ class UmpireServiceCheck(ServiceCheck):
             return 0
         return json.loads(cache.get(self._history_redis_key)).get("last_value")
 
-    def history_series(self,num_values=60):
+    def history_series(self,num_values=40):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
         key_series = ["%s:::%s" % (self._redis_key,(int(cur_time.get_prev()) % (60*60*24)) / 60) for i in range(num_values)]
         value_series = [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
@@ -307,7 +307,7 @@ class UmpireServiceCheck(ServiceCheck):
         value_series.append(self.history_value)
         return value_series
 
-    def last_series(self,num_values=60):
+    def last_series(self,num_values=40):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
         key_series = ["%s:::%s:::%s" % (self._redis_key,(int(cur_time.get_prev()) % (60*60*24)) / 60,"last") for i in range(num_values)]
         value_series = [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
@@ -360,7 +360,7 @@ class UmpireServiceCheck(ServiceCheck):
             return 0
         return max(
             min(
-                (self.error_upper_bound-self.error_lower_bound) / (self.error_upper_bound-self.error_lower_bound),
+                (self.last_value-self.error_lower_bound) / (self.error_upper_bound-self.error_lower_bound),
                 1
                 ),
             0
