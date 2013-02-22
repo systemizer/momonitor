@@ -127,10 +127,10 @@ function init(container$) {
     $('.highchartize',container$).click(function(event) {
 	event.preventDefault();
 	target$ = $(this);
-	dataSeries = target$.data("series");
+	dataSeries = target$.data("series");	
 	errorSeries = target$.data("error").map(function(value) {return [value*.8,value*1.2]});
 	var container = $("<div id='highchart-container'>");
-	container.appendTo("#myModalContainer");
+	$("#myModalContainer").html("<div id='highchart-container'>");
 	
 	var chartOptions = {
 	    chart : {
