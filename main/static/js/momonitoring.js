@@ -128,7 +128,7 @@ function init(container$) {
 	event.preventDefault();
 	target$ = $(this);
 	dataSeries = target$.data("series");
-	dataNames = target$.data("names").split(",")
+	errorSeries = target$.data("error").map(function(value) {return [value*.8,value*1.2]});
 	var container = $("<div id='highchart-container'>");
 	container.appendTo("#myModalContainer");
 	
@@ -137,11 +137,18 @@ function init(container$) {
 		renderTo:'highchart-container',
 		type:'line'
 	    },
-	    series : []
+	    series : [
+		{
+		    "name" : "Last Value",
+		    "data" : dataSeries
+		},
+		{
+		    "name" : "Valid Range",
+		    "type" : "errorbar",
+		    "data" : errorSeries
+		}
+	    ]
 	}
-	$(dataSeries).each(function(index,series) {
-	    chartOptions['series'].push({'name':dataNames[index],'data':series});
-	});
 	var chart = new Highcharts.Chart(chartOptions);
 	$('#myModalContainer').modal();
     });

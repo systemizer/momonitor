@@ -33,7 +33,10 @@
 	  <i class="icon-eye-open"></i>
 	</a>
 	{% else %}
-	<a class="highchartize" data-series="[{{check.history_series}},{{check.last_series}}]" data-names="history,last" href="#">
+	<a class="highchartize" 
+	   data-series="{{check.last_series}}" 
+	   data-error="{{check.history_series}}"
+	   href="#">
 	  <i class="icon-eye-open"></i>
 	</a>
 	{% endif %}
