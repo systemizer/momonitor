@@ -319,6 +319,12 @@ class UmpireServiceCheck(ServiceCheck):
         value_series.reverse()
         return value_series
 
+    def error_range_series(self,num_values=40):
+        if self.umpire_check_type == "dynamic":
+            return [[val*(1-self.umpire_percent_error),val*(1+self.umpire_percent_error)] for val in self.history_series()]
+        else:
+            return [[self.umpire_min,self.umpire_max] for i in range(40)]
+
     @property
     def _history_redis_key(self):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time()).get_next()
@@ -326,6 +332,8 @@ class UmpireServiceCheck(ServiceCheck):
 
     def _standardize_minutes(self,cur_time):
         return (int(cur_time) % (60*60*24)) / 60
+
+    
 
     @property
     def error_lower_bound(self):

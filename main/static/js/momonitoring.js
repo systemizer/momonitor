@@ -128,7 +128,7 @@ function init(container$) {
 	event.preventDefault();
 	target$ = $(this);
 	dataSeries = target$.data("series");	
-	errorSeries = target$.data("error").map(function(value) {return [value*.8,value*1.2]});
+	errorSeries = target$.data("error");
 	var container = $("<div id='highchart-container'>");
 	$("#myModalContainer").html("<div id='highchart-container'>");
 	

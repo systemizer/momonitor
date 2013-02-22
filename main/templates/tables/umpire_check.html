@@ -28,19 +28,13 @@
 	<a class="delete" href="{{check|resource_url}}">
 	  <i class="icon-remove"></i>
 	</a>
-	{% if check.umpire_check_type == "static" %}
-	<a class="modalize" data-type="image" href="{{check.graphite_url}}">
-	  <i class="icon-eye-open"></i>
-	</a>
-	{% else %}
 	<a class="highchartize" 
 	   data-title="{{check.name}}"
 	   data-series="{{check.last_series}}" 
-	   data-error="{{check.history_series}}"
+	   data-error="{{check.error_range_series}}"
 	   href="#">
 	  <i class="icon-eye-open"></i>
 	</a>
-	{% endif %}
       </td>
       <td width="45%">
 	<span class="hide">{{check.status}}</span>
