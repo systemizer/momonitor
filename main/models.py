@@ -299,7 +299,7 @@ class UmpireServiceCheck(ServiceCheck):
             return 0
         return json.loads(cache.get(self._history_redis_key())).get("last_value")
 
-    def history_series(self,num_values=60):
+    def history_series(self,num_values=40):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
         cur_time.get_next() #get next so the first get_prev is the current value
 
@@ -309,7 +309,7 @@ class UmpireServiceCheck(ServiceCheck):
         value_series.reverse()
         return value_series
 
-    def last_series(self,num_values=60):
+    def last_series(self,num_values=40):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
         cur_time.get_next() #get next so the first get_prev is the current value
 
@@ -365,7 +365,7 @@ class UmpireServiceCheck(ServiceCheck):
             return 0
         return max(
             min(
-                (self.error_upper_bound-self.error_lower_bound) / (self.error_upper_bound-self.error_lower_bound),
+                (self.last_value-self.error_lower_bound) / (self.error_upper_bound-self.error_lower_bound),
                 1
                 ),
             0
