@@ -270,6 +270,7 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_max = models.FloatField()
     umpire_range = models.IntegerField(null=True,blank=True)
     umpire_check_type = models.CharField(max_length=64,choices=UMPIRE_CHECK_TYPES,default="static")
+    umpire_percent_error = models.FloatField(default=.25)
 
     def _update_history(self):
         if self.history_value:
@@ -298,7 +299,7 @@ class UmpireServiceCheck(ServiceCheck):
             return 0
         return json.loads(cache.get(self._history_redis_key)).get("last_value")
 
-    def history_series(self,num_values=20):
+    def history_series(self,num_values=60):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
         key_series = ["%s:::%s" % (self._redis_key,(int(cur_time.get_prev()) % (60*60*24)) / 60) for i in range(num_values)]
         value_series = [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
@@ -306,7 +307,7 @@ class UmpireServiceCheck(ServiceCheck):
         value_series.append(self.history_value)
         return value_series
 
-    def last_series(self,num_values=20):
+    def last_series(self,num_values=60):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
         key_series = ["%s:::%s:::%s" % (self._redis_key,(int(cur_time.get_prev()) % (60*60*24)) / 60,"last") for i in range(num_values)]
         value_series = [json.loads(cache.get(key)).get("last_value") if cache.has_key(key) else 0 for key in key_series]
@@ -320,6 +321,14 @@ class UmpireServiceCheck(ServiceCheck):
                                      time.time()).get_next()
         cur_time = int(cur_time)
         return "%s:::%s" % (self._redis_key,(cur_time % (60*60*24)) / 60)
+
+    @property
+    def error_lower_bound(self):
+        return self.history_value*(1-self.umpire_percent_error)    
+
+    @property
+    def error_upper_bound(self):
+        return self.history_value*(1+self.umpire_percent_error)
 
     @property
     def _last_history_redis_key(self):
@@ -347,14 +356,11 @@ class UmpireServiceCheck(ServiceCheck):
             )*100
 
     def _status_progress_dynamic(self):
-        min_value = self.history_value*.8
-        max_value = self.history_value*1.2
-        #MMEEENNNGGG
-        if max_value-min_value == 0:
+        if self.error_upper_bound-self.error_lower_bound == 0:
             return 0
         return max(
             min(
-                (self.last_value-min_value) / (max_value-min_value),
+                (self.error_upper_bound-self.error_lower_bound) / (self.error_upper_bound-self.error_lower_bound),
                 1
                 ),
             0
@@ -367,7 +373,7 @@ class UmpireServiceCheck(ServiceCheck):
         if not self.history_value:
             #if you have no history, then you should accept all
             return 0,99999999999999999
-        return .8*self.history_value,1.2*self.history_value
+        return self.error_lower_bound,self.error_upper_bound
 
     def update_status(self):
         value = None

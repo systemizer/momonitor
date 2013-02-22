@@ -137,6 +137,9 @@ function init(container$) {
 		renderTo:'highchart-container',
 		type:'line'
 	    },
+	    title : {
+		text : target$.data("title") || "No title given"
+	    },
 	    series : [
 		{
 		    "name" : "Last Value",

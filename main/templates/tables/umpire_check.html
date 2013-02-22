@@ -34,6 +34,7 @@
 	</a>
 	{% else %}
 	<a class="highchartize" 
+	   data-title="{{check.name}}"
 	   data-series="{{check.last_series}}" 
 	   data-error="{{check.history_series}}"
 	   href="#">
@@ -53,8 +54,8 @@
 	<div class="progress tooltipped" rel="tooltip" data-title="{% if check.last_value == 0 %}zero{% else %}{{check.last_value}}{% endif %}" data-placement="top" >
 	  <div class="bar {{check.status|to_bootstrap_progressbarclass}}" style="width: {{check.status_progress}}%;"></div>
 	</div>
-	<small class="pull-left muted">{{check.history_value|multiply:.8}}</small>
-	<small class="pull-right muted">{{check.history_value|multiply:1.2}}</small>
+	<small class="pull-left muted">{{check.error_lower_bound}}</small>
+	<small class="pull-right muted">{{check.error_upper_bound}}</small>
 	{% endif %}
 	<div class="clearfix"></div>
       </td>
