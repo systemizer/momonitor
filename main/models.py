@@ -266,8 +266,8 @@ class UmpireServiceCheck(ServiceCheck):
     resource_name="umpireservicecheck"    
 
     umpire_metric = models.CharField(max_length=256)
-    umpire_min = models.FloatField()
-    umpire_max = models.FloatField()
+    umpire_min = models.FloatField(default=0)
+    umpire_max = models.FloatField(default=0)
     umpire_range = models.IntegerField(null=True,blank=True)
     umpire_check_type = models.CharField(max_length=64,choices=UMPIRE_CHECK_TYPES,default="static")
     umpire_percent_error = models.FloatField(default=.25)
@@ -283,7 +283,7 @@ class UmpireServiceCheck(ServiceCheck):
             'last_value':new_value,
             'last_updated':time.time()
             }
-        cache.set(self._history_redis_key(),json.dumps(new_history),timeout=60*60*24*7)
+        cache.set(self._history_redis_key,json.dumps(new_history),timeout=60*60*24*7)
 
     def set_state(self,status,last_value):
         super(UmpireServiceCheck,self).set_state(status,last_value)
@@ -291,13 +291,13 @@ class UmpireServiceCheck(ServiceCheck):
             'last_value':last_value,
             'last_updated':time.time()
             }
-        cache.set(self._last_history_redis_key(),json.dumps(last_history),timeout=60*60*24*1.2)
+        cache.set(self._last_history_redis_key,json.dumps(last_history),timeout=60*60*24*1.2)
 
     @property
     def history_value(self):
-        if not cache.has_key(self._history_redis_key()):
+        if not cache.has_key(self._history_redis_key):
             return 0
-        return json.loads(cache.get(self._history_redis_key())).get("last_value")
+        return json.loads(cache.get(self._history_redis_key)).get("last_value")
 
     def history_series(self,num_values=40):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
@@ -337,7 +337,7 @@ class UmpireServiceCheck(ServiceCheck):
 
     @property
     def _last_history_redis_key(self):
-        return "%s:::%s" % (self._history_redis_key(),"last")
+        return "%s:::%s" % (self._history_redis_key,"last")
 
     def graphite_url(self):
         return "%s/render/?min=0&width=570&height=350&from=-3h&target=%s" % (settings.GRAPHITE_ENDPOINT,self.umpire_metric)
