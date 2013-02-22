@@ -3,3 +3,5 @@
 * Complex Checks (partially completed)
 * Check History and historical visualization
 * Add Moar Protocols
+* Make better algorithm for learning the guessed value / using STD to calculate error percentage
+* Better handling of history when someone changes the Cron schedule
