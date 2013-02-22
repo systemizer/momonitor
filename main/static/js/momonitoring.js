@@ -135,10 +135,15 @@ function init(container$) {
 	var chartOptions = {
 	    chart : {
 		renderTo:'highchart-container',
-		type:'line'
+		type:'area'		
 	    },
 	    title : {
 		text : target$.data("title") || "No title given"
+	    },
+	    plotOptions : {
+		series : {
+		    fillOpacity : 0.1
+		}
 	    },
 	    series : [
 		{
@@ -147,7 +152,8 @@ function init(container$) {
 		},
 		{
 		    "name" : "Valid Range",
-		    "type" : "errorbar",
+		    "type" : "arearange",
+		    "lineWidth":.2,
 		    "data" : errorSeries
 		}
 	    ]
