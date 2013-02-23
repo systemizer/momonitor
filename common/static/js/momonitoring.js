@@ -129,6 +129,7 @@ function deleteResource(urlEndpoint) {
 }
 
 function init(container$) {    
+    console.log("hello")
     if(typeof(container$)==='undefined') container$ = $('body');
 
     $('.choicebox',container$).each(function() {
@@ -257,6 +258,8 @@ function toTastypieResourceUrl(resourceName,resourceId) {
 
 $(document).ready(function() {
     init();
+    $('div[data-role=page]').live("pageinit",
+				  function() { init($(this)); });
 });
 
 

@@ -1,0 +1,22 @@
+{% extends "mobile/base.html" %}
+{% load momonitor_tags %}
+
+{% block body %}
+<div data-role="page" data-add-back-btn="true" data-theme="a">
+  <div data-role="header" data-position="inline">
+    <h1>Check: <small>{{check.name}} {% if check.silenced or check.service.silenced %}(silenced){% endif %}</small></h1>
+    <div class="ui-btn-right" data-role="controlgroup" data-type="horizontal">
+      <a href="#" data-role="button" data-icon="gear">Edit</a>
+    </div>
+  </div>
+  <div 
+     id="highchart-container"
+     class="highchartize"
+     data-title="{{check.name}}"
+     data-series="{{check.last_series}}" 
+     data-error="{{check.error_range_series}}"
+     data-container="#highchart-container">
+  </div>
+</div>
+
+{% endblock %}
