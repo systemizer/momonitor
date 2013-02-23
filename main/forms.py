@@ -1,5 +1,4 @@
 from django import forms
-import pdb
 from momonitor.main.models import (SimpleServiceCheck, 
                                    UmpireServiceCheck, 
                                    CompareServiceCheck,

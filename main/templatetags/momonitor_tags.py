@@ -1,5 +1,6 @@
 from django import template
 from django.core.urlresolvers import reverse
+from django.conf import settings
 import time
 import logging
 register = template.Library()
@@ -49,6 +50,14 @@ def to_bootstrap_rowclass(value):
     else:
         return "warning"
 
+def to_status_png(value):
+    if value==STATUS_GOOD:
+        return "%simg/green-dot.png" % settings.STATIC_URL
+    elif value==STATUS_BAD:
+        return "%simg/red-dot.png" % settings.STATIC_URL
+    else:
+        return "%simg/yellow-dot.png" % settings.STATIC_URL
+
 def to_bootstrap_progressbarclass(value):    
     if value==STATUS_GOOD:
         return "bar-success"
@@ -63,4 +72,5 @@ register.filter('multiply', multiply)
 register.filter('negate', negate)
 register.filter('to_bootstrap_rowclass', to_bootstrap_rowclass)
 register.filter('to_bootstrap_progressbarclass', to_bootstrap_progressbarclass)
+register.filter('to_status_png', to_status_png)
 register.filter('resource_url', resource_url)
