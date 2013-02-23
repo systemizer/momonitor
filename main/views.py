@@ -30,7 +30,7 @@ def index(request):
     request.breadcrumbs("Services",reverse("main:index"))
 
     services = Service.objects.all().order_by("id")
-    return render_to_response("index.html",
+    return render_to_response("main/index.html",
                               {'services':services},
                               RequestContext(request))
 
@@ -41,7 +41,7 @@ def service(request,service_id):
     request.breadcrumbs("Services",reverse("main:index"))
     request.breadcrumbs(service.name,reverse("main:service",kwargs={'service_id':service.id}))
 
-    return render_to_response("service.html",
+    return render_to_response("main/service.html",
                               {'service':service},
                               RequestContext(request))
 
@@ -76,9 +76,10 @@ def modal_form(request,resource_name,resource_id=None):
     else:
         form = resource_form_cls(instance=instance)
 
-    return render_to_response(form.template,{"form":form,
-                                             "action":action,
-                                             'method':method},
+    return render_to_response("%s%s" % ("main/",form.template),
+                              {"form":form,
+                               "action":action,
+                               'method':method},
                               RequestContext(request))
 
 @login_required
@@ -120,4 +121,4 @@ def code_check_upload(request,instance_id=None):
 def how_it_works(request):
     request.breadcrumbs("Services",reverse("main:index"))
     request.breadcrumbs("How it works",reverse("main:how_it_works"))
-    return render_to_response("how-it-works.html",{},RequestContext(request))
+    return render_to_response("main/how-it-works.html",{},RequestContext(request))
