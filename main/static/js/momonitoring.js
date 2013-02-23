@@ -153,7 +153,10 @@ function init(container$) {
 		    "lineWidth":.2,
 		    "data" : errorSeries
 		}
-	    ]
+	    ],
+	    yAxis : {
+		min : 0
+	    }
 	}
 	var chart = new Highcharts.Chart(chartOptions);
 	$('#myModalContainer').modal();
