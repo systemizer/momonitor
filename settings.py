@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'south',
     'main',
+    'slideshow',
     'breadcrumbs',
     'gunicorn',
     'social_auth'

@@ -88,9 +88,6 @@ function deleteResource(urlEndpoint) {
 
 function init(container$) {    
     if(typeof(container$)==='undefined') container$ = $('body');
-    d = container$;
-
-    $('.popovered',container$).popover()
 
     $('.choicebox',container$).each(function() {
 	var selectName = $(this).data("name");
@@ -124,7 +121,7 @@ function init(container$) {
 	    fetchModal(urlEndpoint,"#myModalContainer",dataType)
 	}
     });
-    $('.highchartize',container$).click(function(event) {
+    $('.highchartize-modalize',container$).click(function(event) {
 	event.preventDefault();
 	target$ = $(this);
 	dataSeries = target$.data("series");	
@@ -160,6 +157,40 @@ function init(container$) {
 	}
 	var chart = new Highcharts.Chart(chartOptions);
 	$('#myModalContainer').modal();
+    });
+
+    $('.highchartize',container$).each(function(index,element) {
+	target$ = $(element);
+	dataSeries = target$.data("series");	
+	errorSeries = target$.data("error");
+	
+	var chartOptions = {
+	    chart : {
+		renderTo:target$.attr("id"),
+		type:'line'		
+	    },
+	    title : {
+		text : target$.data("title") || "No title given"
+	    },
+	    plotOptions : {
+		series : {
+		    fillOpacity : 0.1
+		}
+	    },
+	    series : [
+		{
+		    "name" : "Last Value",
+		    "data" : dataSeries
+		},
+		{
+		    "name" : "Valid Range",
+		    "type" : "arearange",
+		    "lineWidth":.2,
+		    "data" : errorSeries
+		}
+	    ]
+	}
+	chart = new Highcharts.Chart(chartOptions);
     });
 
     $('.delete',container$).click(function(event) {

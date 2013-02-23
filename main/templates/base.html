@@ -3,13 +3,11 @@
   <head>
     <link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico">
     <script src="{{STATIC_URL}}js/jquery.min.js"></script>
-    <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
-    <script src="{{STATIC_URL}}js/jquery.sortElements.js"></script>
-    <script src="{{STATIC_URL}}js/highcharts.js"></script>
-    <script src="{{STATIC_URL}}js/highcharts-more.js"></script>
-    <script src="{{STATIC_URL}}js/momonitoring.js"></script>
-    <link href="{{STATIC_URL}}css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+
+    {% block extrahead %}
+    {% endblock %}
     <link href="{{STATIC_URL}}css/momonitor.css" type="text/css" rel="stylesheet" />
+    <script src="{{STATIC_URL}}js/momonitoring.js"></script>
   </head>
   
   <body>
@@ -44,11 +42,9 @@
       </div>
     </footer>
     {% endblock %}
-    <div class="modal hide fade" id="myModalContainer">
-    </div>
-    <div id="loading-container" class="hide">
-      <img src="{{STATIC_URL}}img/ajax-loader.gif" />
-    </div>
+    {% block extrabody %}
+    {% endblock %}
+
   </body>
 
 </html>

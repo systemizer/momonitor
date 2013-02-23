@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<link href="{{STATIC_URL}}css/impress-mopub.css" rel="stylesheet" />
+<script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+<script src="{{STATIC_URL}}js/highcharts.js"></script>
+<script src="{{STATIC_URL}}js/highcharts-more.js"></script>
+{% endblock %}
+
+{% block extrabody %}
+<script src = "/static/js/impress.js" type="text/javascript"></script>
+<script src = "/static/js/impress-mopub.js" type="text/javascript"></script>
+{% endblock %}

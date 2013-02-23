@@ -1,0 +1,20 @@
+{% extends "base_slideshow.html" %}
+
+{% block body %}
+<div id="impress">
+  <div id="titleslide" class="slide step" data-x="0" data-y="0">
+    <center>
+      <h1>MoMonitorVIZ</h1>
+    </center>
+    <div style="clear:right"></div>
+    <hr />
+    <ul class="nav nav-list">
+      {% for service in services %}
+      <li>
+	<a href="{% url main_slideshow service.id %}"><h2>{{service.name}}</h2></a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>    
+</div>
+{% endblock %}

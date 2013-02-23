@@ -1,0 +1,25 @@
+{% extends "base_slideshow.html" %}
+{% load momonitor_tags %}
+
+{% block body %}
+<div id="impress" >
+  {% for check in service.umpireservicecheck.all %}    
+  <div id="slide-{{forloop.counter}}" class="step slide" data-x="{{forloop.counter|multiply:1800}}" data-y="0">
+    <center>
+      <h1>{{check.name}}</h1>
+    </center>
+    <hr />
+    <div
+       style="height:800px;width:100%"
+       id="slide-{{forloop.counter}}"
+       class="highchartize" 
+       data-title="{{check.name}}"
+       data-series="{{check.last_series}}" 
+       data-error="{{check.error_range_series}}"
+       href="#">
+    </div>
+  </div>    
+  {% endfor %}
+</div>
+
+{% endblock %}
