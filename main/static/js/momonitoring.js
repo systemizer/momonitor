@@ -32,6 +32,48 @@ var sortableTable = function(table$) {
 	})
 }
 
+function highchartize(target$) {
+
+    dataSeries = target$.data("series");	
+    errorSeries = target$.data("error");
+    var containerWrapper$ = $(target$.data("container"))
+    containerWrapper$.html("<div id='highchart-container'>");
+    
+    var chartOptions = {
+	chart : {
+	    renderTo:'highchart-container',
+	    type:'line'		
+	},
+	title : {
+	    text : target$.data("title") || "No title given"
+	},
+	plotOptions : {
+	    series : {
+		fillOpacity : 0.1
+	    }
+	},
+	series : [
+	    {
+		"name" : "Last Value",
+		"data" : dataSeries
+	    },
+	    {
+		"name" : "Valid Range",
+		"type" : "arearange",
+		"lineWidth":.2,
+		"data" : errorSeries
+	    }
+	],
+	yAxis : {
+	    min : 0
+	}
+    }
+    var chart = new Highcharts.Chart(chartOptions);
+    if (containerWrapper$.hasClass("modal")) {
+	containerWrapper$.modal();
+    }
+}
+
 //Used for serializing form object to json
 $.fn.serializeObject = function()
 {
@@ -121,79 +163,12 @@ function init(container$) {
 	    fetchModal(urlEndpoint,"#myModalContainer",dataType)
 	}
     });
-    $('.highchartize-modalize',container$).click(function(event) {
+    $('a.highchartize',container$).click(function(event) {
 	event.preventDefault();
-	target$ = $(this);
-	dataSeries = target$.data("series");	
-	errorSeries = target$.data("error");
-	var container = $("<div id='highchart-container'>");
-	$("#myModalContainer").html("<div id='highchart-container'>");
-	
-	var chartOptions = {
-	    chart : {
-		renderTo:'highchart-container',
-		type:'line'		
-	    },
-	    title : {
-		text : target$.data("title") || "No title given"
-	    },
-	    plotOptions : {
-		series : {
-		    fillOpacity : 0.1
-		}
-	    },
-	    series : [
-		{
-		    "name" : "Last Value",
-		    "data" : dataSeries
-		},
-		{
-		    "name" : "Valid Range",
-		    "type" : "arearange",
-		    "lineWidth":.2,
-		    "data" : errorSeries
-		}
-	    ],
-	    yAxis : {
-		min : 0
-	    }
-	}
-	var chart = new Highcharts.Chart(chartOptions);
-	$('#myModalContainer').modal();
+	highchartize($(this));
     });
-
-    $('.highchartize',container$).each(function(index,element) {
-	target$ = $(element);
-	dataSeries = target$.data("series");	
-	errorSeries = target$.data("error");
-	
-	var chartOptions = {
-	    chart : {
-		renderTo:target$.attr("id"),
-		type:'line'		
-	    },
-	    title : {
-		text : target$.data("title") || "No title given"
-	    },
-	    plotOptions : {
-		series : {
-		    fillOpacity : 0.1
-		}
-	    },
-	    series : [
-		{
-		    "name" : "Last Value",
-		    "data" : dataSeries
-		},
-		{
-		    "name" : "Valid Range",
-		    "type" : "arearange",
-		    "lineWidth":.2,
-		    "data" : errorSeries
-		}
-	    ]
-	}
-	chart = new Highcharts.Chart(chartOptions);
+    $('div.highchartize',container$).each(function(index,element) {
+	highchartize($(element));
     });
 
     $('.delete',container$).click(function(event) {

@@ -16,7 +16,7 @@
        data-title="{{check.name}}"
        data-series="{{check.last_series}}" 
        data-error="{{check.error_range_series}}"
-       href="#">
+       data-container="#slide-{{forloop.counter}}">
     </div>
   </div>    
   {% endfor %}
