@@ -1,9 +1,9 @@
-{% extends "base_main.html" %}
+{% extends "main/base.html" %}
 {% load momonitor_tags %}
 
 {% block body %}
 <div class="page-header">
-  <a id="add-service-button" href="{% url main_modal_form 'service' %}" role="button" class="btn modalize pull-right tooltipped" data-title="Add Service"><i class="icon-plus"></i></a>
+  <a id="add-service-button" href="{% url main:modal_form 'service' %}" role="button" class="btn modalize pull-right tooltipped" data-title="Add Service"><i class="icon-plus"></i></a>
   <h1>All Services</h1>  
   <div class="clearfix"></div>
 </div>
@@ -20,8 +20,8 @@
     {% if services %}
     {% for service in services %}
     <tr class="{{service.status|to_bootstrap_rowclass}}">
-      <td width="40%"><a href="{% url main_service service.id %}">{{service.name}} {% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}</a>
-	<a class="modalize" href="{% url main_modal_form 'service' service.id %}">
+      <td width="40%"><a href="{% url main:service service.id %}">{{service.name}} {% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}</a>
+	<a class="modalize" href="{% url main:modal_form 'service' service.id %}">
 	  <i class="icon-edit"></i>
 	</a>
 	<a class="delete" href="{{service|resource_url}}">
@@ -36,7 +36,7 @@
     {% else %}
     <tr>
       <td colspan="4">
-	<center class="muted">You don't have any services. Click <a href="{% url main_modal_form 'service' %}" class="modalize">here</a> to create one</center>
+	<center class="muted">You don't have any services. Click <a href="{% url main:modal_form 'service' %}" class="modalize">here</a> to create one</center>
       </td>
     </tr>
     {% endif %}
@@ -49,7 +49,7 @@
 <footer class="footer">
   <div class="container">
     <center>
-      <p>Confused? See <a href="{% url main_how_it_works %}">how it works</a></p>
+      <p>Confused? See <a href="{% url main:how_it_works %}">how it works</a></p>
       <p>Designed and built by <a href="http://twitter.com/systemizer">@systemizer</a></p>
       <p>Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License v2.0</a></p>
     </center>

@@ -1,4 +1,4 @@
-{% extends "modal_forms/base.html" %}
+{% extends "main/modal_forms/base.html" %}
 
 {% block form_body %}
 {{form.service}}
@@ -7,15 +7,19 @@
   <div class="pull-left">
     <label>Name</label>
     {{form.name}}
-    <label>Description <small class="muted">(optional)</small></label>
+    <label>Description</label>
     {{form.description}}
   </div>
   <div class="pull-right">
     <label class="checkbox">{{form.silenced}} Silenced</label>
     <label>URL Endpoint</label>
     {{form.endpoint}}
-    <label>Timeout (ms) <small class="muted">(optional)</small></label>
-    {{form.timeout}}
+    <label>Serialization</label>
+    {{form.serialization}}
+    <label>Field to compare</label>
+    {{form.field}}
+    <label>Comparator</label>
+    {{form.comparator}} {{form.compared_value}}
   </div>
   <div class="clearfix"></div>
 </fieldset>
@@ -23,6 +27,4 @@
 <fieldset>
   {% include "modal_forms/advanced_form_directions.html" %}
 </fieldset>
-
-
 {% endblock %}

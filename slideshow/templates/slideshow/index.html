@@ -1,4 +1,4 @@
-{% extends "base_slideshow.html" %}
+{% extends "slideshow/base.html" %}
 
 {% block body %}
 <div id="impress">
@@ -11,7 +11,7 @@
     <ul class="nav nav-list">
       {% for service in services %}
       <li>
-	<a href="{% url main_slideshow service.id %}"><h2>{{service.name}}</h2></a>
+	<a href="{% url slideshow_view service.id %}"><h2>{{service.name}}</h2></a>
       </li>
       {% endfor %}
     </ul>

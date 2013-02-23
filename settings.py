@@ -46,8 +46,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'south',
-    'main',
-    'slideshow',
+    'momonitor.common',
+    'momonitor.main',
+    'momonitor.slideshow',
+    'momonitor.mobile',
     'breadcrumbs',
     'gunicorn',
     'social_auth'

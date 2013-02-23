@@ -23,13 +23,13 @@ def login_required(function=None,
 @login_required
 def index(request):
     services = Service.objects.all()
-    return render_to_response("slideshow-index.html",
+    return render_to_response("slideshow/index.html",
                               {'services':services},
                               RequestContext(request))
 
 @login_required
 def view_slideshow(request,service_id):
     service = get_object_or_404(Service,pk=service_id)
-    return render_to_response("slideshow.html",
+    return render_to_response("slideshow/slideshow.html",
                               {'service':service},
                               RequestContext(request))

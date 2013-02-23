@@ -117,7 +117,7 @@ class Service(models.Model):
                 Context({"description":description,
                          "service_name":self.name,
                          "url":"%s%s" % (settings.DOMAIN,
-                                         reverse("main_service",kwargs={'service_id':self.id}))
+                                         reverse("main:service",kwargs={'service_id':self.id}))
                          })
                 )
                     

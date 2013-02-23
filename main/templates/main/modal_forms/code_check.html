@@ -1,25 +1,19 @@
-{% extends "modal_forms/base.html" %}
+{% extends "main/modal_forms/base.html" %}
 
 {% block form_body %}
 {{form.service}}
 <fieldset>
   <legend class="modal-section-header">Basic</legend>
-  <div class="pull-left">
+  <div class="pull-left half">
     <label>Name</label>
     {{form.name}}
     <label>Description</label>
     {{form.description}}
   </div>
-  <div class="pull-right">
+  <div class="pull-right half">
     <label class="checkbox">{{form.silenced}} Silenced</label>
-    <label>URL Endpoint</label>
-    {{form.endpoint}}
-    <label>Serialization</label>
-    {{form.serialization}}
-    <label>Field to compare</label>
-    {{form.field}}
-    <label>Comparator</label>
-    {{form.comparator}} {{form.compared_value}}
+    <label>Code File</label>
+    {{form.code_file}}
   </div>
   <div class="clearfix"></div>
 </fieldset>
@@ -27,4 +21,6 @@
 <fieldset>
   {% include "modal_forms/advanced_form_directions.html" %}
 </fieldset>
+
+
 {% endblock %}

@@ -27,7 +27,7 @@ def login_required(function=None,
 
 @login_required
 def index(request):
-    request.breadcrumbs("Services",reverse("main_index"))
+    request.breadcrumbs("Services",reverse("main:index"))
 
     services = Service.objects.all().order_by("id")
     return render_to_response("index.html",
@@ -38,8 +38,8 @@ def index(request):
 def service(request,service_id):
     service = get_object_or_404(Service,pk=service_id)
 
-    request.breadcrumbs("Services",reverse("main_index"))
-    request.breadcrumbs(service.name,reverse("main_service",kwargs={'service_id':service.id}))
+    request.breadcrumbs("Services",reverse("main:index"))
+    request.breadcrumbs(service.name,reverse("main:service",kwargs={'service_id':service.id}))
 
     return render_to_response("service.html",
                               {'service':service},
@@ -112,12 +112,12 @@ def code_check_upload(request,instance_id=None):
     form = form_cls(request.POST,request.FILES,instance=instance)
     if form.is_valid():
         form.save()
-        return redirect(reverse("main_service",kwargs={'service_id':request.POST.get('service')}))
+        return redirect(reverse("main:service",kwargs={'service_id':request.POST.get('service')}))
     else:
         return HttpResponseBadRequest(form.errors.items())
 
 @login_required
 def how_it_works(request):
-    request.breadcrumbs("Services",reverse("main_index"))
-    request.breadcrumbs("How it works",reverse("main_how_it_works"))
+    request.breadcrumbs("Services",reverse("main:index"))
+    request.breadcrumbs("How it works",reverse("main:how_it_works"))
     return render_to_response("how-it-works.html",{},RequestContext(request))

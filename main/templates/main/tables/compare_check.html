@@ -1,7 +1,7 @@
 {% load momonitor_tags %}
 
 <div class="btn-group pull-right">
-  <a href="{% url main_modal_form 'compareservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize">
+  <a href="{% url main:modal_form 'compareservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize">
     <i class="icon-plus tooltipped" data-title="Add Compare Check"></i>
   </a>
 </div>
@@ -26,7 +26,7 @@
       <td width="30%">
 	{{check.name}}
 	{% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}
-	<a class="modalize" href="{% url main_modal_form 'compareservicecheck' check.id %}?sid={{service.id}}">
+	<a class="modalize" href="{% url main:modal_form 'compareservicecheck' check.id %}?sid={{service.id}}">
 	  <i class="icon-edit"></i>
 	</a>
 	<a class="delete" href="{{check|resource_url}}">
@@ -46,7 +46,7 @@
 	<span class="tooltipped" data-title="{{check.last_value}}">{{check.last_value|truncatechars:10}}</span>
       </td>
       <td width="25%">{{check.last_updated|since}}
-	<a class="ajaxify" href="{% url main_refresh 'compareservicecheck' check.id %}">
+	<a class="ajaxify" href="{% url main:refresh 'compareservicecheck' check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>
       </td>
@@ -55,7 +55,7 @@
     {% else %}
     <tr>
       <td colspan="7">
-	<center>You currently have no compare checks. Click <a class="modalize" href="{% url main_modal_form 'compareservicecheck' %}?sid={{service.id}}">here</a> to add one</center>
+	<center>You currently have no compare checks. Click <a class="modalize" href="{% url main:modal_form 'compareservicecheck' %}?sid={{service.id}}">here</a> to add one</center>
       </td>
     </tr>
     {% endif %}

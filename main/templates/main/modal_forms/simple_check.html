@@ -1,19 +1,21 @@
-{% extends "modal_forms/base.html" %}
+{% extends "main/modal_forms/base.html" %}
 
 {% block form_body %}
 {{form.service}}
 <fieldset>
   <legend class="modal-section-header">Basic</legend>
-  <div class="pull-left half">
+  <div class="pull-left">
     <label>Name</label>
     {{form.name}}
-    <label>Description</label>
+    <label>Description <small class="muted">(optional)</small></label>
     {{form.description}}
   </div>
-  <div class="pull-right half">
+  <div class="pull-right">
     <label class="checkbox">{{form.silenced}} Silenced</label>
-    <label>Code File</label>
-    {{form.code_file}}
+    <label>URL Endpoint</label>
+    {{form.endpoint}}
+    <label>Timeout (ms) <small class="muted">(optional)</small></label>
+    {{form.timeout}}
   </div>
   <div class="clearfix"></div>
 </fieldset>
