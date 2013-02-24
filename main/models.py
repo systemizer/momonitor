@@ -272,6 +272,10 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_check_type = models.CharField(max_length=64,choices=UMPIRE_CHECK_TYPES,default="static")
     umpire_percent_error = models.FloatField(default=.25)
 
+    @property
+    def last_std(self):
+        return self._get_state().get("last_std",None)
+
     def _update_history(self):
         if self.history_value:
             new_value = self.history_value*.9 \
@@ -279,19 +283,32 @@ class UmpireServiceCheck(ServiceCheck):
         else:
             new_value = self.last_value
 
-        new_std = (((self.history_std*9)**2 + (self.last_value-new_value)**2)/10)**.5
-
         new_history = {
             'last_value':new_value,
-            'last_updated':time.time(),
-            'last_std':new_std
+            'last_updated':time.time()
             }
         cache.set(self._history_redis_key,json.dumps(new_history),timeout=60*60*24*7)
 
     def set_state(self,status,last_value):
         super(UmpireServiceCheck,self).set_state(status,last_value)
+
+        if self.history_value:
+            new_mean = self.history_value*.9 + last_value*.1
+        else:
+            new_mean = last_value
+
+        
+        if not self.last_std:
+            new_std = last_value-new_mean            
+        elif abs(last_value-new_mean)>2*self.last_std:
+            #IF value is an outlier, then dont include it in std
+            new_std = self.last_std
+        else:
+            new_std = (((self.last_std*9)**2 + (last_value-new_mean)**2)/10)**.5
+
         last_history = {
             'last_value':last_value,
+            'last_std':new_std,
             'last_updated':time.time()
             }
         cache.set(self._last_history_redis_key,json.dumps(last_history),timeout=60*60*24*1.2)
@@ -301,12 +318,6 @@ class UmpireServiceCheck(ServiceCheck):
         if not cache.has_key(self._history_redis_key):
             return 0
         return json.loads(cache.get(self._history_redis_key)).get("last_value")
-
-    @property
-    def history_std(self):
-        if not cache.has_key(self._history_redis_key):
-            return 0
-        return json.loads(cache.get(self._history_redis_key)).get("last_std",0)
 
     def history_series(self,num_values=40):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
