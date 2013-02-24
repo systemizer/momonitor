@@ -73,6 +73,18 @@ def modal_form(request,resource_name,resource_id=None):
                                'method':method},
                               RequestContext(request))
 
+@ajax_required
+@login_required
+def silence(request,resource_name,resource_id):
+    if not RESOURCE_NAME_MAP.has_key(resource_name):
+        raise Http404
+    resource_cls = RESOURCE_NAME_MAP[resource_name]
+    resource = get_object_or_404(resource_cls,pk=resource_id)
+    resource.silenced = not resource.silenced
+    resource.save()
+    return HttpResponse("OK")
+
+
 @login_required
 def refresh(request,resource_name,resource_id):
     if not RESOURCE_NAME_MAP.has_key(resource_name):

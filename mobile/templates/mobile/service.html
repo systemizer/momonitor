@@ -2,12 +2,13 @@
 {% load momonitor_tags %}
 
 {% block body %}
-<div data-role="page" data-add-back-btn="true" data-theme="a">
+<div data-role="page" data-theme="a">
   <div data-role="header" data-position="inline">
     <h1>Service Checks <small>{{service.name}} {% if service.silenced %}(silenced){% endif %}</small></h1>
-    <div class="ui-btn-right" data-role="controlgroup" data-type="horizontal">
-      <a href="#" data-role="button" data-icon="gear">Options</a>
-    </div>
+    <a href="{% url mobile:index %}" class="ui-btn-left">Back</a>
+    <a href="{% url main:silence service.resource_name service.id %}" class="ajaxify ui-btn-right">
+      {% if service.silenced %}Unsilence{% else %}Silence{% endif %}
+    </a>
   </div>
   <div data-role="content" data-theme="a">
     <ul data-role="listview">
