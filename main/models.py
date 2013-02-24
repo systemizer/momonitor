@@ -279,7 +279,7 @@ class UmpireServiceCheck(ServiceCheck):
         else:
             new_value = self.last_value
 
-        new_std = self.history_std + (self.last_value-self.history_value)*(self.last_value-new_value)
+        new_std = (((self.history_std*9)**2 + (self.last_value-new_value)**2)/10)**.5
 
         new_history = {
             'last_value':new_value,
