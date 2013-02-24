@@ -1,0 +1,14 @@
+{% extends "mobile/base.html" %}
+
+{% block body %}
+<div data-role="page" data-add-back-btn="true" data-theme="a">
+  <div data-role="header" data-position="inline">
+    <h1>Check: <small>{{check.name}} {% if check.silenced or check.service.silenced %}(silenced){% endif %}</small></h1>
+  </div>
+  <div data-role="content" data-theme="a">
+  {% block check_body %}
+  {% endblock %}
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "mobile/checks/base.html" %}
+{% load momonitor_tags %}
+
+{% block check_body %}
+<ul data-role="listview">
+  <li><img src="{{check.status|to_status_png}}" class="ui-li-icon ui-li-thumb" /> {{check.name}}</li>
+  <li><b>Description: </b>{{check.description}}</li>
+  <li><b>Endpoint: </b>{{check.endpoint}}</li>
+  <li><b>Field: </b>{{check.field}} </li>
+  <li><b>Comparator: </b>{{check.comparator}} </li>
+  <li><b>Compared Value: </b>{{check.compared_value}} </li>
+  <li><b>Last Value: </b>{{check.last_value}} </li>
+</ul>
+
+{% endblock %}

@@ -323,7 +323,7 @@ class UmpireServiceCheck(ServiceCheck):
         if self.umpire_check_type == "dynamic":
             return [[val*(1-self.umpire_percent_error),val*(1+self.umpire_percent_error)] for val in self.history_series()]
         else:
-            return [[self.umpire_min,self.umpire_max] for i in range(40)]
+            return [[self.umpire_min,self.umpire_max] for i in range(num_values)]
 
     @property
     def _history_redis_key(self):
@@ -333,15 +333,19 @@ class UmpireServiceCheck(ServiceCheck):
     def _standardize_minutes(self,cur_time):
         return (int(cur_time) % (60*60*24)) / 60
 
-    
-
     @property
     def error_lower_bound(self):
-        return self.history_value*(1-self.umpire_percent_error)    
+        if self.umpire_check_type == "static":
+            return self.umpire_min
+        else:            
+            return self.history_value*(1-self.umpire_percent_error)    
 
     @property
     def error_upper_bound(self):
-        return self.history_value*(1+self.umpire_percent_error)
+        if self.umpire_check_type == "static":
+            return self.umpire_max
+        else:
+            return self.history_value*(1+self.umpire_percent_error)
 
     @property
     def _last_history_redis_key(self):
