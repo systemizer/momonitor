@@ -279,9 +279,12 @@ class UmpireServiceCheck(ServiceCheck):
         else:
             new_value = self.last_value
 
+        new_std = self.history_std + (self.last_value-self.history_value)*(self.last_value-new_value)
+
         new_history = {
             'last_value':new_value,
-            'last_updated':time.time()
+            'last_updated':time.time(),
+            'last_std':new_std
             }
         cache.set(self._history_redis_key,json.dumps(new_history),timeout=60*60*24*7)
 
@@ -298,6 +301,12 @@ class UmpireServiceCheck(ServiceCheck):
         if not cache.has_key(self._history_redis_key):
             return 0
         return json.loads(cache.get(self._history_redis_key)).get("last_value")
+
+    @property
+    def history_std(self):
+        if not cache.has_key(self._history_redis_key):
+            return 0
+        return json.loads(cache.get(self._history_redis_key)).get("last_std",0)
 
     def history_series(self,num_values=40):
         cur_time = croniter.croniter(self.frequency or self.service.frequency,time.time())
