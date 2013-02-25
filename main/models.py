@@ -276,7 +276,7 @@ class UmpireServiceCheck(ServiceCheck):
     def last_std(self):
         if not cache.has_key(self._last_history_redis_key):
             return None
-        return cache.get(self._last_history_redis_key).get("last_std",None)
+        return json.loads(cache.get(self._last_history_redis_key)).get("last_std",None)
 
     def _update_history(self):
         if self.history_value:
