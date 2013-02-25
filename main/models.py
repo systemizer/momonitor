@@ -274,7 +274,9 @@ class UmpireServiceCheck(ServiceCheck):
 
     @property
     def last_std(self):
-        return self._get_state().get("last_std",None)
+        if not cache.has_key(self._last_history_redis_key):
+            return None
+        return cache.get(self._last_history_redis_key).get("last_std",None)
 
     def _update_history(self):
         if self.history_value:
@@ -298,11 +300,11 @@ class UmpireServiceCheck(ServiceCheck):
             new_mean = last_value
 
         
-        if not self.last_std:
-            new_std = last_value-new_mean            
+        if self.last_std == None:
+            new_std = abs(last_value-new_mean)
         elif abs(last_value-new_mean)>2*self.last_std:
             #IF value is an outlier, then dont include it in std
-            new_std = self.last_std
+            new_std = abs(self.last_std)
         else:
             new_std = (((self.last_std*9)**2 + (last_value-new_mean)**2)/10)**.5
 
