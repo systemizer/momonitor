@@ -192,7 +192,7 @@ class ServiceCheck(models.Model):
         except Exception:
             return {}
 
-    def set_state(self,status,last_value):
+    def set_state(self,status,last_value,extra={}):
         num_failures = self.num_failures+1 if status==STATUS_BAD else 0
         last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
 
@@ -203,6 +203,8 @@ class ServiceCheck(models.Model):
                  'last_updated':last_updated,
                  'last_value':last_value,
                  'num_failures':num_failures}
+
+        state.update(extra)
 
         cache.set(self._redis_key,json.dumps(state),timeout=0)
 
@@ -274,9 +276,7 @@ class UmpireServiceCheck(ServiceCheck):
 
     @property
     def last_std(self):
-        if not cache.has_key(self._last_history_redis_key):
-            return None
-        return json.loads(cache.get(self._last_history_redis_key)).get("last_std",None)
+        return self._get_state().get("last_std",None)
 
     def _update_history(self):
         if self.history_value:
@@ -291,26 +291,25 @@ class UmpireServiceCheck(ServiceCheck):
             }
         cache.set(self._history_redis_key,json.dumps(new_history),timeout=60*60*24*7)
 
-    def set_state(self,status,last_value):
-        super(UmpireServiceCheck,self).set_state(status,last_value)
-
+    def set_state(self,status,last_value,extra={}):
+        #Calculate new mean (to calc std)
         if self.history_value:
             new_mean = self.history_value*.9 + last_value*.1
         else:
             new_mean = last_value
-
         
+        #Calculate new std. dont update if above 2 stds
         if self.last_std == None:
             new_std = abs(last_value-new_mean)
         elif abs(last_value-new_mean)>2*self.last_std:
-            #IF value is an outlier, then dont include it in std
             new_std = abs(self.last_std)
         else:
             new_std = (((self.last_std*9)**2 + (last_value-new_mean)**2)/10)**.5
 
+        super(UmpireServiceCheck,self).set_state(status,last_value,{'last_std':new_std})
+
         last_history = {
             'last_value':last_value,
-            'last_std':new_std,
             'last_updated':time.time()
             }
         cache.set(self._last_history_redis_key,json.dumps(last_history),timeout=60*60*24*1.2)
