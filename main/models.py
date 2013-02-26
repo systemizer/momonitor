@@ -304,7 +304,7 @@ class UmpireServiceCheck(ServiceCheck):
         elif abs(last_value-new_mean)>2*self.last_std:
             new_std = abs(self.last_std)
         else:
-            new_std = (((self.last_std*9)**2 + (last_value-new_mean)**2)/10)**.5
+            new_std = (((self.last_std**2)*9 + (last_value-new_mean)**2)/10)**.5
 
         super(UmpireServiceCheck,self).set_state(status,last_value,{'last_std':new_std})
 
