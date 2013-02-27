@@ -2,9 +2,8 @@ from django import forms
 from momonitor.main.models import (SimpleServiceCheck, 
                                    UmpireServiceCheck, 
                                    CompareServiceCheck,
-                                   ComplexServiceCheck,
+                                   SensuServiceCheck,
                                    CodeServiceCheck,
-                                   ComplexRelatedField,
                                    Service)
 
 class ServiceCheckForm(forms.ModelForm):
@@ -50,6 +49,12 @@ class SimpleServiceCheckForm(ServiceCheckForm):
     class Meta:
         model = SimpleServiceCheck
 
+class SensuServiceCheckForm(ServiceCheckForm):
+    title="Create/Edit Sensu Checks"
+    template="modal_forms/sensu_check.html"
+    class Meta:
+        model = SensuServiceCheck
+
 class CodeServiceCheckForm(forms.ModelForm):
     enctype = "multipart/form-data"
     title="Create/Edit Code Checks"
@@ -66,17 +71,6 @@ class CodeServiceCheckForm(forms.ModelForm):
     class Meta:
         model = CodeServiceCheck
 
-class ComplexServiceCheckForm(ServiceCheckForm):
-    title="Create/Edit Complex Check"
-    class Meta:
-        model = ComplexServiceCheck
-
-class ComplexRelatedForm(forms.ModelForm):
-    complex_check = forms.CharField(widget=forms.HiddenInput(attrs={'readonly':True}))
-    title = "Add Rule to Complex Check"
-    class Meta:
-        model = ComplexRelatedField
-
 class ServiceForm(forms.ModelForm):
     title="Create/Edit Service"
     template="modal_forms/serviceform.html"
@@ -87,9 +81,8 @@ RESOURCE_FORM_MAP = {
     Service:ServiceCheckForm,
     UmpireServiceCheck:UmpireServiceCheckForm,
     SimpleServiceCheck:SimpleServiceCheckForm,
-    ComplexServiceCheck:ComplexServiceCheckForm,
     CompareServiceCheck:CompareServiceCheckForm,
     CodeServiceCheck:CodeServiceCheckForm,
-    ComplexRelatedField:ComplexRelatedForm,
+    SensuServiceCheck:SensuServiceCheckForm,
     Service:ServiceForm
 }

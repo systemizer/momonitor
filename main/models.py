@@ -75,6 +75,10 @@ class Service(models.Model):
         return self._status_counts(check_type="simpleservicecheck")
 
     @property
+    def sensu_counts(self):
+        return self._status_counts(check_type="sensuservicecheck")
+
+    @property
     def code_counts(self):
         return self._status_counts(check_type="codeservicecheck")
 
@@ -85,10 +89,6 @@ class Service(models.Model):
     @property
     def compare_counts(self):
         return self._status_counts(check_type="compareservicecheck")
-
-    @property
-    def complex_counts(self):
-        return self._status_counts(check_type="complexservicecheck")
 
     def _send_alert_pagerduty(self,description,event_type="trigger"):
         if not self.pagerduty_key:
@@ -151,15 +151,15 @@ class Service(models.Model):
             return list(self.umpireservicecheck.all())
         elif check_type == "compareservicecheck":
             return list(self.compareservicecheck.all())
-        elif check_type == "complexservicecheck":
-            return list(self.complexservicecheck.all())
         elif check_type == "codeservicecheck":
             return list(self.codeservicecheck.all())
+        elif check_type == "sensuservicecheck":
+            return list(self.sensuservicecheck.all())
         else:
             return list(self.simpleservicecheck.all()) + \
                 list(self.umpireservicecheck.all()) + \
                 list(self.compareservicecheck.all()) + \
-                list(self.complexservicecheck.all()) + \
+                list(self.sensuservicecheck.all()) + \
                 list(self.codeservicecheck.all())
 
     def update_status(self):
@@ -569,31 +569,71 @@ class CodeServiceCheck(ServiceCheck):
         
         self.set_state(status=status,last_value=value)
 
-class ComplexServiceCheck(ServiceCheck):
-    resource_name = "complexservicecheck"
+class CodeServiceCheck(ServiceCheck):
+    resource_name = "codeservicecheck"
+    code_file = models.FileField(upload_to="uploaded_scripts")
+
+    @property
+    def file_name(self):
+        return self.code_file.name.split("/")[-1].replace(".py","")
 
     def update_status(self):
         value = None
         status = STATUS_UNKNOWN
 
-        for check in self.checks.order_by("order"):
-            status,value = check.update_status()
-            if status==STATUS_BAD:
-                break
+        try:
+            parent_module = __import__("uploaded_scripts.%s" % self.file_name)
+            module = eval("parent_module.%s" % self.file_name)
+            value,succeeded = module.run()
+            status = STATUS_GOOD if succeeded else STATUS_BAD
+        except:            
+            status = STATUS_UNKNOWN
+            value = None
         
         self.set_state(status=status,last_value=value)
 
-class ComplexRelatedField(models.Model):
-    resource_name = "complexrelatedfield"
-    complex_check = models.ForeignKey(ComplexServiceCheck,related_name="checks")
-    order = models.IntegerField()
+class SensuServiceCheck(ServiceCheck):
+    resource_name = "sensuservicecheck"
 
-    object_type = models.ForeignKey(ContentType, related_name="related_%(class)s")
-    object_id = models.IntegerField(db_index=True)
-    check = generic.GenericForeignKey(ct_field="object_type", fk_field="object_id")
+    sensu_check_name = models.CharField(max_length=256)
 
-    class Meta:
-        unique_together=(("complex_check","order"),)
+    def update_status(self):
+        value = None
+        status = STATUS_UNKNOWN
+        last_aggregate = None
+
+        try:
+            url = "%s/aggregates/%s" % (settings.SENSU_API_ENDPOINT,self.sensu_check_name)
+            res = requests.get(url)
+            if res.status_code == 200:
+                aggregates = res.json()
+                last_aggregate = aggregates[0]
+                url2 = "%s/aggregates/%s/%s" (settings.SENSU_API_ENDPOINT,
+                                              self.sensu_check_name,
+                                              last_aggregate)
+                res2 = requests.get(url2)
+                if res2.status_code==200:
+                    aggregate_data = res2.json()
+                    if aggregate_data.get("CRITICAL",0):
+                        status = STATUS_BAD
+                    elif aggregate_data.get("WARNING",0):
+                        status = STATUS_WARNING
+                    else:
+                        status = STATUS_GOOD
+
+                    value = "%s/%s/%s" % (aggregate_data.get("OK",0),
+                                          aggregate_data.get("CRITICAL",0),
+                                          aggregate_data.get("WARNING",0)
+                                          )
+                
+        except (requests.exceptions.ConnectionError,requests.exceptionsTimeout) as e:
+            logging.error("Failed to connect with sensu api server")
+        
+        extra = {}
+        if last_aggregate:
+            extra.update({"last_updated":last_aggregate})
+        
+        self.set_state(status=status,last_value=value,extra=extra)
 
 RESOURCES = [
     Service,
@@ -602,8 +642,7 @@ RESOURCES = [
     UmpireServiceCheck,
     CompareServiceCheck,
     CodeServiceCheck,
-    ComplexServiceCheck,
-    ComplexRelatedField
+    SensuServiceCheck
 ]
 
 RESOURCE_NAME_MAP = dict([(cls.resource_name,cls) for cls in RESOURCES])

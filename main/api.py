@@ -8,9 +8,8 @@ from momonitor.main.models import (Service,
                                    SimpleServiceCheck,
                                    UmpireServiceCheck,
                                    CompareServiceCheck,
-                                   CodeServiceCheck,
-                                   ComplexServiceCheck,
-                                   ComplexRelatedField)
+                                   SensuServiceCheck,
+                                   CodeServiceCheck)
 
 from tastypie.api import Api
 
@@ -58,6 +57,15 @@ class SimpleServiceCheckResource(ModelResource):
         authorization=Authorization()
         authentication=CustomAuthentication()
 
+class SensuServiceCheckResource(ModelResource):
+    service = fields.ToOneField(ServiceResource,'service')
+
+    class Meta:
+        queryset = SensuServiceCheck.objects.all()
+        resource_name=SensuServiceCheck.resource_name
+        authorization=Authorization()
+        authentication=CustomAuthentication()
+
 class CodeServiceCheckResource(ModelResource):
     service = fields.ToOneField(ServiceResource,'service')
 
@@ -85,39 +93,12 @@ class UmpireServiceCheckResource(ModelResource):
         authorization=Authorization()
         authentication=CustomAuthentication()
 
-class ComplexServiceCheckResource(ModelResource):
-    service = fields.ToOneField(ServiceResource,'service')
-
-    class Meta:
-        queryset = ComplexServiceCheck.objects.all()
-        resource_name=ComplexServiceCheck.resource_name
-        authorization=Authorization()
-
-class ComplexRelatedFieldResource(ModelResource):
-    check = GenericForeignKeyField({
-            SimpleServiceCheck:SimpleServiceCheckResource,
-            CompareServiceCheck:CompareServiceCheckResource,
-            UmpireServiceCheck:UmpireServiceCheckResource
-            },"check")
-
-    object_type = fields.ToOneField(ContentTypeResource,"object_type")
-    complex_check = fields.ToOneField(ComplexServiceCheckResource,'complex_check')
-
-
-    class Meta:
-        resource_name=ComplexRelatedField.resource_name
-        queryset = ComplexRelatedField.objects.all()
-        authorization=Authorization()
-        authentication=CustomAuthentication()
-
-
 
 v1_api = Api(api_name='v1')
 v1_api.register(ServiceResource())
 v1_api.register(SimpleServiceCheckResource())
 v1_api.register(UmpireServiceCheckResource())
 v1_api.register(CompareServiceCheckResource())
+v1_api.register(SensuServiceCheckResource())
 v1_api.register(CodeServiceCheckResource())
-v1_api.register(ComplexServiceCheckResource())
-v1_api.register(ComplexRelatedFieldResource())
 v1_api.register(ContentTypeResource())

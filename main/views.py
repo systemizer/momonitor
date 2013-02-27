@@ -60,10 +60,6 @@ def modal_form(request,resource_name,resource_id=None):
     if hasattr(instance,"service") or request.GET.has_key("sid"):
         form = resource_form_cls(instance=instance,
                                  initial={'service':instance.service.id if instance else request.GET.get("sid")})
-
-    elif hasattr(instance,"complex_check") or request.GET.has_key("cid"):
-        form = resource_form_cls(instance=instance,
-                                 initial={"complex_check":instance.complex_check.id if instance else  request.GET.get("cid")})
     else:
         form = resource_form_cls(instance=instance)
 

@@ -16,6 +16,9 @@ DATABASES = {
 UMPIRE_ENDPOINT = ""
 GRAPHITE_ENDPOINT = ""
 
+#Optional (if you are using sensu checks)
+SENSU_API_ENDPOINT = ""
+
 #By default, use GoogleBackend
 AUTHENTICATION_BACKENDS = (
     'social_auth.backends.google.GoogleBackend',
