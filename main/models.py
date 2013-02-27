@@ -18,6 +18,7 @@ from main.constants import (STATUS_UNKNOWN,
                             ALERT_CHOICES,
                             SERIALIZATION_CHOICES,
                             UMPIRE_CHECK_TYPES,
+                            UMPIRE_RANGE_TYPES,
                             COMPARATOR_CHOICES)
 import requests
 import json
@@ -272,6 +273,7 @@ class UmpireServiceCheck(ServiceCheck):
     umpire_max = models.FloatField(default=0)
     umpire_range = models.IntegerField(null=True,blank=True)
     umpire_check_type = models.CharField(max_length=64,choices=UMPIRE_CHECK_TYPES,default="static")
+    umpire_range_type = models.CharField(max_length=64,choices=UMPIRE_RANGE_TYPES,default="current")
     umpire_percent_error = models.FloatField(default=.25)
 
     @property
@@ -422,11 +424,16 @@ class UmpireServiceCheck(ServiceCheck):
         else:
             umpire_min,umpire_max = self._update_status_dynamic()
 
+        if self.umpire_range_type=="day":
+            umpire_range = max(300,time.time() % (60*60*24))
+        else:
+            umpire_range = self.umpire_range or self.service.umpire_range
+
         get_parameters = {
             'metric':self.umpire_metric,
             'min':umpire_min,
             'max':umpire_max,
-            'range':self.umpire_range or self.service.umpire_range
+            'range':umpire_range
             }
         endpoint = "%s?%s" % (settings.UMPIRE_ENDPOINT,
                               urllib.urlencode(get_parameters))

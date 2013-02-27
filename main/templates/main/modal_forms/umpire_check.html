@@ -11,6 +11,8 @@
     {{form.description}}
     <label>Umpire Check Type</label>
     {{form.umpire_check_type}}
+    <label>Umpire Range Type</label>
+    {{form.umpire_range_type}}
   </div>
   <div class="pull-right half">
     <label class="checkbox">{{form.silenced}} Silenced</label>
@@ -27,6 +29,14 @@
 	<label>Percent Error (from guessed value)</label>
 	{{form.umpire_percent_error}}
 	<i class="muted">Error range will be computed over time based on past history</i>
+      </div>
+    <div class="choicebox" data-name="umpire_range_type">
+      <div class="choice" id="current">
+	<label>Umpire Range</label>
+	{{form.umpire_range}}
+      </div>
+      <div class="choice" id="day">
+	<i class="muted">Range will be computed from the beginning of the day</i>
       </div>
     </div>
   </div>

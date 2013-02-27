@@ -8,6 +8,11 @@ UMPIRE_CHECK_TYPES = (
     ("dynamic","dynamic")
 )
 
+UMPIRE_RANGE_TYPES = (
+    ("current","current"),
+    ("day","day")
+)
+
 SERIALIZATION_CHOICES = (
     ("json","json"),
     ("plaintext","plaintext"),
