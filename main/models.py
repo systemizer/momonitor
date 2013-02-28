@@ -570,32 +570,9 @@ class CodeServiceCheck(ServiceCheck):
             module = eval("parent_module.%s" % self.file_name)
             value,succeeded = module.run()
             status = STATUS_GOOD if succeeded else STATUS_BAD
-        except:            
+        except Exception as e:            
             status = STATUS_UNKNOWN
-            value = None
-        
-        self.set_state(status=status,last_value=value)
-
-class CodeServiceCheck(ServiceCheck):
-    resource_name = "codeservicecheck"
-    code_file = models.FileField(upload_to="uploaded_scripts")
-
-    @property
-    def file_name(self):
-        return self.code_file.name.split("/")[-1].replace(".py","")
-
-    def update_status(self):
-        value = None
-        status = STATUS_UNKNOWN
-
-        try:
-            parent_module = __import__("uploaded_scripts.%s" % self.file_name)
-            module = eval("parent_module.%s" % self.file_name)
-            value,succeeded = module.run()
-            status = STATUS_GOOD if succeeded else STATUS_BAD
-        except:            
-            status = STATUS_UNKNOWN
-            value = None
+            value = str(e)
         
         self.set_state(status=status,last_value=value)
 
@@ -615,25 +592,25 @@ class SensuServiceCheck(ServiceCheck):
             if res.status_code == 200:
                 aggregates = res.json()
                 last_aggregate = aggregates[0]
-                url2 = "%s/aggregates/%s/%s" (settings.SENSU_API_ENDPOINT,
-                                              self.sensu_check_name,
-                                              last_aggregate)
+                url2 = "%s/aggregates/%s/%s" % (settings.SENSU_API_ENDPOINT,
+                                                self.sensu_check_name,
+                                                last_aggregate)
                 res2 = requests.get(url2)
                 if res2.status_code==200:
                     aggregate_data = res2.json()
-                    if aggregate_data.get("CRITICAL",0):
+                    if aggregate_data.get("critical",0):
                         status = STATUS_BAD
-                    elif aggregate_data.get("WARNING",0):
-                        status = STATUS_WARNING
+                    elif aggregate_data.get("warning",0) or aggregate_data.get("unknown",0):
+                        status = STATUS_UNKNOWN
                     else:
                         status = STATUS_GOOD
 
-                    value = "%s/%s/%s" % (aggregate_data.get("OK",0),
-                                          aggregate_data.get("CRITICAL",0),
-                                          aggregate_data.get("WARNING",0)
+                    value = "%s/%s/%s" % (aggregate_data.get("ok",0),
+                                          aggregate_data.get("critical",0),
+                                          aggregate_data.get("warning",0) + aggregate_data.get("unknown",0)                                          
                                           )
                 
-        except (requests.exceptions.ConnectionError,requests.exceptionsTimeout) as e:
+        except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
             logging.error("Failed to connect with sensu api server")
         
         extra = {}
