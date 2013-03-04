@@ -2,7 +2,7 @@
 
 {% block form_body %}
 <fieldset>
-  <legend>Basic</legend>
+  <legend class="modal-section-header">Basic</legend>
   <div class="pull-left half">
     <label>Name</label>
     {{form.name}}
@@ -22,15 +22,9 @@
       </div>
     </div>
   </div>
-
   <div class="clearfix"></div>
-  <legend>
-    <a href="#advanced-settings" class="toggle-hide">
-      <small><i class="icon-plus"></i></small> 
-    </a>
-    Advanced
-  </legend>
-  <div id="advanced-settings" class="hide">
+  <legend class="modal-section-header">Advanced</legend>
+  <div id="advanced-settings">
     <label>Frequency</label>
     {{form.frequency}}
     <label>Failures Before Alert</label>

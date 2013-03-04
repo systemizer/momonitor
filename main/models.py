@@ -1,17 +1,15 @@
 from django.db import models
 import logging
+import itertools
 from django.template import Context
 from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 from django.core.mail import send_mail
 from smtplib import SMTPException
-import pdb
 import croniter
 from django.core.cache import cache
 import urllib
-from django.contrib.contenttypes import generic
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from main.constants import (STATUS_UNKNOWN,
                             STATUS_GOOD,
                             STATUS_BAD,
@@ -23,6 +21,8 @@ from main.constants import (STATUS_UNKNOWN,
 import requests
 import json
 import time
+
+import pdb
 
 class Service(models.Model):
     resource_name="service"
@@ -60,45 +60,21 @@ class Service(models.Model):
         else:
             return None
 
-    def _status_counts(self,check_type=""):
+    def status_counts(self,check_type=""):
         all_checks = self.all_checks(check_type)
         return "%s/%s/%s" % (len(filter(lambda x: x.status==STATUS_GOOD,all_checks)),
                              len(filter(lambda x: x.status==STATUS_BAD,all_checks)),
                              len(filter(lambda x: x.status==STATUS_UNKNOWN,all_checks))
                              )
 
-    @property
-    def all_counts(self):
-        return self._status_counts()
-
-    @property
-    def simple_counts(self):
-        return self._status_counts(check_type="simpleservicecheck")
-
-    @property
-    def sensu_counts(self):
-        return self._status_counts(check_type="sensuservicecheck")
-
-    @property
-    def code_counts(self):
-        return self._status_counts(check_type="codeservicecheck")
-
-    @property
-    def umpire_counts(self):
-        return self._status_counts(check_type="umpireservicecheck")
-
-    @property
-    def compare_counts(self):
-        return self._status_counts(check_type="compareservicecheck")
-
-    def _send_alert_pagerduty(self,description,event_type="trigger"):
+    def _send_alert_pagerduty(self,description):
         if not self.pagerduty_key:
-            logging.info("No pagerduty key for service %s. Not sending alert." % self.name)
+            logging.warning("No pagerduty key for service %s. Not sending alert." % self.name)
             return
 
         payload = {
             'service_key':self.pagerduty_key,
-            'event_type':event_type,
+            'event_type':"trigger",
             'description':description
             }
 
@@ -112,7 +88,7 @@ class Service(models.Model):
 
     def _send_alert_email(self,description):
         if not self.email_contact:
-            logging.info("No email contact for service %s" % self.name)
+            logging.warning("No email contact for service %s" % self.name)
         try:
             email_msg = get_template("alert_email.txt").render(
                 Context({"description":description,
@@ -130,45 +106,34 @@ class Service(models.Model):
         except SMTPException:
             logging.error("Failed to send email to %s for error %s" % (self.email_contact,description))
 
-    def send_alert(self,description,alert_type=None,event_type="trigger"):
+    def send_alert(self,description,alert_type=None):
         if self.silenced:
             logging.debug("Service %s is silenced. Not sending pagerduty alert %s" % (self.name,description))
             return
 
         alert_type = alert_type or self.alert_type
         if alert_type == "pagerduty":
-            self._send_alert_pagerduty(description,event_type)
+            self._send_alert_pagerduty(description)
         elif alert_type == "email":
             self._send_alert_email(description)
         else:
             logging.info("No alert being sent because alert type is 'none'")
-        
-
 
     def all_checks(self,check_type=""):
-        if check_type == "simpleservicecheck":
-            return list(self.simpleservicecheck.all())
-        elif check_type == "umpireservicecheck":
-            return list(self.umpireservicecheck.all())
-        elif check_type == "compareservicecheck":
-            return list(self.compareservicecheck.all())
-        elif check_type == "codeservicecheck":
-            return list(self.codeservicecheck.all())
-        elif check_type == "sensuservicecheck":
-            return list(self.sensuservicecheck.all())
-        else:
-            return list(self.simpleservicecheck.all()) + \
-                list(self.umpireservicecheck.all()) + \
-                list(self.compareservicecheck.all()) + \
-                list(self.sensuservicecheck.all()) + \
-                list(self.codeservicecheck.all())
+        resource_names = [service_class.resource_name for service_class in ServiceCheck.__subclasses__()]
+        if check_type:
+            if check_type not in resource_names:
+                logging.warning("Could not find check type: %s" % check_type)
+                return []
+            return list(getattr(self,check_type).all())
+        return list(itertools.chain(*[list(getattr(self,name).all()) for name in resource_names]))
 
     def update_status(self):
         for check in self.all_checks():
             check.update_status()
 
 class ServiceCheck(models.Model):
-    resource_name="servicecheck"
+    resource_name = "servicecheck"
     class Meta:
         abstract=True
 
@@ -235,8 +200,7 @@ class ServiceCheck(models.Model):
         raise NotImplemented("need to implement update_stats")
 
 class SimpleServiceCheck(ServiceCheck):
-    resource_name="simpleservicecheck"
-
+    resource_name = "simpleservicecheck"
     endpoint = models.URLField(max_length=256)
     timeout = models.IntegerField(null=True,blank=True) # in ms
 
@@ -266,8 +230,7 @@ class SimpleServiceCheck(ServiceCheck):
         self.set_state(status=status,last_value=value)
 
 class UmpireServiceCheck(ServiceCheck):
-    resource_name="umpireservicecheck"    
-
+    resource_name = "umpireservicecheck"
     umpire_metric = models.CharField(max_length=256)
     umpire_min = models.FloatField(default=0)
     umpire_max = models.FloatField(default=0)
@@ -473,8 +436,7 @@ serialized response and applies an arithmatic
 check to that value
 '''
 class CompareServiceCheck(ServiceCheck):
-    resource_name="compareservicecheck"    
-
+    resource_name = "compareservicecheck"
     endpoint = models.URLField(max_length=256)
     serialization = models.CharField(max_length=128,choices=SERIALIZATION_CHOICES,default="json")
     field = models.CharField(max_length=256)
@@ -577,8 +539,7 @@ class CodeServiceCheck(ServiceCheck):
         self.set_state(status=status,last_value=value)
 
 class SensuServiceCheck(ServiceCheck):
-    resource_name = "sensuservicecheck"
-
+    resource_name="sensuservicecheck"
     sensu_check_name = models.CharField(max_length=256)
 
     def update_status(self):

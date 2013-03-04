@@ -66,6 +66,9 @@ def to_bootstrap_progressbarclass(value):
     else:
         return "bar-warning"
 
+def status_count(service,check_type):
+    return service.status_counts(check_type)
+
 register.filter('since', since)
 register.filter('percentage', percentage)
 register.filter('multiply', multiply)
@@ -74,3 +77,4 @@ register.filter('to_bootstrap_rowclass', to_bootstrap_rowclass)
 register.filter('to_bootstrap_progressbarclass', to_bootstrap_progressbarclass)
 register.filter('to_status_png', to_status_png)
 register.filter('resource_url', resource_url)
+register.filter('status_count', status_count)

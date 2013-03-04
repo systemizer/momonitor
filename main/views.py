@@ -1,21 +1,17 @@
 from django.template import RequestContext
-from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
-from django.contrib.auth.decorators import login_required as _login_required
-from django.conf import settings
-
 from momonitor.main.models import (RESOURCE_NAME_MAP,
                                    Service,
                                    CodeServiceCheck,
                                    RESOURCES)
 
 from momonitor.common.decorators import ajax_required, login_required
-
 from momonitor.main.forms import RESOURCE_FORM_MAP
 
 
+'''Index page. Dashboard with services'''
 @login_required
 def index(request):
     request.breadcrumbs("Services",reverse("main:index"))
@@ -25,6 +21,8 @@ def index(request):
                               {'services':services},
                               RequestContext(request))
 
+
+'''Service Page. Shows checks per service'''
 @login_required
 def service(request,service_id):
     service = get_object_or_404(Service,pk=service_id)
@@ -36,6 +34,8 @@ def service(request,service_id):
                               {'service':service},
                               RequestContext(request))
 
+'''Modal Form that posts to Tastypie endpoints'''
+@ajax_required
 @login_required
 def modal_form(request,resource_name,resource_id=None):
     if not RESOURCE_NAME_MAP.has_key(resource_name):
@@ -69,6 +69,7 @@ def modal_form(request,resource_name,resource_id=None):
                                'method':method},
                               RequestContext(request))
 
+'''Silence check endpoint. We can remove this once we have backbonejs in place'''
 @ajax_required
 @login_required
 def silence(request,resource_name,resource_id):
@@ -81,6 +82,8 @@ def silence(request,resource_name,resource_id):
     return HttpResponse("OK")
 
 
+'''Run a specific check.'''
+@ajax_required
 @login_required
 def refresh(request,resource_name,resource_id):
     if not RESOURCE_NAME_MAP.has_key(resource_name):
@@ -90,14 +93,16 @@ def refresh(request,resource_name,resource_id):
     resource.update_status()
     return HttpResponse("OK")
 
+'''Throw alert manually'''
+@ajax_required
 @login_required
 def test_alert(request,service_id):
     service = get_object_or_404(Service,pk=service_id)
     service.send_alert(description="Test alert")
     return HttpResponse("OK")
 
-# We need a separate upload handler for code checks
-# because tastypie is bad with uploading files
+'''We need a separate upload handler for code checks
+ because tastypie is bad with uploading files'''
 @login_required
 def code_check_upload(request,instance_id=None):
     instance = None
@@ -116,6 +121,7 @@ def code_check_upload(request,instance_id=None):
     else:
         return HttpResponseBadRequest(form.errors.items())
 
+'''Basic how it works page'''
 @login_required
 def how_it_works(request):
     request.breadcrumbs("Services",reverse("main:index"))
