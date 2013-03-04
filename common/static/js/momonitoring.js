@@ -54,7 +54,7 @@ function highchartize(target$) {
 	},
 	plotOptions : {
 	    series : {
-		fillOpacity : 0.1
+		fillOpacity : 0.4
 	    }
 	},
 	series : [
