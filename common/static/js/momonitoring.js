@@ -39,11 +39,15 @@ function highchartize(target$) {
     var containerWrapper$ = $(target$.data("container"))
     var containerId = target$.attr("id")+"-container"
     containerWrapper$.html("<div id='"+containerId+"'>");
-    
+
+    //hack to get highchartize to work with both slideshow and modals
+    var chartHeight = Math.max(containerWrapper$.height(),400)
+
     var chartOptions = {
 	chart : {
 	    renderTo:containerId,
-	    type:'line'		
+	    type:'line',
+	    height:chartHeight
 	},
 	title : {
 	    text : target$.data("title") || "No title given"
