@@ -37,11 +37,12 @@ function highchartize(target$) {
     dataSeries = target$.data("series");	
     errorSeries = target$.data("error");
     var containerWrapper$ = $(target$.data("container"))
-    containerWrapper$.html("<div id='highchart-container'>");
+    var containerId = target$.attr("id")+"-container"
+    containerWrapper$.html("<div id='"+containerId+"'>");
     
     var chartOptions = {
 	chart : {
-	    renderTo:'highchart-container',
+	    renderTo:containerId,
 	    type:'line'		
 	},
 	title : {
