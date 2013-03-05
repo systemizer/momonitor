@@ -542,6 +542,13 @@ class SensuServiceCheck(ServiceCheck):
     resource_name="sensuservicecheck"
     sensu_check_name = models.CharField(max_length=256)
 
+    def endpoint(self):
+        if not self.last_updated:
+            return None            
+        return "%s/aggregates/%s/%s?results=true" % (settings.SENSU_API_ENDPOINT,
+                                                     self.sensu_check_name,
+                                                     self.last_updated)
+
     def update_status(self):
         value = None
         status = STATUS_UNKNOWN
