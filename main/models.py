@@ -542,12 +542,20 @@ class SensuServiceCheck(ServiceCheck):
     resource_name="sensuservicecheck"
     sensu_check_name = models.CharField(max_length=256)
 
-    def endpoint(self):
+    def get_result_data(self):
         if not self.last_updated:
-            return None            
-        return "%s/aggregates/%s/%s?results=true" % (settings.SENSU_API_ENDPOINT,
-                                                     self.sensu_check_name,
-                                                     self.last_updated)
+            logging.info("Requested result data when no data available")
+            return []  
+
+        endpoint = "%s/aggregates/%s/%s?results=true" % (settings.SENSU_API_ENDPOINT,
+                                                         self.sensu_check_name,
+                                                         self.last_updated)        
+        res = requests.get(endpoint)
+        if not res.status_code==200:
+            logging.warning("Failed to get data from sensu server")
+            return []
+
+        return res.json().get('results',[])
 
     def update_status(self):
         value = None

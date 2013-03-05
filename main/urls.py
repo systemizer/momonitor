@@ -19,6 +19,9 @@ urlpatterns = patterns('momonitor.main.views',
                        #Test pagerduty functionality
                        url('^test/alert/(?P<service_id>.*)/$','test_alert',name="test_alert"),
 
+                       #Temporary sensu handler until backbone comes in
+                       url('^sensu-check-info/(?P<sensu_check_id>.*)/$','sensu_check_info',name="sensu_check_info"),
+
 
                        (r'^api/', include(v1_api.urls)),
 )

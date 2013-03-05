@@ -1,0 +1,27 @@
+{% load momonitor_tags %}
+
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+  <h3>Sensu Check: {{check.name}}</h3>
+</div>
+<div class="modal-body">
+  <table class="table-sortable table table-bordered">
+    <thead>
+      <th>Client</th>
+      <th>Status</th>
+      <th>Output</th>
+    </thead>
+    <tbody>
+      {% for datum in status_data %}
+      <tr class="{{datum.status|to_bootstrap_rowclass}}">
+	<td>{{datum.client}}</td>
+	<td>{{datum.status}}</td>
+	<td data-title="{{datum.output}}" class="tooltipped">{{datum.output|truncatechars:30}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="modal-footer">
+  <button class="btn" data-dismiss="modal">Close</button>
+</div>

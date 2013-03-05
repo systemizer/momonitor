@@ -5,10 +5,15 @@ from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from momonitor.main.models import (RESOURCE_NAME_MAP,
                                    Service,
                                    CodeServiceCheck,
+                                   SensuServiceCheck,
                                    RESOURCES)
 
 from momonitor.common.decorators import ajax_required, login_required
 from momonitor.main.forms import RESOURCE_FORM_MAP
+
+from momonitor.main.constants import (STATUS_GOOD,
+                                      STATUS_BAD,
+                                      STATUS_UNKNOWN)
 
 
 '''Index page. Dashboard with services'''
@@ -127,3 +132,30 @@ def how_it_works(request):
     request.breadcrumbs("Services",reverse("main:index"))
     request.breadcrumbs("How it works",reverse("main:how_it_works"))
     return render_to_response("main/how-it-works.html",{},RequestContext(request))
+
+@ajax_required
+@login_required
+def sensu_check_info(request,sensu_check_id=None):
+    check = get_object_or_404(SensuServiceCheck,pk=sensu_check_id)
+    result_data = check.get_result_data()
+
+    status_data = []
+    for result in result_data:
+        if result['status']==0:
+            status=STATUS_GOOD
+        elif result['status']==2:
+            status=STATUS_BAD
+        else:
+            status=STATUS_UNKNOWN
+
+        status_data.append({'client':result['client'],
+                            'output':result['output'],
+                            'status':status})
+
+    return render_to_response("main/sensu-info-modal.html",
+                              {'status_data':status_data,
+                               'check':check},
+                              RequestContext(request))
+                               
+    
+    

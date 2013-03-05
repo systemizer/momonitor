@@ -28,11 +28,9 @@
 	<a class="delete" href="{{check|resource_url}}">
 	  <i class="icon-remove"></i>
 	</a>
-	{% if check.endpoint %}
-	<a target="_blank" href="{{check.endpoint}}">
+	<a class="modalize" href="{% url main:sensu_check_info check.id %}">
 	  <i class="icon-eye-open"></i>
 	</a>
-	{% endif %}
       </td>
       <td width="30%"><span class="tooltipped" data-title="{{check.sensu_check_name}}">{{check.sensu_check_name|truncatechars:30}}</span></td>
       <td width="15%">{{check.last_value}}</td>
