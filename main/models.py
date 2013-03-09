@@ -12,6 +12,7 @@ import urllib
 from django.conf import settings
 from main.constants import (STATUS_UNKNOWN,
                             STATUS_GOOD,
+                            STATUS_WARNING,
                             STATUS_BAD,
                             ALERT_CHOICES,
                             SERIALIZATION_CHOICES,
@@ -163,7 +164,9 @@ class ServiceCheck(models.Model):
         last_updated = self.last_updated if status==STATUS_UNKNOWN else time.time()
 
         if num_failures>=(self.failures_before_alert or self.service.failures_before_alert):
-            self.send_alert()
+            self.send_alert(self.alert_type or self.service.alert_type)
+        elif status==STATUS_WARNING or num_failures>0:
+            self.send_alert("email")
 
         state = {'status':status,
                  'last_updated':last_updated,
@@ -190,9 +193,9 @@ class ServiceCheck(models.Model):
     def num_failures(self):
         return self._get_state().get("num_failures",0)
 
-    def send_alert(self):
+    def send_alert(self,alert_type=None):
         if not self.silenced:
-            self.service.send_alert(self.description or self.name)
+            self.service.send_alert(self.description or self.name,alert_type)
         else:
             logging.info("Triggered alert on %s, but it is silenced" % self.name)
 

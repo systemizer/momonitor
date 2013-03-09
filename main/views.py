@@ -13,6 +13,7 @@ from momonitor.main.forms import RESOURCE_FORM_MAP
 
 from momonitor.main.constants import (STATUS_GOOD,
                                       STATUS_BAD,
+                                      STATUS_WARNING,
                                       STATUS_UNKNOWN)
 
 

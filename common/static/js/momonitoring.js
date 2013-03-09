@@ -134,7 +134,6 @@ function deleteResource(urlEndpoint) {
 }
 
 function init(container$) {    
-    console.log("hello")
     if(typeof(container$)==='undefined') container$ = $('body');
 
     $('.choicebox',container$).each(function() {

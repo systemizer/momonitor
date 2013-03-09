@@ -7,6 +7,7 @@ register = template.Library()
 
 from momonitor.main.constants import (STATUS_GOOD,
                                       STATUS_BAD,
+                                      STATUS_WARNING,
                                       STATUS_UNKNOWN)
 
 def percentage(value):
@@ -47,6 +48,8 @@ def to_bootstrap_rowclass(value):
         return "success"
     elif value==STATUS_BAD:
         return "error"
+    elif value==STATUS_WARNING:
+        return "warning"
     else:
         return "warning"
 
@@ -55,6 +58,8 @@ def to_status_png(value):
         return "%simg/green-dot.png" % settings.STATIC_URL
     elif value==STATUS_BAD:
         return "%simg/red-dot.png" % settings.STATIC_URL
+    elif value==STATUS_WARNING:
+        return "%simg/yellow-dot.png" % settings.STATIC_URL
     else:
         return "%simg/yellow-dot.png" % settings.STATIC_URL
 
@@ -63,6 +68,8 @@ def to_bootstrap_progressbarclass(value):
         return "bar-success"
     elif value==STATUS_BAD:
         return "bar-danger"
+    elif value==STATUS_WARNING:
+        return "bar-warning"
     else:
         return "bar-warning"
 
