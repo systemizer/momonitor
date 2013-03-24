@@ -1,0 +1,10 @@
+{% extends "mobile/checks/base.html" %}
+{% load momonitor_tags %}
+
+{% block check_body %}
+<ul data-role="listview">
+  <li><img src="{{check.status|to_status_png}}" class="ui-li-icon ui-li-thumb" /> {{check.name}}</li>
+  <li><b>Last Value: </b>{{check.last_value}}</li>
+  <li><b>Last Updated: </b>{{check.last_updated|since}}</li>
+</ul>
+{% endblock %}
