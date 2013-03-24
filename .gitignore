@@ -6,6 +6,7 @@ local_settings.py
 main/migrations
 dump.rdb
 test_data.json
+docs/_build
 media/*
 test_settings.py
 \.DS_STORE

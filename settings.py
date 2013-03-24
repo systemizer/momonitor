@@ -46,12 +46,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'south',
-    'common',
     'main',
     'slideshow',
     'mobile',
     'breadcrumbs',
-    'gunicorn',
     'social_auth'
 )
 
@@ -102,8 +100,7 @@ LOGIN_URL = '/social_auth/login/google/'
 import sys
 sys.path.insert(0,os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)) ,'media')))
 
-#Hackish way to set a TESTING variable. Currently this is only used so OAuth can be bypassed during testing.
-TESTING = sys.argv[1:2] == ['test']
+
 
 #Attempt to import local_settings
 try:

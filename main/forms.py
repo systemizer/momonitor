@@ -78,11 +78,10 @@ class ServiceForm(forms.ModelForm):
         model = Service
 
 RESOURCE_FORM_MAP = {
-    Service:ServiceCheckForm,
+    Service:ServiceForm,
     UmpireServiceCheck:UmpireServiceCheckForm,
     SimpleServiceCheck:SimpleServiceCheckForm,
     CompareServiceCheck:CompareServiceCheckForm,
     CodeServiceCheck:CodeServiceCheckForm,
     SensuServiceCheck:SensuServiceCheckForm,
-    Service:ServiceForm
 }

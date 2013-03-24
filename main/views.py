@@ -8,7 +8,8 @@ from momonitor.main.models import (RESOURCE_NAME_MAP,
                                    SensuServiceCheck,
                                    RESOURCES)
 
-from momonitor.common.decorators import ajax_required, login_required
+from momonitor.main.decorators import ajax_required
+from django.contrib.auth.decorators import login_required
 from momonitor.main.forms import RESOURCE_FORM_MAP
 
 from momonitor.main.constants import (STATUS_GOOD,
@@ -26,7 +27,6 @@ def index(request):
     return render_to_response("main/index.html",
                               {'services':services},
                               RequestContext(request))
-
 
 '''Service Page. Shows checks per service'''
 @login_required
@@ -74,19 +74,6 @@ def modal_form(request,resource_name,resource_id=None):
                                "action":action,
                                'method':method},
                               RequestContext(request))
-
-'''Silence check endpoint. We can remove this once we have backbonejs in place'''
-@ajax_required
-@login_required
-def silence(request,resource_name,resource_id):
-    if not RESOURCE_NAME_MAP.has_key(resource_name):
-        raise Http404
-    resource_cls = RESOURCE_NAME_MAP[resource_name]
-    resource = get_object_or_404(resource_cls,pk=resource_id)
-    resource.silenced = not resource.silenced
-    resource.save()
-    return HttpResponse("OK")
-
 
 '''Run a specific check.'''
 @ajax_required
@@ -159,4 +146,13 @@ def sensu_check_info(request,sensu_check_id=None):
                               RequestContext(request))
                                
     
-    
+@ajax_required
+@login_required
+def silence(request,resource_name,resource_id):
+    if not RESOURCE_NAME_MAP.has_key(resource_name):
+        raise Http404
+    resource_cls = RESOURCE_NAME_MAP[resource_name]
+    resource = get_object_or_404(resource_cls,pk=resource_id)
+    resource.silenced = not resource.silenced
+    resource.save()
+    return HttpResponse("OK")

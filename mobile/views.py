@@ -1,10 +1,11 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
-from momonitor.common.decorators import login_required
+from momonitor.main.decorators import login_required
 from momonitor.main.models import (Service,
                                    UmpireServiceCheck,
                                    SimpleServiceCheck,
+                                   SensuServiceCheck,
                                    CompareServiceCheck,
                                    CodeServiceCheck,
                                    RESOURCE_NAME_MAP)
@@ -30,6 +31,7 @@ def check(request,check_name,check_id):
     template_map = {
         SimpleServiceCheck:"simple_check.html",
         UmpireServiceCheck:"umpire_check.html",
+        SensuServiceCheck:"sensu_check.html",
         CompareServiceCheck:"compare_check.html",
         CodeServiceCheck:"code_check.html"
         }
