@@ -25,14 +25,12 @@ Momonitor is a simple tool that polls URL endpoints and runs checks on the respe
 
 Essentially two types of things exist in Momonitor: services and checks. Services and checks each have a status (good, bad, or unknown).  Services are a collection checks that test a specific system. Multiple types of checks exist; each tests  different aspects of the target system.
 
-## What it isn't
-Momonitor is not a tool for finding errors on single machines. It lacks the functionality at peforming specific checks on specific machines. This is better done using a tool likSensu. Momonitor integration with sensu is in the works.
-
 ### Types of Checks
 * Simple Check - check a single URL endpoint and report whether the response was a 200 or 500
 * Umpire Check - Umpire Checks allows to put minimum and maximum threholds on Graphite data. This check requires an umpire endpoint to be specified in the settings.py file for momonitor.
 * Compare Check - Compare Checks check a single URL endpoint that returns serialized data (i.e. json). You can compare a single data field via dot-notation and compare arithmatically compare it to a given value
 * Code Check - checks run arbitrary code on the momonitor server. This allows for the ultimate custom check, but be careful! The uploaded code should be a .py file that has a run function which returns a tuple (value,succeeded).
+* Sensu Check - Integrates with a Sensu Server, a service which runs checks on **many** machines. Momonitor monitoris sensu by checking the aggregate result.
 
 ### Extra Check Options
 * Frequency - Cron-like interface to specify how often you would like your check to run
@@ -48,3 +46,4 @@ Momonitor is not a tool for finding errors on single machines. It lacks the func
 * Email - Email alerts will send an an email to the specified contact upon a check failing
 * Pagerduty - Pagerduty alerts will trigger an event to the specified Pagerduty service key upon a check failing
 * None - This option will disable alerts for the service
+
