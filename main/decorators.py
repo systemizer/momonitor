@@ -22,14 +22,6 @@ def ajax_required(f):
     wrap.__name__=f.__name__
     return wrap
 
-
-
-###django-social-auth does a terrible job allowing for unitests. 
-###I rather just skip the whole process
-def login_required(function=None,
-                   redirect_field_name=REDIRECT_FIELD_NAME,
-                   login_url=None):
-    if settings.TESTING:
-        return function
-    else:
-        return _login_required(function,redirect_field_name,login_url)
+class ClassProperty(property):
+    def __get__(self, cls, owner):
+        return self.fget.__get__(None, owner)()
