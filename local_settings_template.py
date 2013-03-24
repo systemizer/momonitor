@@ -12,18 +12,21 @@ DATABASES = {
     }
 }
 
-#Optional (if you are using umpire checks)
-UMPIRE_ENDPOINT = ""
-GRAPHITE_ENDPOINT = ""
+FAKE_APP_PORT = 5000
+FAKE_APP_HOST = "localhost"
 
-#Optional (if you are using sensu checks)
-SENSU_API_ENDPOINT = ""
+import sys
+IS_TESTING = sys.argv[1:2] == ['test']
 
-#By default, use GoogleBackend
-AUTHENTICATION_BACKENDS = (
-    'social_auth.backends.google.GoogleBackend',
-)
+if IS_TESTING:
+    UMPIRE_ENDPOINT = "http://%s:%s/check" % (FAKE_APP_HOST,FAKE_APP_PORT)
+    SENSU_API_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
+else:
+    UMPIRE_ENDPOINT = "http://example.org/check"
+    SENSU_API_ENDPOINT = "http://example.org:4567"
 
 #OAuth rule. Only allow people with a google email ending in 'example.org' to access the site
 GOOGLE_WHITE_LISTED_DOMAINS = ['example.org']
-DOMAIN = "http://localhost"
+
+# Set this to the Domain of the site that will be hosting momonitor
+DOMAIN = "http://localhost" 

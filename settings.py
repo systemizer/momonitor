@@ -100,6 +100,11 @@ LOGIN_URL = '/social_auth/login/google/'
 import sys
 sys.path.insert(0,os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)) ,'media')))
 
+AUTHENTICATION_BACKENDS = (
+    'social_auth.backends.google.GoogleBackend',
+    'django.contrib.auth.backends.ModelBackend'
+)
+
 
 
 #Attempt to import local_settings

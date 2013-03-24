@@ -128,6 +128,19 @@ Momonitor comes with a couple additional features that make it more fun. These a
 * | **Slideshow** 
   | Have an extra unused TV hanging on the wall? Enable the momonitor/slideshow django app to get access to Momonitor's slideshow feature. Based on all of the checks you add, Momonitor will automatically create a slideshow for each service, which cycles through graphs of all of your checks.  
 
+Testing
+=======
+
+For testing, we are using Django's builtin unittest.TestCase and a custom-made Flask http server to mimic external services (like Sensu and Umpire). To run tests, you must start up the flask server before running the test command:
+
+::
+
+    >>> ./manage.py start_testing_faux_server
+
+::
+
+    >>> ./manage test
+
 .. toctree::
    :maxdepth: 2
 
