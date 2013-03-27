@@ -1,5 +1,6 @@
 {% load momonitor_tags %}
 
+{% if SENSU_API_ENDPOINT %}
 <div class="btn-group pull-right">
   <a href="{% url main:modal_form 'sensuservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize">
     <i class="icon-plus tooltipped" data-title="Add Sensu Check"></i>
@@ -50,3 +51,8 @@
     {% endif %}
   </tbody>
 </table>
+{% else %}
+<h3><a href="#sensutable" class="toggle-hide">Sensu Checks</a> 
+  <small>Not Available. Please specify SENSU_API_ENDPOINT in Django settings file</small>
+</h3>
+{% endif %}

@@ -1,5 +1,6 @@
 {% load momonitor_tags %}
 
+{% if UMPIRE_ENDPOINT %}
 <div class="btn-group pull-right">
   <a href="{% url main:modal_form 'umpireservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize">
     <i class="icon-plus tooltipped" data-title="Add Umpire Check"></i>
@@ -36,9 +37,11 @@
 	   href="#">
 	  <i class="icon-eye-open"></i>
 	</a>
+	{% if GRAPHITE_ENDPOINT %}
 	<a class="modalize" data-type="image" href="{{check.graphite_url}}">
 	  <i class="icon-signal"></i>
 	</a>
+	{% endif %}
       </td>
       <td width="45%">
 	<span class="hide">{{check.status}}</span>
@@ -65,3 +68,8 @@
     {% endif %}
   </tbody>
 </table>
+{% else %}
+<h3><a href="#umpiretable" class="toggle-hide">Umpire Checks</a> 
+  <small>Not Available. Please specify UMPIRE_ENDPOINT in Django settings file</small>
+</h3>
+{% endif %}

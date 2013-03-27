@@ -71,7 +71,8 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
                                "django.core.context_processors.static",
                                "django.core.context_processors.tz",
                                "django.contrib.messages.context_processors.messages",
-                               'django.core.context_processors.request')
+                               'django.core.context_processors.request',
+                               'momonitor.main.context_processors.service_endpoints')
 
 #Email the admins if momonitor ever breaks
 LOGGING = {
