@@ -9,12 +9,13 @@ from momonitor.main.constants import (STATUS_UNKNOWN,
                                       STATUS_BAD)
 import requests
 
-'''
-This check looks at a specific field in a 
-serialized response and applies an arithmatic 
-check to that value
-'''
+
 class CompareServiceCheck(ServiceCheck):
+    '''
+    This check looks at a specific field in a 
+    serialized response and applies an arithmatic 
+    check to that value
+    '''
     class Meta:
         app_label="main"
 

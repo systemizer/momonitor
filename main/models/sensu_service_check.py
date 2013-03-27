@@ -9,6 +9,11 @@ import requests
 from django.conf import settings
 
 class SensuServiceCheck(ServiceCheck):
+    '''
+    Sensu checks integrate with a sensu server.
+    It looks at the latest aggregate for a single
+    check idetified by sensu_check_name
+    '''
     class Meta:
         app_label="main"
 

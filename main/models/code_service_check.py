@@ -7,6 +7,11 @@ from momonitor.main.constants import (STATUS_UNKNOWN,
                                       STATUS_BAD)
 
 class CodeServiceCheck(ServiceCheck):
+    '''
+    Code Service checks take in an arbitrary python script
+    that contains a "run" function, which returns a tuple with
+    (msg_status,code_status)
+    '''
     class Meta:
         app_label="main"
 

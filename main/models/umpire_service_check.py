@@ -17,6 +17,11 @@ import json
 
 
 class UmpireServiceCheck(ServiceCheck):
+    '''
+    Umpire Service Checks hit and umpire endpoint to 
+    determine whether an graphite metric is outside 
+    the bounds of umpire_min and umpire_max
+    '''
     class Meta:
         app_label="main"
 
