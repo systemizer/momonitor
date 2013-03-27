@@ -189,7 +189,7 @@ class UmpireServiceCheck(ServiceCheck):
             umpire_range = self.umpire_range or self.service.umpire_range
 
         get_parameters = {
-            'metric':self.umpire_metric,
+            'metric':self.umpire_metric.replace(" ",""),
             'min':umpire_min,
             'max':umpire_max,
             'range':umpire_range
