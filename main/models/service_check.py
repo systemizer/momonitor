@@ -42,8 +42,6 @@ class ServiceCheck(BaseModel):
 
         if num_failures>=(self.failures_before_alert or self.service.failures_before_alert):
             self.send_alert(self.alert_type or self.service.alert_type)
-        elif status==STATUS_WARNING or num_failures>0:
-            self.send_alert("email")
 
         state = {'status':status,
                  'last_updated':last_updated,

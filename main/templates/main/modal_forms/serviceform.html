@@ -11,16 +11,10 @@
   </div>
   <div class="pull-right half">
     <label class="checkbox">{{form.silenced}} Silenced</label>
-    <div class="choicebox" data-name="alert_type">
-      <div class="choice" id="pagerduty">
-	<label>PagerDuty Key</label>
-	{{form.pagerduty_key}}
-      </div>
-      <div class="choice" id="email">
-	<label>Email Contact</label>
-	{{form.email_contact}}    
-      </div>
-    </div>
+    <label>PagerDuty Key (for pagerduty alert)</label>
+    {{form.pagerduty_key}}
+    <label>Email Contact (for email alert)</label>
+    {{form.email_contact}}    
   </div>
   <div class="clearfix"></div>
   <legend class="modal-section-header">Advanced</legend>
