@@ -18,9 +18,11 @@ from momonitor.main.constants import (STATUS_GOOD,
                                       STATUS_UNKNOWN)
 
 
-'''Index page. Dashboard with services'''
+
 @login_required
 def index(request):
+    '''Index page. Dashboard with services'''
+
     request.breadcrumbs("Services",reverse("main:index"))
 
     services = Service.objects.all().order_by("id")
@@ -28,9 +30,11 @@ def index(request):
                               {'services':services},
                               RequestContext(request))
 
-'''Service Page. Shows checks per service'''
+
 @login_required
 def service(request,service_id):
+    '''Service Page. Shows checks per service'''
+
     service = get_object_or_404(Service,pk=service_id)
 
     request.breadcrumbs("Services",reverse("main:index"))
@@ -40,10 +44,12 @@ def service(request,service_id):
                               {'service':service},
                               RequestContext(request))
 
-'''Modal Form that posts to Tastypie endpoints'''
+
 @ajax_required
 @login_required
 def modal_form(request,resource_name,resource_id=None):
+    '''Modal Form that posts to Tastypie endpoints'''
+
     if not RESOURCE_NAME_MAP.has_key(resource_name):
         raise Http404
     resource_cls = RESOURCE_NAME_MAP[resource_name]
@@ -75,10 +81,12 @@ def modal_form(request,resource_name,resource_id=None):
                                'method':method},
                               RequestContext(request))
 
-'''Run a specific check.'''
+
 @ajax_required
 @login_required
 def refresh(request,resource_name,resource_id):
+    '''Run a specific check.'''
+
     if not RESOURCE_NAME_MAP.has_key(resource_name):
         raise Http404
     resource_cls = RESOURCE_NAME_MAP[resource_name]
@@ -86,18 +94,13 @@ def refresh(request,resource_name,resource_id):
     resource.update_status()
     return HttpResponse("OK")
 
-'''Throw alert manually'''
-@ajax_required
-@login_required
-def test_alert(request,service_id):
-    service = get_object_or_404(Service,pk=service_id)
-    service.send_alert(description="Test alert")
-    return HttpResponse("OK")
 
-'''We need a separate upload handler for code checks
- because tastypie is bad with uploading files'''
+
 @login_required
 def code_check_upload(request,instance_id=None):
+    '''We need a separate upload handler for code checks
+    because tastypie is bad with uploading files'''
+
     instance = None
     if instance_id:
         instance = get_object_or_404(CodeServiceCheck,pk=instance_id)
@@ -114,9 +117,11 @@ def code_check_upload(request,instance_id=None):
     else:
         return HttpResponseBadRequest(form.errors.items())
 
-'''Basic how it works page'''
+
 @login_required
 def how_it_works(request):
+    '''Basic how it works page'''
+
     request.breadcrumbs("Services",reverse("main:index"))
     request.breadcrumbs("How it works",reverse("main:how_it_works"))
     return render_to_response("main/how-it-works.html",{},RequestContext(request))
