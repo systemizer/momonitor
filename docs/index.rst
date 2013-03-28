@@ -33,13 +33,11 @@ How it works
 
 Momonitor is a simple django app that manages and runs health checks on your systems. If a health check fails, Momonitor will alert you immedietely.
 
-As a developer, you define services and health checks. Services are collections of health checks that share a bunch of defaults (i.e. check frequency, alert type). Several types of health checks have been implemented to help you monitor every aspect of your system. Go to the TODO LINK HEREChecks section to learn more!
+As a developer, you define services and health checks. Services are collections of health checks that share a bunch of defaults (i.e. check frequency, alert type). Several types of health checks have been implemented to help you monitor every aspect of your system.
 
 When a check fails, momonitor will alert you! It will also highlight your failed checks in red on the WebUI.
 
-See the video tutorial (below) for a more in-depth explanation.
-
-VIDEO HERE
+See the `video tutorial <http://www.youtube.com/watch?v=4pK0Dl80kos>`_ (below) for a brief overview of the momonitor WebUI.
 
 Getting Started
 ===============
@@ -152,11 +150,11 @@ Overview
 What it is
 ----------
 
-Momonitor is a Django app that runs on a PostgreSQL backend and Redis Cache. Check and service configurations are kept in Postgres while application state is kept in Redis. Momonitor is configured to use Google OAuth for authentication via django-social-auth. Momonitor relies on cron to run checks. A crontab template file is provided for convenience.
+Momonitor is a Django app that runs on a PostgreSQL backend and Redis Cache. Check and service configurations are kept in Postgres while application state is kept in Redis. Momonitor is configured to use Google OAuth for authentication via django-social-auth. Momonitor relies on cron to run checks.
 
 Momonitor is a simple tool that polls URL endpoints and runs checks on the respective responses. It integrates with several types of responses from multiple services, thus it leaves the check complexity to the process listening on the endpoint.
 
-Essentially two types of things exist in Momonitor: services and checks. Services and checks each have a status (good, bad, or unknown).  Services are a collection checks that test a specific system. Multiple types of checks exist; each tests  different aspects of the target system.
+Essentially two types of objects exist in Momonitor: services and checks. Services and checks each have a status (good, bad, or unknown).  Services are a collection checks that test a specific system. Multiple types of checks exist; each tests  different aspects of the target system.
 
 Types of Checks
 ---------------
@@ -237,5 +235,12 @@ And then, in a separate tab...
 ::
 
     >>> python manage test
+
+Feedback
+========
+
+We love feedback. If you have any questions about the momonitoring system, contact Rob at rob@mopub.com
+
+Found an issue? We'd greatly appreciate it you `told us <https://github.com/mopub/momonitor/issues>`_ !
 
 

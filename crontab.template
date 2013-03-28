@@ -1,1 +1,0 @@
-* * * * * <user> <path-to-virtualenv>/bin/python <path-to-repo>/momonitor/manage.py service_check_cron
