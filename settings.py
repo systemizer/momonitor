@@ -4,6 +4,9 @@
 ##
 #################
 
+####
+# Section 1. Django Defaults. Don't worry about these. Configurable settings in Section 2
+####
 
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
@@ -21,16 +24,7 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/admin-media/'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
-}
+
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -119,14 +113,29 @@ AUTHENTICATION_BACKENDS = (
 
 FAKE_APP_PORT = 5000
 FAKE_APP_HOST = "localhost"
-
 IS_TESTING = sys.argv[1:2] == ['test']
+
+####
+# Section 2. Configurable Settings
+####
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'momonitor',
+        'USER': 'postgres',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 
 if IS_TESTING:
     UMPIRE_ENDPOINT = "http://%s:%s/check" % (FAKE_APP_HOST,FAKE_APP_PORT)
     SENSU_API_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
     GRAPHITE_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
 else:
+    #If you are using external service, set their endpoints above
     UMPIRE_ENDPOINT = ""
     SENSU_API_ENDPOINT = ""
     GRAPHITE_ENDPOINT = ""
