@@ -1,0 +1,46 @@
+{% load momonitor_tags %}
+<div class="btn-group pull-right">
+  <a href="{% url main:modal_form check_cls.resource_name %}?sid={{service.id}}" role="button" class="btn modalize">
+    <i class="icon-plus tooltipped" data-title="Add Check"></i>
+  </a>  
+</div>
+<h3><a href="#{{check_cls.resource_name}}table" class="toggle-hide">{{check_cls.resource_name}} Checks</a> 
+  <small>{{service|status_count:check_cls.resource_name}} </small>
+</h3>
+<div class="clearfix"></div>
+<table id="{{check_cls.resource_name}}table" class="table table-hover table-bordered table-sortable">
+  <thead>
+    <th>Name</th>
+    <th>Status Text</th>
+    <th>Last Updated</th>
+  </thead>
+  <tbody>
+    {% if service_checks.count %}
+    {% for check in service_checks|dictsort:"id" %}
+    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced or service.silenced %}muted{% endif %}">
+      <td width="35%">
+	{{check.name}} {% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}
+	<a class="modalize" href="{% url main:modal_form check_cls.resource_name check.id %}?sid={{service.id}}">
+	  <i class="icon-edit"></i>
+	</a>
+	<a class="delete" href="{{check|resource_url}}">
+	  <i class="icon-remove"></i>
+	</a>
+      </td>
+      <td width="40%"><span class="tooltipped" data-title="{{check.last_value}}">{{check.last_value|truncatechars:30}}</span></td>
+      <td width="25%">{{check.last_updated|since}}
+	<a class="ajaxify" href="{% url main:refresh check_cls.resource_name check.id %}">
+	  <i class="icon-refresh"></i>
+	</a>
+      </td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr>
+      <td colspan="4">
+	<center>You currently have no {{check_cls.resource_name}} checks. Click <a class="modalize" href="{% url main:modal_form check_cls.resource_name %}?sid={{service.id}}">here</a> to add one</center>
+      </td>
+    </tr>
+    {% endif %}
+  </tbody>
+</table>

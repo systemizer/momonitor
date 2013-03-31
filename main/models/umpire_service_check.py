@@ -9,11 +9,19 @@ from momonitor.main.models.service_check import ServiceCheck
 from momonitor.main.constants import (STATUS_UNKNOWN,
                                       STATUS_GOOD,
                                       STATUS_WARNING,
-                                      STATUS_BAD,
-                                      UMPIRE_CHECK_TYPES,
-                                      UMPIRE_RANGE_TYPES)
+                                      STATUS_BAD)
 import requests
 import json
+
+UMPIRE_CHECK_TYPES = (
+    ("static","static"),
+    ("dynamic","dynamic")
+)
+
+UMPIRE_RANGE_TYPES = (
+    ("current","current"),
+    ("day","day")
+)
 
 
 class UmpireServiceCheck(ServiceCheck):

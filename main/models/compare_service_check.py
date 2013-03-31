@@ -4,10 +4,23 @@ from momonitor.main.models.service_check import ServiceCheck
 from momonitor.main.constants import (STATUS_UNKNOWN,
                                       STATUS_GOOD,
                                       STATUS_WARNING,
-                                      COMPARATOR_CHOICES,
-                                      SERIALIZATION_CHOICES,
                                       STATUS_BAD)
 import requests
+
+SERIALIZATION_CHOICES = (
+    ("json","json"),
+    ("plaintext","plaintext"),
+)
+
+COMPARATOR_CHOICES = (
+    ("==","=="),
+    ("!=","!="),
+    (">",">"),
+    (">=",">="),
+    ("<","<"),
+    ("<=","<="),
+    ("contains","contains"),
+)
 
 
 class CompareServiceCheck(ServiceCheck):

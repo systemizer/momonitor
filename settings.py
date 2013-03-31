@@ -52,6 +52,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'south',
     'main',
+    'common',
     'slideshow',
     'mobile',
     'breadcrumbs',
@@ -77,7 +78,7 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
                                "django.core.context_processors.tz",
                                "django.contrib.messages.context_processors.messages",
                                'django.core.context_processors.request',
-                               'momonitor.main.context_processors.service_endpoints')
+                               'momonitor.common.context_processors.service_endpoints')
 
 #Email the admins if momonitor ever breaks
 LOGGING = {
@@ -119,6 +120,8 @@ IS_TESTING = sys.argv[1:2] == ['test']
 # Section 2. Configurable Settings
 ####
 
+DEBUG=True
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -141,7 +144,7 @@ else:
     GRAPHITE_ENDPOINT = ""
 
 #OAuth rule. Only allow people with a google email ending in 'example.org' to access the site
-GOOGLE_WHITE_LISTED_DOMAINS = ['example.org']
+GOOGLE_WHITE_LISTED_DOMAINS = ['mopub.com']
 
 # Set this to the Domain of the site that will be hosting momonitor.
 # This will be used to create links in emails sent from momonitor. 

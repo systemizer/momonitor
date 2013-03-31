@@ -20,6 +20,6 @@ urlpatterns = patterns('momonitor.main.views',
                        url('^sensu-check-info/(?P<sensu_check_id>.*)/$','sensu_check_info',name="sensu_check_info"),
 
 
-                       (r'^api/', include(v1_api.urls)),
+                       (r'^api/', include(v1_api.urls))
 )
 

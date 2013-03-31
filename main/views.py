@@ -9,7 +9,7 @@ from momonitor.main.models import (RESOURCE_NAME_MAP,
                                    CHECK_MODELS,
                                    RESOURCES)
 
-from momonitor.main.decorators import ajax_required
+from momonitor.common.decorators import ajax_required
 from django.contrib.auth.decorators import login_required
 from momonitor.main.forms import RESOURCE_FORM_MAP
 
