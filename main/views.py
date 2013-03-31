@@ -79,7 +79,7 @@ def modal_form(request,resource_name,resource_id=None):
     else:
         form = resource_form_cls(instance=instance)
 
-    return render_to_response("%s%s" % ("main/",form.template),
+    return render_to_response(form.template,
                               {"form":form,
                                "action":action,
                                'method':method},
