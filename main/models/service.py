@@ -82,6 +82,8 @@ class Service(BaseModel):
                          "service_name":self.name,
                          "url":"%s%s" % (settings.DOMAIN,
                                          reverse("main:service",kwargs={'service_id':self.id}))
+                         if settings.hasattr("DOMAIN") and settings.DOMAIN  else ""
+                             
                          })
                 )
                     

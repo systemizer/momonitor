@@ -21,6 +21,17 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/admin-media/'
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+    }
+}
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -106,14 +117,24 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend'
 )
 
+FAKE_APP_PORT = 5000
+FAKE_APP_HOST = "localhost"
 
+IS_TESTING = sys.argv[1:2] == ['test']
 
-#Attempt to import local_settings
-try:
-    from local_settings import *
-except:
-    import sys
-    print "Could not find local_settings.py. Exiting"
-    sys.exit()
+if IS_TESTING:
+    UMPIRE_ENDPOINT = "http://%s:%s/check" % (FAKE_APP_HOST,FAKE_APP_PORT)
+    SENSU_API_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
+    GRAPHITE_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
+else:
+    UMPIRE_ENDPOINT = ""
+    SENSU_API_ENDPOINT = ""
+    GRAPHITE_ENDPOINT = ""
 
+#OAuth rule. Only allow people with a google email ending in 'example.org' to access the site
+GOOGLE_WHITE_LISTED_DOMAINS = ['example.org']
 
+# Set this to the Domain of the site that will be hosting momonitor.
+# This will be used to create links in emails sent from momonitor. 
+# Use 'http://localhost' for testing
+DOMAIN = "" 
