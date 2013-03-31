@@ -14,6 +14,7 @@ class SensuServiceCheck(ServiceCheck):
     It looks at the latest aggregate for a single
     check idetified by sensu_check_name
     '''
+    resource_table_template = "main/tables/sensuservicecheck.html"
     class Meta:
         app_label="main"
 

@@ -13,6 +13,7 @@ class SimpleServiceCheck(ServiceCheck):
     Simple Checks hit an HTTP endpoint and check
     whether or not the response's status code is 200
     '''
+    resource_table_template = "main/tables/simpleservicecheck.html"
     class Meta:
         app_label="main"
 

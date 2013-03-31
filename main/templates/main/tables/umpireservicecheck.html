@@ -2,12 +2,12 @@
 
 {% if UMPIRE_ENDPOINT %}
 <div class="btn-group pull-right">
-  <a href="{% url main:modal_form 'umpireservicecheck' %}?sid={{service.id}}" role="button" class="btn modalize">
+  <a href="{% url main:modal_form check_cls.resource_name %}?sid={{service.id}}" role="button" class="btn modalize">
     <i class="icon-plus tooltipped" data-title="Add Umpire Check"></i>
   </a>
 </div>
 <h3><a href="#umpiretable" class="toggle-hide">Umpire Checks</a> 
-  <small>{{service|status_count:'umpireservicecheck'}}</small>
+  <small>{{service|status_count:check_cls.resource_name}}</small>
 </h3>
 <div class="clearfix"></div>
 <table id="umpiretable" class="table table-hover table-bordered table-sortable">
@@ -17,13 +17,13 @@
     <th>Last Updated</th>
   </thead>
   <tbody>
-    {% if service.umpireservicecheck.count %}
-    {% for check in service.umpireservicecheck.all|dictsort:"id" %}
+    {% if service_checks.count %}
+    {% for check in service_checks|dictsort:"id" %}
     <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced or service.silenced %}muted{% endif %}">
       <td width="30%">
 	{{check.name}}
 	{% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}
-	<a class="modalize" href="{% url main:modal_form 'umpireservicecheck' check.id %}?sid={{service.id}}">
+	<a class="modalize" href="{% url main:modal_form check_cls.resource_name check.id %}?sid={{service.id}}">
 	  <i class="icon-edit"></i>
 	</a>
 	<a class="delete" href="{{check|resource_url}}">
@@ -53,7 +53,7 @@
 	<div class="clearfix"></div>
       </td>
       <td width="25%">{{check.last_updated|since}}
-	<a class="ajaxify" href="{% url main:refresh 'umpireservicecheck' check.id %}">
+	<a class="ajaxify" href="{% url main:refresh check_cls.resource_name check.id %}">
 	  <i class="icon-refresh"></i>
 	</a>
       </td>
@@ -62,7 +62,7 @@
     {% else %}
     <tr>
       <td colspan="3">
-	<center>You currently have no umpire checks. Click <a class="modalize" href="{% url main:modal_form 'umpireservicecheck' %}?sid={{service.id}}">here</a> to add one</center>
+	<center>You currently have no umpire checks. Click <a class="modalize" href="{% url main:modal_form check_cls.resource_name %}?sid={{service.id}}">here</a> to add one</center>
       </td>
     </tr>
     {% endif %}

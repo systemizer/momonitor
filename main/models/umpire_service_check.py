@@ -22,6 +22,7 @@ class UmpireServiceCheck(ServiceCheck):
     determine whether an graphite metric is outside 
     the bounds of umpire_min and umpire_max
     '''
+    resource_table_template = "main/tables/umpireservicecheck.html"
     class Meta:
         app_label="main"
 

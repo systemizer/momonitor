@@ -1,7 +1,6 @@
 from momonitor.main.models.base import BaseModel
 from momonitor.main.models.service import Service
 from django.db import models
-from momonitor.main.decorators import ClassProperty
 from momonitor.main.constants import (STATUS_UNKNOWN,
                                       STATUS_GOOD,
                                       STATUS_WARNING,
@@ -12,6 +11,8 @@ from django.core.cache import cache
 import time
 
 class ServiceCheck(BaseModel):
+    resource_table_template = "main/tables/servicecheck.html"
+
     class Meta:
         abstract=True
 

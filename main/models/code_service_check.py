@@ -12,6 +12,7 @@ class CodeServiceCheck(ServiceCheck):
     that contains a "run" function, which returns a tuple with
     (msg_status,code_status)
     '''
+    resource_table_template = "main/tables/codeservicecheck.html"
     class Meta:
         app_label="main"
 

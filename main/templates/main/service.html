@@ -7,13 +7,9 @@
   </div>
   <h1>Service Checks <small>{{service.name}} {% if service.silenced %}(silenced){% endif %}</small></h1>
 </div>
-{% include "main/tables/simple_check.html" %}
-<hr />
-{% include "main/tables/umpire_check.html" %}
-<hr />
-{% include "main/tables/compare_check.html" %}
-<hr />
-{% include "main/tables/code_check.html" %}
-<hr />
-{% include "main/tables/sensu_check.html" %}
+{% for check_cls,service_checks in check_map.items %}
+  {% include check_cls.resource_table_template %}
+  <hr />
+{% endfor %}
+
 {% endblock %}

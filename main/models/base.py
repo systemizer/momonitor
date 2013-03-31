@@ -10,5 +10,10 @@ class BaseModel(models.Model):
     def resource_name(cls):
         return cls.__name__.lower()
 
+    @ClassProperty
+    @classmethod
+    def resource_template(cls):
+        return "%s.html" % cls.resource_name
+
     class Meta:
         abstract = True

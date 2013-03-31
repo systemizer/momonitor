@@ -16,6 +16,7 @@ class CompareServiceCheck(ServiceCheck):
     serialized response and applies an arithmatic 
     check to that value
     '''
+    resource_table_template = "main/tables/compareservicecheck.html"
     class Meta:
         app_label="main"
 

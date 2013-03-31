@@ -6,6 +6,7 @@ from momonitor.main.models import (RESOURCE_NAME_MAP,
                                    Service,
                                    CodeServiceCheck,
                                    SensuServiceCheck,
+                                   CHECK_MODELS,
                                    RESOURCES)
 
 from momonitor.main.decorators import ajax_required
@@ -40,8 +41,11 @@ def service(request,service_id):
     request.breadcrumbs("Services",reverse("main:index"))
     request.breadcrumbs(service.name,reverse("main:service",kwargs={'service_id':service.id}))
 
+    check_map = dict([(check_cls,getattr(service,check_cls.resource_name).all()) for check_cls in CHECK_MODELS])
+
     return render_to_response("main/service.html",
-                              {'service':service},
+                              {'service':service,
+                               'check_map':check_map},
                               RequestContext(request))
 
 

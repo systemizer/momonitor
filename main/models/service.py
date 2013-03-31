@@ -41,6 +41,7 @@ class Service(BaseModel):
 
     @property
     def last_updated(self):
+        '''Returns the last_updated of the oldest (or unknown) check'''
         if self.all_checks():
             return min(self.all_checks(),key=lambda x:x.last_updated).last_updated
         else:
@@ -106,11 +107,8 @@ class Service(BaseModel):
             logging.info("No alert being sent because alert type is 'none'")
 
     def all_checks(self,check_type=""):
-        resource_names = ["simpleservicecheck",
-                           "compareservicecheck",
-                           "umpireservicecheck",
-                           "sensuservicecheck",
-                           "codeservicecheck"]
+        from momonitor.main.models import CHECK_MODELS
+        resource_names = [m.resource_name for m in CHECK_MODELS]
 
         if check_type:
             if check_type not in resource_names:
