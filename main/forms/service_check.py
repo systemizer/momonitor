@@ -1,10 +1,17 @@
 from django import forms
+from momonitor.common.decorators import ClassProperty
 
 
 class ServiceCheckForm(forms.ModelForm):
-    title = "Create/Edit Resources"
+    @ClassProperty
+    @classmethod
+    def title(cls):
+        return "Create/Edit %s Resources" % cls._meta.model.resource_name
+
+    template="main/modal_forms/service_check.html"
     enctype = None
     service = forms.CharField(widget=forms.HiddenInput(attrs={'readonly':True}))
+
     def __init__(self,*args,**kwargs):
         service_id = kwargs.pop("service_id","")
         super(ServiceCheckForm,self).__init__(*args,**kwargs)

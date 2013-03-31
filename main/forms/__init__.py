@@ -13,5 +13,5 @@ RESOURCE_FORM_MAP = {
     CompareServiceCheckForm._meta.model:CompareServiceCheckForm,
     CodeServiceCheckForm._meta.model:CodeServiceCheckForm,
     SensuServiceCheckForm._meta.model:SensuServiceCheckForm,
-}    
+}
 

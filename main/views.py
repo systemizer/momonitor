@@ -12,6 +12,7 @@ from momonitor.main.models import (RESOURCE_NAME_MAP,
 from momonitor.common.decorators import ajax_required
 from django.contrib.auth.decorators import login_required
 from momonitor.main.forms import RESOURCE_FORM_MAP
+from momonitor.main.forms.utils import generate_check_modelform_cls
 
 from momonitor.main.constants import (STATUS_GOOD,
                                       STATUS_BAD,
@@ -57,7 +58,7 @@ def modal_form(request,resource_name,resource_id=None):
     if not RESOURCE_NAME_MAP.has_key(resource_name):
         raise Http404
     resource_cls = RESOURCE_NAME_MAP[resource_name]
-    resource_form_cls = RESOURCE_FORM_MAP[resource_cls]
+    resource_form_cls = RESOURCE_FORM_MAP[resource_cls] if RESOURCE_FORM_MAP.has_key(resource_cls) else generate_check_modelform_cls(resource_cls)
 
     if resource_id:
         instance = get_object_or_404(resource_cls,pk=resource_id)
