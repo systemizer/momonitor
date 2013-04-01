@@ -3,7 +3,7 @@ from momonitor.main.forms.service_check import ServiceCheckForm
 
 class CompareServiceCheckForm(ServiceCheckForm):
     title="Create/Edit Compare Checks"
-    template="main/modal_forms/compare_check.html"
+    template="main/modal_forms/compareservicecheck.html"
     class Meta:
         model = CompareServiceCheck
 

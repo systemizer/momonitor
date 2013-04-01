@@ -8,7 +8,7 @@ class ServiceCheckForm(forms.ModelForm):
     def title(cls):
         return "Create/Edit %s Resources" % cls._meta.model.resource_name
 
-    template="main/modal_forms/service_check.html"
+    template="main/modal_forms/servicecheck.html"
     enctype = None
     service = forms.CharField(widget=forms.HiddenInput(attrs={'readonly':True}))
 

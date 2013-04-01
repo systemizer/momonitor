@@ -4,7 +4,7 @@ from django import forms
 class CodeServiceCheckForm(forms.ModelForm):
     enctype = "multipart/form-data"
     title="Create/Edit Code Checks"
-    template="main/modal_forms/code_check.html"
+    template="main/modal_forms/codeservicecheck.html"
     
     def __init__(self,*args,**kwargs):
         service_id = kwargs.pop("service_id","")
