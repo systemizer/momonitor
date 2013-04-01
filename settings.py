@@ -133,10 +133,16 @@ DATABASES = {
     }
 }
 
+CHECK_MODELS = ["SimpleServiceCheck"]
+
 if IS_TESTING:
     UMPIRE_ENDPOINT = "http://%s:%s/check" % (FAKE_APP_HOST,FAKE_APP_PORT)
     SENSU_API_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
     GRAPHITE_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
+
+    #this will make tests not work
+    del CHECK_MODELS
+
 else:
     #If you are using external service, set their endpoints above
     UMPIRE_ENDPOINT = ""
@@ -145,6 +151,7 @@ else:
 
 #OAuth rule. Only allow people with a google email ending in 'example.org' to access the site
 GOOGLE_WHITE_LISTED_DOMAINS = ['mopub.com']
+
 
 # Set this to the Domain of the site that will be hosting momonitor.
 # This will be used to create links in emails sent from momonitor. 
