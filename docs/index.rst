@@ -37,7 +37,9 @@ As a developer, you define services and health checks. Services are collections 
 
 When a check fails, momonitor will alert you! It will also highlight your failed checks in red on the WebUI.
 
-See the `video tutorial <http://www.youtube.com/watch?v=4pK0Dl80kos>`_ (below) for a brief overview of the momonitor WebUI.
+See the `video tutorial <http://www.youtube.com/watch?v=uL5ddl5wpac>`_ (below) for a brief overview of the momonitor WebUI.
+
+Also, see the video about `adding a check <http://youtu.be/YVNQo98Nrio>`_.
 
 Getting Started
 ===============
@@ -83,18 +85,8 @@ Next, you will need to setup your database and sync your Django Models. Make sur
     python manage.py syncdb
     python manage.py migrate
 
-Add your local settings that is specific to your server
+Update Section 2 of the settings.py file with your database configurations
 ::
-
-    cp local_settings_template.py local_settings.py
-
-**local_settings.py**
-
-::
-
-    ##LOCAL SETTINGS FILE
-    DEBUG = True
-    TEMPLATE_DEBUG = DEBUG
 
     DATABASES = {
        'default': {
@@ -107,26 +99,21 @@ Add your local settings that is specific to your server
       }
   }
 
-  FAKE_APP_PORT = 5000
-  FAKE_APP_HOST = "localhost"
+(optional) Set Variables required for certain types of checks
+::
 
-  import sys
-  IS_TESTING = sys.argv[1:2] == ['test']
+      UMPIRE_ENDPOINT = ""
+      SENSU_API_ENDPOINT = ""
+      GRAPHITE_ENDPOINT = ""
 
-  if IS_TESTING:
-      UMPIRE_ENDPOINT = "http://%s:%s/check" % (FAKE_APP_HOST,FAKE_APP_PORT)
-      SENSU_API_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
-      GRAPHITE_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
-  else:
-      UMPIRE_ENDPOINT = "http://example.org/check"
-      SENSU_API_ENDPOINT = "http://example.org:4567"
-      GRAPHITE_ENDPOINT = "http://example.org"
+      #OAuth rule. Only allow people with a google email ending in 'example.org' to access the site   
+      GOOGLE_WHITE_LISTED_DOMAINS = ['gmail.com']
 
-  #OAuth rule. Only allow people with a google email ending in 'example.org' to access the site   
-  GOOGLE_WHITE_LISTED_DOMAINS = ['example.org']
-
-  # Set this to the Domain of the site that will be hosting momonitor   
-  DOMAIN = "http://localhost"
+      # Set this to the Domain of the site that will be hosting momonitor   
+      DOMAIN = "http://localhost"
+      
+      #By default, all checks are enabled. Select only a few checks by defining this variable
+      CHECK_MODELS=[]
 
 Start the server
 ::
@@ -159,10 +146,12 @@ Essentially two types of objects exist in Momonitor: services and checks. Servic
 Types of Checks
 ---------------
 
+One of the great advantages of Momonitor is the ability to add many different types of checks. We have already implemented several checks to demonstrate this fact:
+
 * | **Simple Check** 
-  | Check a single URL endpoint and report whether the response was a 200 or 500
+  | Check a single URL endpoint and report whether the response had a 200 or a non-200 status code.
 * | **Umpire Check** 
-  | Umpire Checks allows to put minimum and maximum threholds on Graphite data. Umpire checks require an `Umpire <https://github.com/heroku/umpire>`_ Server and `Graphite <http://graphite.wikidot.com/>`_ Server. To integrate with Momonitor...
+  | Umpire Checks allow you to put a minimum and maximum threshold on Graphite data. Umpire checks require an `Umpire <https://github.com/heroku/umpire>`_ Server and `Graphite <http://graphite.wikidot.com/>`_ Server. To integrate with Momonitor...
 
 ::
 
@@ -176,6 +165,9 @@ Types of Checks
 * | **Sensu Check** 
   | Integrates with a Sensu Server, a service which runs checks on **many** machines. Momonitor monitoris sensu by checking the aggregate result.
   | Sensu checks require a `Sensu <https://github.com/sensu/sensu>`_ Server. To integrate with Momonitor...
+
+* | **Graphite Check**
+  | Emulates the function of Umpire. Apply a minimum and maximum threshold on a graphite metric, and get alerted when the value goes beyond those thresholds.
 
 ::
 
@@ -234,7 +226,8 @@ For testing, we are using Django's builtin unittest.TestCase and a custom-made F
 And then, in a separate tab...
 ::
 
-    >>> python manage test
+    >>> python manage test main
+    >>> python manage test mobile
 
 Feedback
 ========
