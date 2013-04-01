@@ -4,6 +4,7 @@ from compare_service_check import CompareServiceCheck
 from sensu_service_check import SensuServiceCheck
 from code_service_check import CodeServiceCheck
 from umpire_service_check import UmpireServiceCheck
+from graphite_service_check import GraphiteServiceCheck
 
 from django.conf import settings
 
@@ -14,6 +15,7 @@ else:
                     UmpireServiceCheck,
                     CompareServiceCheck,
                     SensuServiceCheck,
+                    GraphiteServiceCheck,
                     CodeServiceCheck]
     
 RESOURCES = CHECK_MODELS+[Service]

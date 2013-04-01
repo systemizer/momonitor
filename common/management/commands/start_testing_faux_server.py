@@ -57,8 +57,16 @@ class Command(BaseCommand):
                 return json.dumps({}),500
             else:
                 return "wat",404
-                
-            
+
+        @app.route("/render/")
+        def graphite_test():
+            metric = request.args.get("target")
+            if metric=="good_metric":
+                return "%s,0,0,60|50.0,50.0,50.0" % metric
+            elif metric=="unknown_metric":
+                return "wat",500
+            else:
+                return "%s,0,0,60|2341.0,23423.0,51231.0" % metric
             
 
         app.run(host=settings.FAKE_APP_HOST,port=settings.FAKE_APP_PORT)

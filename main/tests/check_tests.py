@@ -13,6 +13,7 @@ from momonitor.main.models import (Service,
                                    SimpleServiceCheck,
                                    UmpireServiceCheck,
                                    CompareServiceCheck,
+                                   GraphiteServiceCheck,
                                    CodeServiceCheck,
                                    SensuServiceCheck)
 
@@ -145,6 +146,37 @@ class SensuServiceCheckTest(CheckTest):
 
         unknown_check = SensuServiceCheck(sensu_check_name="unknown_check",
                                       service=self.service)
+        unknown_check.save()
+        self.unknown_checks.append(unknown_check)
+
+        
+class GraphiteServiceCheckTest(CheckTest):
+    def setUp(self):
+        super(GraphiteServiceCheckTest,self).setUp()
+        good_check = GraphiteServiceCheck(graphite_metric="good_metric",
+                                          graphite_range=300,
+                                          graphite_lower_bound=0,
+                                          graphite_upper_bound=100,
+                                          service=self.service)
+
+        good_check.save()
+        self.good_checks.append(good_check)
+
+        bad_check = GraphiteServiceCheck(graphite_metric="bad_metric",
+                                         graphite_range=300,
+                                         graphite_lower_bound=0,
+                                         graphite_upper_bound=100,
+                                         service=self.service)
+
+        bad_check.save()
+        self.bad_checks.append(bad_check)
+
+        unknown_check = GraphiteServiceCheck(graphite_metric="unknown_metric",
+                                             graphite_range=300,
+                                             graphite_lower_bound=0,
+                                             graphite_upper_bound=100,
+                                             service=self.service)
+
         unknown_check.save()
         self.unknown_checks.append(unknown_check)
 

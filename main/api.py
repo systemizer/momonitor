@@ -8,6 +8,7 @@ from momonitor.main.models import (Service,
                                    SimpleServiceCheck,
                                    UmpireServiceCheck,
                                    CompareServiceCheck,
+                                   GraphiteServiceCheck,
                                    SensuServiceCheck,
                                    CodeServiceCheck)
 
@@ -57,6 +58,15 @@ class SimpleServiceCheckResource(ModelResource):
         authorization=Authorization()
         authentication=CustomAuthentication()
 
+class GraphiteServiceCheckResource(ModelResource):
+    service = fields.ToOneField(ServiceResource,'service')
+
+    class Meta:
+        queryset = GraphiteServiceCheck.objects.all()
+        resource_name=GraphiteServiceCheck.resource_name
+        authorization=Authorization()
+        authentication=CustomAuthentication()
+
 class SensuServiceCheckResource(ModelResource):
     service = fields.ToOneField(ServiceResource,'service')
 
@@ -101,4 +111,5 @@ v1_api.register(UmpireServiceCheckResource())
 v1_api.register(CompareServiceCheckResource())
 v1_api.register(SensuServiceCheckResource())
 v1_api.register(CodeServiceCheckResource())
+v1_api.register(GraphiteServiceCheckResource())
 v1_api.register(ContentTypeResource())
