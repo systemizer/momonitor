@@ -133,13 +133,16 @@ DATABASES = {
     }
 }
 
+CHECK_MODELS = []
+
 if IS_TESTING:
     UMPIRE_ENDPOINT = "http://%s:%s/check" % (FAKE_APP_HOST,FAKE_APP_PORT)
     SENSU_API_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
     GRAPHITE_ENDPOINT = "http://%s:%s" % (FAKE_APP_HOST,FAKE_APP_PORT)
 
     #this will make tests not work
-    del CHECK_MODELS
+    if CHECK_MODELS:
+        del CHECK_MODELS
 
 else:
     #If you are using external service, set their endpoints above

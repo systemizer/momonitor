@@ -22,7 +22,7 @@ def _model_from_string(model_str):
 
     return potential_models[0]
 
-if hasattr(settings,"CHECK_MODELS"):
+if hasattr(settings,"CHECK_MODELS") and settings.CHECK_MODELS:
     CHECK_MODELS = [_model_from_string(model_str) for model_str in settings.CHECK_MODELS]
     
 else:
