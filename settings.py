@@ -125,7 +125,7 @@ DEBUG=True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'momonitor',
+        'NAME': 'momonitordemo',
         'USER': 'postgres',
         'PASSWORD': '',
         'HOST': 'localhost',
@@ -151,7 +151,7 @@ else:
     GRAPHITE_ENDPOINT = ""
 
 #OAuth rule. Only allow people with a google email ending in 'example.org' to access the site
-GOOGLE_WHITE_LISTED_DOMAINS = ['example.com']
+GOOGLE_WHITE_LISTED_DOMAINS = ['gmail.com']
 
 
 # Set this to the Domain of the site that will be hosting momonitor.
