@@ -1,6 +1,7 @@
 from django import template
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from momonitor.main.models import CHECK_MODELS
 import time
 import logging
 register = template.Library()
@@ -76,6 +77,11 @@ def to_bootstrap_progressbarclass(value):
 def status_count(service,check_type):
     return service.status_counts(check_type)
 
+def sort_checks(check_items):
+    return sorted(check_items, 
+                  key= lambda x: CHECK_MODELS.index(x[0]))
+    
+
 register.filter('since', since)
 register.filter('percentage', percentage)
 register.filter('multiply', multiply)
@@ -85,3 +91,4 @@ register.filter('to_bootstrap_progressbarclass', to_bootstrap_progressbarclass)
 register.filter('to_status_png', to_status_png)
 register.filter('resource_url', resource_url)
 register.filter('status_count', status_count)
+register.filter('sort_checks', sort_checks)
