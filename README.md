@@ -7,3 +7,12 @@ For directions on getting started and how MoMonitor works, please see [http://mo
 ## License
 
 See LICENSE for more details
+
+## Notable community packages used
+
+* [jQuery](http://jquery.com/)
+* [Django](http://djangoproject.com)
+* [Requests](https://github.com/kennethreitz/requests) by Kenneth Reitz
+* [HighchartsJS](http://www.highcharts.com/)
+* [Twitter Bootstrap](http://twitter.github.io/bootstrap/)
+* [kr Sphinx Themes](https://github.com/kennethreitz/kr-sphinx-themes) 
