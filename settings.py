@@ -16,8 +16,8 @@ USE_L10N = True
 
 #Setup media path
 import os
-dir_path = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
-MEDIA_ROOT = '%s/media/' % dir_path
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+MEDIA_ROOT = '%s/media/' % BASE_DIR
 
 #URLs. Probably want to serve these via a static http server, but here for DEBUG=True situations
 MEDIA_URL = '/media/'
@@ -124,12 +124,8 @@ DEBUG=True
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'momonitordemo',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -155,6 +151,6 @@ GOOGLE_WHITE_LISTED_DOMAINS = ['gmail.com']
 
 
 # Set this to the Domain of the site that will be hosting momonitor.
-# This will be used to create links in emails sent from momonitor. 
+# This will be used to create links in emails sent from momonitor.
 # Use 'http://localhost' for testing
-DOMAIN = "" 
+DOMAIN = ""
