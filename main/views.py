@@ -27,7 +27,7 @@ def index(request):
 
     request.breadcrumbs("Services",reverse("main:index"))
 
-    services = Service.objects.all().order_by("id")
+    services = Service.objects.all().order_by("name")
     return render_to_response("main/index.html",
                               {'services':services},
                               RequestContext(request))
