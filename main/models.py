@@ -264,7 +264,9 @@ class UmpireServiceCheck(ServiceCheck):
             new_mean = last_value
         
         #Calculate new std. dont update if above 2 stds
-        if self.last_std == None:
+        if last_value == None or new_mean == None:
+            new_std = 0
+        elif self.last_std == None:
             new_std = abs(last_value-new_mean)
         elif abs(last_value-new_mean)>2*self.last_std:
             new_std = abs(self.last_std)
