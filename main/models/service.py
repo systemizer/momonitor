@@ -1,13 +1,20 @@
-import logging
-from django.db import models
 import itertools
-from momonitor.main.models.base import BaseModel
+import logging
+import smtplib
+
+from django.conf import settings
+from django.core.mail import send_mail
+from django.db import models
+from django.template import Context
+from django.template.loader import get_template
+import requests
+
 from momonitor.main.constants import (STATUS_UNKNOWN,
                                       STATUS_GOOD,
-                                      STATUS_WARNING,
                                       ALERT_CHOICES,
                                       STATUS_BAD)
-import requests
+from momonitor.main.models.base import BaseModel
+
 
 class Service(BaseModel):
     class Meta:
@@ -23,7 +30,7 @@ class Service(BaseModel):
     #Default values if not specified in the check
     frequency = models.CharField(max_length=128,default="*/5 * * * *") #cron format
     failures_before_alert = models.IntegerField(default=1)
-    umpire_range = models.IntegerField(default=300)    
+    umpire_range = models.IntegerField(default=300)
     alert_type = models.CharField(max_length=64,choices=ALERT_CHOICES,default="none")
 
     def __unicode__(self):
@@ -82,17 +89,16 @@ class Service(BaseModel):
                          "service_name":self.name,
                          "url":"%s%s" % (settings.DOMAIN,
                                          reverse("main:service",kwargs={'service_id':self.id}))
-                         if settings.hasattr("DOMAIN") and settings.DOMAIN  else ""
-                             
+                         if hasattr(settings, "DOMAIN") and settings.DOMAIN  else ""
                          })
                 )
-                    
+
             send_mail("MOMONITOR EVENT TRIGGERED",
                       email_msg,
                       settings.SERVER_EMAIL,
                       [self.email_contact,],
                       fail_silently=False)
-        except SMTPException:
+        except smtplib.SMTPException:
             logging.error("Failed to send email to %s for error %s" % (self.email_contact,description))
 
     def send_alert(self,description,alert_type=None):
