@@ -37,7 +37,7 @@ class Service(models.Model):
     #Default values if not specified in the check
     frequency = models.CharField(max_length=128,default="*/5 * * * *") #cron format
     failures_before_alert = models.IntegerField(default=1)
-    umpire_range = models.IntegerField(default=300)    
+    umpire_range = models.IntegerField(default=300)
     alert_type = models.CharField(max_length=64,choices=ALERT_CHOICES,default="none")
 
     def __unicode__(self):
@@ -97,7 +97,7 @@ class Service(models.Model):
                                          reverse("main:service",kwargs={'service_id':self.id}))
                          })
                 )
-                    
+
             send_mail("MOMONITOR EVENT TRIGGERED",
                       email_msg,
                       settings.SERVER_EMAIL,
@@ -138,7 +138,7 @@ class ServiceCheck(models.Model):
         abstract=True
 
     name = models.CharField(max_length=256)
-    description = models.TextField(null=True,blank=True)    
+    description = models.TextField(null=True,blank=True)
     service = models.ForeignKey(Service,related_name="%(class)s")
     silenced = models.BooleanField(default=False)
     alert_type = models.CharField(max_length=64,choices=ALERT_CHOICES,null=True,blank=True)
@@ -175,7 +175,7 @@ class ServiceCheck(models.Model):
         cache.set(self._redis_key,json.dumps(state),timeout=0)
 
     @property
-    def status(self):        
+    def status(self):
         return self._get_state().get("status",STATUS_UNKNOWN)
 
     @property
@@ -192,7 +192,7 @@ class ServiceCheck(models.Model):
 
     def send_alert(self):
         if not self.silenced:
-            self.service.send_alert(self.description or self.name)
+            self.service.send_alert(self.description or self.name, self.alert_type)
         else:
             logging.info("Triggered alert on %s, but it is silenced" % self.name)
 
@@ -262,7 +262,7 @@ class UmpireServiceCheck(ServiceCheck):
             new_mean = self.history_value*.9 + last_value*.1
         else:
             new_mean = last_value
-        
+
         #Calculate new std. dont update if above 2 stds
         if last_value == None or new_mean == None:
             new_std = 0
@@ -325,8 +325,8 @@ class UmpireServiceCheck(ServiceCheck):
     def error_lower_bound(self):
         if self.umpire_check_type == "static":
             return self.umpire_min
-        else:            
-            return self.history_value*(1-self.umpire_percent_error)    
+        else:
+            return self.history_value*(1-self.umpire_percent_error)
 
     @property
     def error_upper_bound(self):
@@ -383,8 +383,8 @@ class UmpireServiceCheck(ServiceCheck):
     def update_status(self):
         value = None
         status = STATUS_UNKNOWN
-        
-        if self.umpire_check_type=="static":            
+
+        if self.umpire_check_type=="static":
             umpire_min,umpire_max = self._update_status_static()
         else:
             umpire_min,umpire_max = self._update_status_dynamic()
@@ -406,7 +406,7 @@ class UmpireServiceCheck(ServiceCheck):
         try:
             res = requests.get(endpoint)
             res_data = res.json()
-            if res.status_code == 200:                
+            if res.status_code == 200:
                 value = res_data['value']
                 status = STATUS_GOOD
             else:
@@ -433,8 +433,8 @@ class UmpireServiceCheck(ServiceCheck):
             self._update_history()
 
 '''
-This check looks at a specific field in a 
-serialized response and applies an arithmatic 
+This check looks at a specific field in a
+serialized response and applies an arithmatic
 check to that value
 '''
 class CompareServiceCheck(ServiceCheck):
@@ -453,7 +453,7 @@ class CompareServiceCheck(ServiceCheck):
         except:
             return last_value
 
-    def update_status(self):        
+    def update_status(self):
         value = None
         status = STATUS_UNKNOWN
 
@@ -473,8 +473,8 @@ class CompareServiceCheck(ServiceCheck):
                                 logging.error("Failed to parse json data correctly. Can't index %s in list of length" % (subfield,len(res_data)))
                                 status = STATUS_UNKNOWN
                                 res_data = None
-                                break                            
-                            
+                                break
+
                         else:
                             if not res_data.has_key(subfield):
                                 logging.error("Bad field path for check %s and field path %s" % (self.name,self.field))
@@ -485,9 +485,9 @@ class CompareServiceCheck(ServiceCheck):
 
                 elif self.serialization=="plaintext":
                     res_data = res.text
-                    
+
                 try:
-                    #attempt to cast as float 
+                    #attempt to cast as float
                     value = round(float(res_data),2)
                     compared_value = round(float(self.compared_value),2)
                 except ValueError:
@@ -504,7 +504,7 @@ class CompareServiceCheck(ServiceCheck):
                     status = STATUS_GOOD if value >= compared_value else STATUS_BAD
                 elif self.comparator == "<":
                     status = STATUS_GOOD if value < compared_value else STATUS_BAD
-                elif self.comparator == "<=":                    
+                elif self.comparator == "<=":
                     status = STATUS_GOOD if value <= compared_value else STATUS_BAD
                 elif self.comparator == "contains":
                     status = STATUS_GOOD if compared_value in value else STATUS_BAD
@@ -512,7 +512,7 @@ class CompareServiceCheck(ServiceCheck):
                     status= STATUS_BAD
 
         except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
-            logging.error("Unable to connect to the server")            
+            logging.error("Unable to connect to the server")
             status = STATUS_BAD
 
         self.set_state(status=status,last_value=value)
@@ -534,10 +534,10 @@ class CodeServiceCheck(ServiceCheck):
             module = eval("parent_module.%s" % self.file_name)
             value,succeeded = module.run()
             status = STATUS_GOOD if succeeded else STATUS_BAD
-        except Exception as e:            
+        except Exception as e:
             status = STATUS_UNKNOWN
             value = str(e)
-        
+
         self.set_state(status=status,last_value=value)
 
 class SensuServiceCheck(ServiceCheck):
@@ -547,11 +547,11 @@ class SensuServiceCheck(ServiceCheck):
     def get_result_data(self):
         if not self.last_updated:
             logging.info("Requested result data when no data available")
-            return []  
+            return []
 
         endpoint = "%s/aggregates/%s/%s?results=true" % (settings.SENSU_API_ENDPOINT,
                                                          self.sensu_check_name,
-                                                         self.last_updated)        
+                                                         self.last_updated)
         res = requests.get(endpoint)
         if not res.status_code==200:
             logging.warning("Failed to get data from sensu server")
@@ -585,16 +585,16 @@ class SensuServiceCheck(ServiceCheck):
 
                     value = "%s/%s/%s" % (aggregate_data.get("ok",0),
                                           aggregate_data.get("critical",0),
-                                          aggregate_data.get("warning",0) + aggregate_data.get("unknown",0)                                          
+                                          aggregate_data.get("warning",0) + aggregate_data.get("unknown",0)
                                           )
-                
+
         except (requests.exceptions.ConnectionError,requests.exceptions.Timeout) as e:
             logging.error("Failed to connect with sensu api server")
-        
+
         extra = {}
         if last_aggregate:
             extra.update({"last_updated":last_aggregate})
-        
+
         self.set_state(status=status,last_value=value,extra=extra)
 
 RESOURCES = [
