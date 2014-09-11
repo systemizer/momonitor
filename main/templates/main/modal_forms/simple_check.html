@@ -11,6 +11,10 @@
     {{form.description}}
   </div>
   <div class="pull-right">
+    <label id="silenced_description">Initial value</label>
+    <label> <a id="unsilence">UnSilence</a> </label>
+    <label> <a id="silence_for_x_hours">Silence for <input type="text" id="silence_hours" value="0.5" style="width:30px;"> hours</a> </label>
+    <label> <a id="silence_forever">Silence forever</a> </label>
     <label>Silenced until (timestamp)</label>
     {{form.silenced_until}}
     <label>URL Endpoint</label>

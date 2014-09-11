@@ -133,6 +133,66 @@ function deleteResource(urlEndpoint) {
 	   });
 }
 
+function setSilencedDescriptionFromField() {
+    if ($("#id_silenced_until").length === 0) {
+        return;
+    }
+
+    // Both of these vars are timestamps (seconds since the epoch).
+    var now = new Date().getTime() / 1000;
+    var silencedUntil = parseInt($("#id_silenced_until").val());
+
+    function round(num) {
+        // Rounds 1.8 to 2, but 1.79 to 1.
+        return Math.floor(num + 0.2);
+    }
+
+    var diffSeconds = round(silencedUntil - now);
+    var diffMinutes = round(diffSeconds / 60);
+    var diffHours   = round(diffMinutes / 60);
+    var diffDays    = round(diffHours / 24);
+
+    var description;
+
+    if (2000000000 <= silencedUntil) {
+        description = "Silenced forever";
+    } else if (silencedUntil < now) {
+        description = "Not silenced";
+    } else if (diffDays >= 2) {
+        description = "Silenced for ~" + diffDays + " day(s)";
+    } else if (diffHours >= 2) {
+        description = "Silenced for ~" + diffHours + " hour(s)";
+    } else if (diffMinutes >= 1) {
+        description = "Silenced for " + diffMinutes + " minute(s)";
+    } else {
+        description = "Silenced for " + diffSeconds + " second(s)";
+    }
+
+    $("#silenced_description").text(description);
+}
+
+function setSilencedFor(secondsFromNow) {
+    var now = new Date().getTime() / 1000; // Timestamp (seconds since the epoch).
+    var silencedUntil = Math.floor(now + secondsFromNow);
+    $("#id_silenced_until").val(silencedUntil);
+    setSilencedDescriptionFromField();
+}
+
+function setSilencedForever() {
+    $("#id_silenced_until").val(2000000000);
+    setSilencedDescriptionFromField();
+}
+
+function setUnSilenced() {
+    $("#id_silenced_until").val(0);
+    setSilencedDescriptionFromField();
+}
+
+function setSilencedForXHours() {
+    var hoursToSilenceFor = parseFloat($("#silence_hours").val());
+    setSilencedFor(hoursToSilenceFor * 60 * 60);
+}
+
 function init(container$) {    
     console.log("hello")
     if(typeof(container$)==='undefined') container$ = $('body');
@@ -239,6 +299,18 @@ function init(container$) {
 	    }
     	});
     });
+
+    setSilencedDescriptionFromField();
+    $('#id_silenced_until',container$).change(setSilencedDescriptionFromField);
+    $('#id_silenced_until',container$).click(setSilencedDescriptionFromField);
+    $('#id_silenced_until',container$).focus(setSilencedDescriptionFromField);
+    $('#id_silenced_until',container$).blur(setSilencedDescriptionFromField);
+    $('#id_silenced_until',container$).keyup(setSilencedDescriptionFromField);
+    $('#id_silenced_until',container$).keydown(setSilencedDescriptionFromField);
+
+    $('#unsilence',container$).click(setUnSilenced);
+    $('#silence_for_x_hours',container$).click(setSilencedForXHours);
+    $('#silence_forever',container$).click(setSilencedForever);
 
     $('form',container$).each(function() {
 	var form$ = $(this);
