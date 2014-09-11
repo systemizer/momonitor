@@ -4,7 +4,7 @@ croniter==0.3.3
 django-breadcrumbs==1.1.3-p1
 django-redis==3.1.6
 django-social-auth==0.7.18
-django-tastypie==0.9.12-alpha
+django-tastypie==0.9.14
 gevent==0.13.8
 greenlet==0.4.0
 gunicorn==0.17.2
