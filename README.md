@@ -16,7 +16,14 @@ To install Momonitor, follow the below steps:
 * python manage.py schemamigration main --initial
 * python manage.py syncdb
 * python manage.py migrate main
+* python manage.py migrate social_auth
 * python manage.py runserver
+
+Additionally, to get Momonitor working fully, you'll need to:
+
+* Create a crontab similar to the provided `crontab.template`
+* Start redis-server on port 6379
+    * This is Redis's default port, so you can do this by simply running `redis-server`
 
 # Overview
 
@@ -26,7 +33,7 @@ Momonitor is a simple tool that polls URL endpoints and runs checks on the respe
 Essentially two types of things exist in Momonitor: services and checks. Services and checks each have a status (good, bad, or unknown).  Services are a collection checks that test a specific system. Multiple types of checks exist; each tests  different aspects of the target system.
 
 ## What it isn't
-Momonitor is not a tool for finding errors on single machines. It lacks the functionality at peforming specific checks on specific machines. This is better done using a tool likSensu. Momonitor integration with sensu is in the works.
+Momonitor is not a tool for finding errors on single machines. It lacks the functionality at peforming specific checks on specific machines. This is better done using a tool like Sensu. Momonitor integration with sensu is in the works.
 
 ### Types of Checks
 * Simple Check - check a single URL endpoint and report whether the response was a 200 or 500
