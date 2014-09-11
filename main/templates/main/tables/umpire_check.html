@@ -18,10 +18,10 @@
   <tbody>
     {% if service.umpireservicecheck.count %}
     {% for check in service.umpireservicecheck.all|dictsort:"id" %}
-    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.silenced or service.silenced %}muted{% endif %}">
+    <tr class="{{check.status|to_bootstrap_rowclass}} {% if check.is_silenced or service.silenced %}muted{% endif %}">
       <td width="30%">
 	{{check.name}}
-	{% if check.silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}
+	{% if check.is_silenced or service.silenced %}<small class="muted">silenced</small>{% endif %}
 	<a class="modalize" href="{% url main:modal_form 'umpireservicecheck' check.id %}?sid={{service.id}}">
 	  <i class="icon-edit"></i>
 	</a>

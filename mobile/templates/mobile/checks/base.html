@@ -3,11 +3,11 @@
 {% block body %}
 <div data-role="page" data-add-back-btn="true" data-theme="a">
   <div data-role="header" data-position="inline">
-    <h1>Check: <small>{{check.name}} {% if check.silenced or check.service.silenced %}(silenced){% endif %}</small></h1>
+    <h1>Check: <small>{{check.name}} {% if check.is_silenced or check.service.silenced %}(silenced){% endif %}</small></h1>
     <a href="{% url mobile:service check.service.id %}" class="ui-btn-left">Back</a>
     {% if not check.service.silenced %}
     <a href="{% url main:silence check.resource_name check.id %}" class="ajaxify ui-btn-right">
-      {% if check.silenced %}Unsilence{% else %}Silence{% endif %}
+      {% if check.is_silenced %}Unsilence{% else %}Silence{% endif %}
     </a>
     {% endif %}      
   </div>
