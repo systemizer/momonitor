@@ -13,31 +13,37 @@
     {{form.umpire_check_type}}
     <label>Umpire Range Type</label>
     {{form.umpire_range_type}}
-  </div>
-  <div class="pull-right half">
-    <label>Silenced until (timestamp)</label>
-    {{form.silenced_until}}
     <label>Umpire Metric</label>
     {{form.umpire_metric}}
+  </div>
+  <div class="pull-right half">
+    <label id="silenced_description" style="font-weight: bold;">Silenced or Not Silenced?</label>
+    <label>Silenced until (timestamp)</label>
+    {{form.silenced_until}}
+    <label> <a id="unsilence">UnSilence</a> </label>
+    <label> <a id="silence_for_x_hours">Silence for <input type="text" id="silence_hours" value="0.5" style="width:30px;"> hours</a> </label>
+    <label> <a id="silence_forever">Silence forever</a> </label>
+    <label>-----</label>
     <div class="choicebox" data-name="umpire_check_type">
       <div class="choice" id="static">
-	<label>Umpire Min</label>
-	{{form.umpire_min}}
-	<label>Umpire Max</label>
-	{{form.umpire_max}}
+        <label>Umpire Min</label>
+        {{form.umpire_min}}
+        <label>Umpire Max</label>
+        {{form.umpire_max}}
       </div>
       <div class="choice" id="dynamic">
-	<label>Percent Error (from guessed value)</label>
-	{{form.umpire_percent_error}}
-	<i class="muted">Error range will be computed over time based on past history</i>
+        <label>Percent Error (from guessed value)</label>
+        {{form.umpire_percent_error}}
+        <i class="muted">Error range will be computed over time based on past history</i>
       </div>
+    </div>
     <div class="choicebox" data-name="umpire_range_type">
       <div class="choice" id="current">
-	<label>Umpire Range</label>
-	{{form.umpire_range}}
+        <label>Umpire Range</label>
+        {{form.umpire_range}}
       </div>
       <div class="choice" id="day">
-	<i class="muted">Range will be computed from the beginning of the day</i>
+        <i class="muted">Range will be computed from the beginning of the day</i>
       </div>
     </div>
   </div>
