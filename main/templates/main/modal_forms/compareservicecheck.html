@@ -9,9 +9,6 @@
     {{form.name}}
     <label>Description</label>
     {{form.description}}
-  </div>
-  <div class="pull-right">
-    <label class="checkbox">{{form.silenced}} Silenced</label>
     <label>URL Endpoint</label>
     {{form.endpoint}}
     <label>Serialization</label>
@@ -20,6 +17,14 @@
     {{form.field}}
     <label>Comparator</label>
     {{form.comparator}} {{form.compared_value}}
+  </div>
+  <div class="pull-right">
+    <label id="silenced_description" style="font-weight: bold;">Silenced or Not Silenced?</label>
+    <label>Silenced until (timestamp)</label>
+    {{form.silenced_until}}
+    <label> <a id="unsilence">UnSilence</a> </label>
+    <label> <a id="silence_for_x_hours">Silence for <input type="text" id="silence_hours" value="0.5" style="width:30px;"> hours</a> </label>
+    <label> <a id="silence_forever">Silence forever</a> </label>
   </div>
   <div class="clearfix"></div>
 </fieldset>

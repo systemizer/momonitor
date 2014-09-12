@@ -9,11 +9,16 @@
     {{form.name}}
     <label>Description</label>
     {{form.description}}
-  </div>
-  <div class="pull-right half">
-    <label class="checkbox">{{form.silenced}} Silenced</label>
     <label>Code File</label>
     {{form.code_file}}
+  </div>
+  <div class="pull-right half">
+    <label id="silenced_description" style="font-weight: bold;">Silenced or Not Silenced?</label>
+    <label>Silenced until (timestamp)</label>
+    {{form.silenced_until}}
+    <label> <a id="unsilence">UnSilence</a> </label>
+    <label> <a id="silence_for_x_hours">Silence for <input type="text" id="silence_hours" value="0.5" style="width:30px;"> hours</a> </label>
+    <label> <a id="silence_forever">Silence forever</a> </label>
   </div>
   <div class="clearfix"></div>
 </fieldset>

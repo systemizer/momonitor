@@ -19,13 +19,17 @@ class ServiceCheck(BaseModel):
     name = models.CharField(max_length=256)
     description = models.TextField(null=True,blank=True)    
     service = models.ForeignKey(Service,related_name="%(class)s")
-    silenced = models.BooleanField(default=False)
+    silenced_until = models.IntegerField(default=0) # This is a timestamp (seconds since unix epoch).
     alert_type = models.CharField(max_length=64,choices=ALERT_CHOICES,null=True,blank=True)
     frequency = models.CharField(max_length=128,null=True,blank=True)
     failures_before_alert = models.IntegerField(null=True,blank=True)
 
     def __unicode__(self):
         return "%s: %s" % (self.service.name,self.name)
+
+    @property
+    def is_silenced(self):
+        return time.time() < self.silenced_until
 
     @property
     def _redis_key(self):
@@ -70,7 +74,7 @@ class ServiceCheck(BaseModel):
         return self._get_state().get("num_failures",0)
 
     def send_alert(self,alert_type=None):
-        if not self.silenced:
+        if not self.is_silenced:
             self.service.send_alert(self.description or self.name,alert_type)
         else:
             logging.info("Triggered alert on %s, but it is silenced" % self.name)
