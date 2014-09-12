@@ -77,6 +77,7 @@ class Service(BaseModel):
         if not self.email_contact:
             logging.warning("No email contact for service %s" % self.name)
         try:
+            title = "{} Service Check Failed: {}".format(self.name, description)
             email_msg = get_template("alert_email.txt").render(
                 Context({"description":description,
                          "service_name":self.name,
@@ -87,7 +88,7 @@ class Service(BaseModel):
                          })
                 )
                     
-            send_mail("MOMONITOR EVENT TRIGGERED",
+            send_mail(title,
                       email_msg,
                       settings.SERVER_EMAIL,
                       [self.email_contact,],
